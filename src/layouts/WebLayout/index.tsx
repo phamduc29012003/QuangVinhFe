@@ -1,18 +1,5 @@
-import { type ReactNode } from 'react'
-import { useIsMobile } from '@/hooks/use-mobile.ts'
-
-interface WebLayoutProps {
-  children: ReactNode
-}
-
-const WebLayout = ({ children }: WebLayoutProps) => {
-  const isMobile = useIsMobile()
-
-  if (isMobile) {
-    return null
-  }
-
-  return <div>{children}</div>
+const WebLayout = () => {
+  return <div>May Tinh</div>
 }
 
 export default WebLayout
