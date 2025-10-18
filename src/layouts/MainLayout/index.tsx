@@ -1,17 +1,17 @@
 import { Outlet } from 'react-router'
 import { isMobile } from 'react-device-detect'
-import { FiActivity } from 'react-icons/fi'
 import WebLayout from '../WebLayout'
 import MobileLayout from '../MobileLayout'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 const MainLayout = () => {
-  const Layout = isMobile ? MobileLayout : WebLayout
+  const isMobileDevice = useIsMobile()
+  const Layout = isMobileDevice || isMobile ? MobileLayout : WebLayout
 
   return (
-    <div>
-      <Layout />
+    <Layout>
       <Outlet />
-    </div>
+    </Layout>
   )
 }
 
