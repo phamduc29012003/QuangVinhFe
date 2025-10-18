@@ -1,10 +1,14 @@
 import AuthLayout from '@/layouts/AuthLayout'
-import MainLayout from '@/layouts/MainLayout'
 import { createBrowserRouter, Navigate } from 'react-router'
 import PrivateRoute from './PrivateRoute'
 import Register from '@/pages/Auth/Register'
 import Login from '@/pages/Auth/Login'
 import Dashboard from '@/pages/Dashboard'
+import Personnel from '@/pages/Personnel'
+import Assignments from '@/pages/Assignments'
+import Documents from '@/pages/Documents'
+import MainLayout from '@/layouts/MainLayout'
+import Profile from '@/pages/Profile'
 
 const router = createBrowserRouter([
   {
@@ -22,6 +26,22 @@ const router = createBrowserRouter([
       {
         path: 'dashboard',
         element: <Dashboard />,
+      },
+      {
+        path: 'personnel',
+        element: <Personnel />,
+      },
+      {
+        path: 'assignments',
+        element: <Assignments />,
+      },
+      {
+        path: 'documents',
+        element: <Documents />,
+      },
+      {
+        path: 'profile',
+        element: <Profile />,
       },
     ],
   },
