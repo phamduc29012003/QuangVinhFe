@@ -27,6 +27,8 @@ export interface INavigateItems {
   expanded?: boolean
   subItems?: { label: string; href: string }[]
 }
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { useAuthStore } from '@/stores/authStore'
 
 const WebLayout = ({ children }: Props) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -34,7 +36,11 @@ const WebLayout = ({ children }: Props) => {
 
   const location = useLocation()
   const navigate = useNavigate()
-
+  const { logout } = useAuthStore()
+  const handleLogout = () => {
+    navigate('/login')
+    logout()
+  }
   const toggleExpanded = (item: string) => {
     const newExpanded = new Set(expandedItems)
     if (newExpanded.has(item)) {
@@ -170,7 +176,14 @@ const WebLayout = ({ children }: Props) => {
         <header className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-            <div className="flex items-center gap-4">Ho so</div>
+            <Popover>
+              <PopoverTrigger>Ho so</PopoverTrigger>
+              <PopoverContent className="w-[100px]">
+                <Button onClick={() => handleLogout()} variant="ghost">
+                  <span className="text-sm">Cook</span>
+                </Button>
+              </PopoverContent>
+            </Popover>
           </div>
         </header>
 
