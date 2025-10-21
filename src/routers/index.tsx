@@ -1,6 +1,7 @@
 import AuthLayout from '@/layouts/AuthLayout'
 import { createBrowserRouter, Navigate } from 'react-router'
 import PrivateRoute from './PrivateRoute'
+import PublichRoute from './PublichRoute'
 import Register from '@/pages/Auth/Register'
 import Login from '@/pages/Auth/Login'
 import Dashboard from '@/pages/Dashboard'
@@ -13,11 +14,7 @@ import Profile from '@/pages/Profile'
 const router = createBrowserRouter([
   {
     path: '/',
-    element: (
-      <PrivateRoute>
-        <MainLayout />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute children={<MainLayout />}></PrivateRoute>,
     children: [
       {
         index: true,
@@ -46,7 +43,7 @@ const router = createBrowserRouter([
     ],
   },
   {
-    element: <AuthLayout />,
+    element: <PublichRoute children={<AuthLayout />}></PublichRoute>,
     path: '/login',
     children: [
       {
