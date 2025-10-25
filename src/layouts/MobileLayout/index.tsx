@@ -4,14 +4,16 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 
 const MobileLayout = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <ScrollArea className="h-screen">
-        <main className="pb-20 ph-10 min-h-screen">
+    <div className="relative flex flex-col min-h-screen bg-background">
+      <ScrollArea className="flex-1">
+        <main className="pb-20 px-4 min-h-screen">
           <Outlet />
         </main>
       </ScrollArea>
 
-      <MobileBottomNav />
+      <div className="fixed bottom-0 left-0 right-0 z-50">
+        <MobileBottomNav />
+      </div>
     </div>
   )
 }

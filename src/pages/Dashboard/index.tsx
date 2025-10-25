@@ -1,5 +1,7 @@
+import TableBaseDemo from '@/components/base/DataTable/demo'
+
 const Dashboard = () => {
-  return <div>dashboard</div>
+  return <TableBaseDemo />
 }
 
 export default Dashboard
