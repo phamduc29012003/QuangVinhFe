@@ -96,7 +96,7 @@ const WebLayout = ({ children }: Props) => {
   ]
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 ">
       <div
         className={cn(
           'bg-white border-r border-gray-200 flex flex-col transition-all duration-300',
@@ -187,7 +187,7 @@ const WebLayout = ({ children }: Props) => {
           </div>
         </header>
 
-        <main className="flex-1 p-6 bg-gray-50 relative">
+        <main className="flex-1 bg-gray-50 relative overflow-auto p-6 h-[calc(100vh-64px)]">
           {children}
 
           <div className="fixed bottom-6 right-6">
