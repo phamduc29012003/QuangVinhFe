@@ -1,7 +1,2 @@
-import TableBaseDemo from '@/components/base/DataTable/demo'
-
-const Dashboard = () => {
-  return <TableBaseDemo />
-}
-
-export default Dashboard
+export { default as DashboardWeb } from './Web'
+export { default as DashboardMobile } from './Mobile'
