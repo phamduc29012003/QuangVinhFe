@@ -1,4 +1,2 @@
-const Profile = () => {
-  return <div>Profile Page</div>
-}
-export default Profile
+export { default as ProfileWeb } from './Web'
+export { default as ProfileMobile } from './Mobile'

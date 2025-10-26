@@ -17,26 +17,25 @@ const navItems: NavItem[] = [
     id: 'home',
     label: 'Trang chủ',
     icon: Home,
-    path: '/dashboard',
+    path: '/mobile/dashboard',
   },
   {
     id: 'assignments',
     label: 'Công việc',
     icon: FileText,
-    path: '/assignments',
+    path: '/mobile/assignments',
   },
-
   {
     id: 'documents',
     label: 'Tài liệu',
     icon: BookOpen,
-    path: '/documents',
+    path: '/mobile/documents',
   },
   {
     id: 'profile',
     label: 'Cá nhân',
     icon: User,
-    path: '/profile',
+    path: '/mobile/profile',
   },
 ]
 
@@ -45,7 +44,11 @@ const MobileBottomNav = () => {
   const navigate = useNavigate()
 
   const isActive = (path: string) => {
-    return location.pathname === path || (path === '/dashboard' && location.pathname === '/')
+    return location.pathname === path
+  }
+
+  const handleNavigate = (path: string) => {
+    navigate(path)
   }
 
   return (
@@ -61,7 +64,7 @@ const MobileBottomNav = () => {
               key={item.id}
               variant="ghost"
               size="sm"
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNavigate(item.path)}
               className={cn(
                 'flex flex-col items-center justify-center py-2 px-3 min-w-0 flex-1 h-auto',
                 'hover:bg-blue-50',

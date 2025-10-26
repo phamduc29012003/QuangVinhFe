@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react'
+import { type ReactNode, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Home,
@@ -32,15 +32,17 @@ import { useAuthStore } from '@/stores/authStore'
 
 const WebLayout = ({ children }: Props) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set(['assignments']))
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
 
   const location = useLocation()
   const navigate = useNavigate()
   const { logout } = useAuthStore()
+
   const handleLogout = () => {
     navigate('/login')
     logout()
   }
+
   const toggleExpanded = (item: string) => {
     const newExpanded = new Set(expandedItems)
     if (newExpanded.has(item)) {
@@ -62,6 +64,26 @@ const WebLayout = ({ children }: Props) => {
     }
   }
 
+  const handleSubItemNavigate = (href: string) => {
+    navigate(href)
+  }
+
+  useEffect(() => {
+    const path = location.pathname
+
+    const submenuMapping: Record<string, string[]> = {
+      personnel: ['/personnel/list', '/personnel/on-leave', '/personnel/positions'],
+      documents: ['/documents/my', '/documents/shared'],
+      // 'assignments': ['/assignments/pending', '/assignments/completed'],
+    }
+
+    Object.entries(submenuMapping).forEach(([parentId, subPaths]) => {
+      if (subPaths.some((subPath) => path === subPath)) {
+        setExpandedItems((prev) => new Set(prev).add(parentId))
+      }
+    })
+  }, [location.pathname])
+
   const navigationItems: INavigateItems[] = [
     {
       id: 'dashboard',
@@ -74,8 +96,15 @@ const WebLayout = ({ children }: Props) => {
       id: 'personnel',
       label: 'Nhân sự',
       icon: FileText,
-      active: location.pathname === '/personnel',
+      active: location.pathname.startsWith('/personnel'),
       href: '/personnel',
+      hasSubmenu: true,
+      expanded: expandedItems.has('personnel'),
+      subItems: [
+        { label: 'Danh sách nhân sự', href: '/personnel/list' },
+        { label: 'Quản lý lịch nghỉ', href: '/personnel/on-leave' },
+        { label: 'Chức vụ', href: '/personnel/positions' },
+      ],
     },
     {
       id: 'assignments',
@@ -89,9 +118,14 @@ const WebLayout = ({ children }: Props) => {
       id: 'documents',
       label: 'Tài liệu',
       icon: FileIcon,
-      active: location.pathname === '/documents',
-      hasSubmenu: false,
+      active: location.pathname.startsWith('/documents'),
+      hasSubmenu: true,
+      expanded: expandedItems.has('documents'),
       href: '/documents',
+      subItems: [
+        { label: 'Tài liệu của tôi', href: '/documents/my' },
+        { label: 'Tài liệu được chia sẻ', href: '/documents/shared' },
+      ],
     },
   ]
 
@@ -99,7 +133,7 @@ const WebLayout = ({ children }: Props) => {
     <div className="flex h-screen bg-gray-50 ">
       <div
         className={cn(
-          'bg-white border-r border-gray-200 flex flex-col transition-all duration-300',
+          'bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ease-in-out',
           isCollapsed ? 'w-18' : 'w-80'
         )}
       >
@@ -117,41 +151,59 @@ const WebLayout = ({ children }: Props) => {
               <Button
                 variant="ghost"
                 className={cn(
-                  'w-full justify-start h-12 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-700',
+                  'w-full justify-start h-12 px-4 text-gray-700 transition-all duration-200 ease-in-out hover:bg-blue-50 hover:text-blue-700 hover:translate-x-1 group',
                   item.active && 'bg-blue-50 text-blue-700',
                   isCollapsed && 'px-2'
                 )}
                 onClick={() => handleNavigate(item)}
               >
-                <item.icon className="w-5 h-5" />
+                <item.icon className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
                 {!isCollapsed && (
                   <>
                     <span className="ml-3 flex-1 text-left">{item.label}</span>
                     {item.hasSubmenu && (
                       <div className="flex items-center gap-2">
-                        <Plus className="w-4 h-4" />
-                        {item.expanded ? (
-                          <ChevronUp className="w-4 h-4" />
-                        ) : (
-                          <ChevronUp className="w-4 h-4 rotate-180" />
-                        )}
+                        <Plus className="w-4 h-4 transition-transform duration-300" />
+                        <ChevronUp
+                          className={cn(
+                            'w-4 h-4 transition-transform duration-300 ease-in-out',
+                            item.expanded ? 'rotate-180' : ''
+                          )}
+                        />
                       </div>
                     )}
                   </>
                 )}
               </Button>
 
-              {item?.hasSubmenu && item?.subItems && !isCollapsed && item?.expanded && (
-                <div className="ml-8 mt-2 space-y-1">
-                  {item?.subItems?.map((subItem: any, index: number) => (
-                    <Button
-                      key={index}
-                      variant="ghost"
-                      className="w-full justify-start h-10 px-4 text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                    >
-                      <span className="text-sm">{subItem.label}</span>
-                    </Button>
-                  ))}
+              {item?.hasSubmenu && item?.subItems && !isCollapsed && expandedItems.has(item.id) && (
+                <div
+                  className="ml-8 mt-2 space-y-1 overflow-hidden"
+                  style={{
+                    animation: 'slideDown 0.3s ease-out',
+                  }}
+                >
+                  {item?.subItems?.map((subItem: any, index: number) => {
+                    const isSubItemActive = location.pathname === subItem.href
+                    return (
+                      <Button
+                        key={index}
+                        variant="ghost"
+                        className={cn(
+                          'w-full justify-start h-10 px-4 text-sm transition-all duration-200 ease-in-out transform hover:translate-x-1 hover:shadow-sm',
+                          isSubItemActive
+                            ? 'bg-blue-50 text-blue-700 font-medium shadow-sm'
+                            : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
+                        )}
+                        onClick={() => handleSubItemNavigate(subItem.href)}
+                        style={{
+                          animation: `fadeIn 0.3s ease-out ${index * 0.05}s both`,
+                        }}
+                      >
+                        <span className="transition-colors duration-200">{subItem.label}</span>
+                      </Button>
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -165,7 +217,10 @@ const WebLayout = ({ children }: Props) => {
             onClick={() => setIsCollapsed(!isCollapsed)}
           >
             <ChevronLeft
-              className={cn('w-5 h-5 transition-transform', isCollapsed && 'rotate-180')}
+              className={cn(
+                'w-5 h-5 transition-transform duration-300 ease-in-out',
+                isCollapsed && 'rotate-180'
+              )}
             />
             {!isCollapsed && <span className="ml-3">Thu gọn sidebar</span>}
           </Button>
