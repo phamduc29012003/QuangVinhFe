@@ -5,29 +5,36 @@ import { z } from 'zod'
 import { User, Lock, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { loginSchema } from '@/schemas/Auth'
+import { registerSchema } from '@/schemas/Auth'
 import { useNavigate } from 'react-router'
 import SonnerToaster from '@/components/ui/toaster'
+import { useRegister } from '@/hooks/authenication/useRegister'
 
-type LoginFormData = z.infer<typeof loginSchema>
+type RegisterFormData = z.infer<typeof registerSchema>
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const navigate = useNavigate()
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
   })
+  const { registerMutation } = useRegister()
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: RegisterFormData) => {
     // call login mutation
-    if (data.username === 'admin' && data.password === 'admin') {
-      localStorage.setItem('token', 'token')
-      console.log('Login success')
-      navigate('/dashboard')
+    if (errors.confirmPassword === undefined) {
+      registerMutation.mutate(data)
+      SonnerToaster({
+        type: 'success',
+        message: 'Đăng ký thành công',
+        description: 'Have a nice day nigga!',
+      })
+      navigate('/login')
     } else {
       // login failed
       SonnerToaster({
@@ -37,6 +44,27 @@ const Register = () => {
       })
     }
   }
+
+  // const handleRegister = async (formData: TRegisterFormSchema) => {
+  //   setErrorMessage('');
+  //   registerMutation.mutate(formData, {
+  //     onSuccess: (response: AxiosResponse<TRegisterResponse>) => {
+  //       console.log(response.data);
+  //       const data = response.data;
+  //       localStorage.setItem('token', data.token);
+  //       navigate('/dashboard');
+  //     },
+  //     onError: (error: any) => {
+  //       if (error?.status === 404) {
+  //         setErrorMessage(
+  //           'Tên đăng nhập hoặc mật khẩu không chính xác',
+  //         );
+  //         return;
+  //       }
+  //       setErrorMessage(FORM_COMMON_MESSAGE.API_ERROR);
+  //     },
+  //   });
+  // };
 
   return (
     <div className="relative z-10 w-full max-w-md">
@@ -51,7 +79,7 @@ const Register = () => {
               <Input
                 {...register('username')}
                 type="text"
-                placeholder="Username"
+                placeholder="Tên đăng nhập"
                 className="pl-10 h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
@@ -79,22 +107,49 @@ const Register = () => {
             {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
           </div>
 
-          {/* Login Button */}
+          <div className="space-y-2">
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Input
+                {...register('confirmPassword')}
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder="Xác nhận mật khẩu"
+                className="pl-10 pr-10 h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>
+            )}
+          </div>
+
+          {/* Register Button */}
           <Button
             type="submit"
             disabled={isSubmitting}
             className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors"
           >
-            {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
+            {isSubmitting ? 'Đang đăng ký...' : 'Đăng ký'}
           </Button>
-
-          {/* Forgot Password Link */}
-          <div className="text-center">
-            <button type="button" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-              Quên mật khẩu
-            </button>
-          </div>
         </form>
+
+        {/* Sign in link */}
+        <div className="mt-6 text-center">
+          <span className="text-gray-600 text-sm">Đã có tài khoản? </span>
+          <button
+            type="button"
+            onClick={() => navigate('/login')}
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium cursor-pointer"
+          >
+            Đăng nhập ngay
+          </button>
+        </div>
       </div>
     </div>
   )

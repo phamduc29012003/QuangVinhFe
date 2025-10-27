@@ -95,6 +95,18 @@ const Login = () => {
             </button>
           </div>
         </form>
+
+        {/* Sign up link */}
+        <div className="mt-6 text-center">
+          <span className="text-gray-600 text-sm">Chưa có tài khoản? </span>
+          <button
+            type="button"
+            onClick={() => navigate('/register')}
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium cursor-pointer"
+          >
+            Đăng ký ngay
+          </button>
+        </div>
       </div>
     </div>
   )
