@@ -3,11 +3,11 @@ import { toast } from 'sonner'
 const SonnerToaster = ({
   type,
   message,
-  description,
+  description = '',
 }: {
   type: 'success' | 'error'
   message: string
-  description: string
+  description?: string
 }) => {
   return toast[type](message, {
     description: description,

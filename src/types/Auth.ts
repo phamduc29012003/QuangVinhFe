@@ -1,4 +1,6 @@
+import type { loginSchema, registerSchema } from '@/schemas/Auth'
 import type { User } from './User'
+import type { z } from 'zod'
 
 export interface AuthState {
   user: User | null
@@ -27,3 +29,6 @@ export interface RegisterResponse {
   user: User
   token: string
 }
+
+export type RegisterFormData = z.infer<typeof registerSchema>
+export type LoginFormData = z.infer<typeof loginSchema>
