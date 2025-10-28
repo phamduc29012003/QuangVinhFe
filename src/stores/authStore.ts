@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { devtools } from 'zustand/middleware'
 import type { AuthStore, LoginResponse, RegisterResponse, ApiError } from '@/types'
-import { login as authLogin, logout as authLogout } from '../utils/auth'
+import { setTokenAuth as authLogin, logout as authLogout } from '../utils/auth'
 import { POST } from '../core/api'
 
 export const useAuthStore = create<AuthStore>()(
