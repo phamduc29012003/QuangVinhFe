@@ -3,7 +3,7 @@ export const getAuthorization = () => {
   return token ? `Bearer ${token}` : undefined
 }
 
-export const login = (token: string) => {
+export const setTokenAuth = (token: string) => {
   localStorage.setItem('token', token)
 }
 
