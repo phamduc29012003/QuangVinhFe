@@ -1,25 +1,25 @@
 // services/api.ts
-import { getTokenAuth } from '@/utils/auth'
+import SonnerToaster from '@/components/ui/toaster'
+import { getAuthorization } from '@/utils/auth'
 import axios, { type AxiosRequestConfig } from 'axios'
 
 // Flag để tránh check lỗi 401 khi login
 let isLoginRequest = false
 
+// Trong development: baseURL = '' để dùng vite proxy
+// Trong production: baseURL từ env hoặc default backend URL
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
+  baseURL: import.meta.env.VITE_BASE_URL || 'https://qv-mobile-backend.onrender.com',
   timeout: 10000,
 })
 
 // Attach JWT to every request if exists
 api.interceptors.request.use(
   (config) => {
-    const token = getTokenAuth()
+    const token = getAuthorization()
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-
-    if (config.url?.includes('/auth/login')) {
-      isLoginRequest = true
+      config.headers.Authorization = token
     }
 
     return config
@@ -31,13 +31,18 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     isLoginRequest = false
-    return response.data
+    return response
   },
   (error) => {
     const status = error.response?.status
 
     if (status === 401 && !isLoginRequest) {
-      //   toast.error("Unauthorized. Please again.");
+      // Sonner Toaster
+      SonnerToaster({
+        type: 'error',
+        message: 'Unauthorized',
+        description: error.response?.data?.message,
+      })
     }
 
     isLoginRequest = false
@@ -62,7 +67,8 @@ export const GET = async (
     const res = await api.get(urlWithQuery, config)
     return config.rawResponse ? res : res.data
   } catch (e) {
-    return e
+    console.error(e)
+    throw e
   }
 }
 
@@ -71,7 +77,8 @@ export const POST = async (url: string, params: any, config: RequestConfig = {})
     const res = await api.post(url, params, config)
     return config.rawResponse ? res : res.data
   } catch (e) {
-    return e
+    console.error(e)
+    throw e
   }
 }
 
@@ -80,7 +87,8 @@ export const PUT = async (url: string, params: any, config: RequestConfig = {}) 
     const res = await api.put(url, params, config)
     return config.rawResponse ? res : res.data
   } catch (e) {
-    return e
+    console.error(e)
+    throw e
   }
 }
 
@@ -89,6 +97,12 @@ export const DELETE = async (url: string, config: RequestConfig = {}) => {
     const res = await api.delete(url, config)
     return config.rawResponse ? res : res.data
   } catch (e) {
-    return e
+    console.error(e)
+    throw e
   }
 }
+
+// 67:3  error  Unnecessary try/catch wrapper  no-useless-catch
+// 76:3  error  Unnecessary try/catch wrapper  no-useless-catch
+// 85:3  error  Unnecessary try/catch wrapper  no-useless-catch
+// 94:3  error  Unnecessary try/catch wrapper  no-useless-catch

@@ -1,16 +1,13 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { User, Lock, Eye, EyeOff } from 'lucide-react'
+import { User, Lock, Eye, EyeOff, Mail, Phone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { registerSchema } from '@/schemas/Auth'
 import { useNavigate } from 'react-router'
-import SonnerToaster from '@/components/ui/toaster'
 import { useRegister } from '@/hooks/authenication/useRegister'
-
-type RegisterFormData = z.infer<typeof registerSchema>
+import type { RegisterFormData } from '@/types/Auth'
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -19,52 +16,19 @@ const Register = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   })
   const { registerMutation } = useRegister()
 
   const onSubmit = async (data: RegisterFormData) => {
-    // call login mutation
-    if (errors.confirmPassword === undefined) {
-      registerMutation.mutate(data)
-      SonnerToaster({
-        type: 'success',
-        message: 'Đăng ký thành công',
-        description: 'Have a nice day nigga!',
-      })
-      navigate('/login')
-    } else {
-      // login failed
-      SonnerToaster({
-        type: 'error',
-        message: 'Đăng nhập thất bại',
-        description: 'Tên đăng nhập hoặc mật khẩu không chính xác',
-      })
-    }
+    registerMutation.mutate(data, {
+      onSuccess: () => {
+        navigate('/login')
+      },
+    })
   }
-
-  // const handleRegister = async (formData: TRegisterFormSchema) => {
-  //   setErrorMessage('');
-  //   registerMutation.mutate(formData, {
-  //     onSuccess: (response: AxiosResponse<TRegisterResponse>) => {
-  //       console.log(response.data);
-  //       const data = response.data;
-  //       localStorage.setItem('token', data.token);
-  //       navigate('/dashboard');
-  //     },
-  //     onError: (error: any) => {
-  //       if (error?.status === 404) {
-  //         setErrorMessage(
-  //           'Tên đăng nhập hoặc mật khẩu không chính xác',
-  //         );
-  //         return;
-  //       }
-  //       setErrorMessage(FORM_COMMON_MESSAGE.API_ERROR);
-  //     },
-  //   });
-  // };
 
   return (
     <div className="relative z-10 w-full max-w-md">
@@ -72,18 +36,45 @@ const Register = () => {
         <h1 className="text-2xl font-bold text-gray-900 text-center mb-8">Đăng ký tài khoản</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Email Field */}
+          <div className="space-y-2">
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Input
+                {...register('email')}
+                type="text"
+                placeholder="Email"
+                className="pl-10 h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+          </div>
+
+          {/* Phone Field */}
+          <div className="space-y-2">
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Input
+                {...register('phone')}
+                type="text"
+                placeholder="Số điện thoại"
+                className="pl-10 h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            {errors.phone && <p className="text-red-500 text-sm">{errors.phone.message}</p>}
+          </div>
           {/* Username Field */}
           <div className="space-y-2">
             <div className="relative">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
-                {...register('username')}
+                {...register('name')}
                 type="text"
                 placeholder="Tên đăng nhập"
                 className="pl-10 h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
-            {errors.username && <p className="text-red-500 text-sm">{errors.username.message}</p>}
+            {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
           </div>
 
           {/* Password Field */}
@@ -132,10 +123,10 @@ const Register = () => {
           {/* Register Button */}
           <Button
             type="submit"
-            disabled={isSubmitting}
+            disabled={registerMutation.isPending}
             className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors"
           >
-            {isSubmitting ? 'Đang đăng ký...' : 'Đăng ký'}
+            {registerMutation.isPending ? 'Đang đăng ký...' : 'Đăng ký'}
           </Button>
         </form>
 

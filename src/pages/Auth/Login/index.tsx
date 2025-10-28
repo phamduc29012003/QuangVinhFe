@@ -1,15 +1,13 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { User, Lock, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { loginSchema } from '@/schemas/Auth'
 import { useNavigate } from 'react-router'
-import SonnerToaster from '@/components/ui/toaster'
-
-type LoginFormData = z.infer<typeof loginSchema>
+import type { LoginFormData } from '@/types/Auth'
+import { useLogin } from '@/hooks/authenication/useLogin'
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -17,25 +15,15 @@ const Login = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   })
 
+  const { loginMutation } = useLogin()
+
   const onSubmit = async (data: LoginFormData) => {
-    // call login mutation
-    if (data.username === 'admin' && data.password === 'admin') {
-      localStorage.setItem('token', 'token')
-      console.log('Login success')
-      navigate('/dashboard')
-    } else {
-      // login failed
-      SonnerToaster({
-        type: 'error',
-        message: 'Đăng nhập thất bại',
-        description: 'Tên đăng nhập hoặc mật khẩu không chính xác',
-      })
-    }
+    loginMutation.mutate(data)
   }
 
   return (
@@ -49,13 +37,13 @@ const Login = () => {
             <div className="relative">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
-                {...register('username')}
+                {...register('email')}
                 type="text"
                 placeholder="Username"
                 className="pl-10 h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
-            {errors.username && <p className="text-red-500 text-sm">{errors.username.message}</p>}
+            {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
           </div>
 
           {/* Password Field */}
@@ -82,10 +70,10 @@ const Login = () => {
           {/* Login Button */}
           <Button
             type="submit"
-            disabled={isSubmitting}
+            disabled={loginMutation.isPending}
             className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors"
           >
-            {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
+            {loginMutation.isPending ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </Button>
 
           {/* Forgot Password Link */}

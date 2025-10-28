@@ -1,6 +1,6 @@
-export const isAuthenticated = () => {
-  const token = localStorage.getItem('token')
-  return !!token
+export const getAuthorization = () => {
+  const token = getTokenAuth()
+  return token ? `Bearer ${token}` : undefined
 }
 
 export const login = (token: string) => {
@@ -13,4 +13,9 @@ export const logout = () => {
 
 export const getTokenAuth = () => {
   return localStorage.getItem('token')
+}
+
+export const isAuthenticated = () => {
+  const token = localStorage.getItem('token')
+  return !!token
 }
