@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { devtools } from 'zustand/middleware'
 import type { AuthStore, LoginResponse, RegisterResponse, ApiError } from '@/types'
-import { setTokenAuth as authLogin, logout as authLogout } from '../utils/auth'
+import { logout as authLogout, setTokenAuth } from '../utils/auth'
 import { POST } from '../core/api'
 
 export const useAuthStore = create<AuthStore>()(
@@ -22,7 +22,7 @@ export const useAuthStore = create<AuthStore>()(
             const response = (await POST('/auth/login', { email, password })) as LoginResponse
             const { user, token } = response
 
-            authLogin(token)
+            setTokenAuth(token as unknown as string)
 
             set({
               user,
@@ -55,7 +55,7 @@ export const useAuthStore = create<AuthStore>()(
             const { user, token } = response
 
             // Store token in localStorage
-            authLogin(token)
+            setTokenAuth(token as unknown as string)
 
             set({
               user,
