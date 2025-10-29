@@ -24,12 +24,7 @@ const Register = () => {
   const { registerMutation } = useRegister()
 
   const onSubmit = async (data: RegisterFormData) => {
-    const { confirmPassword, ...payload } = data
-    await registerMutation.mutateAsync(payload, {
-      onSuccess: () => {
-        navigate('/login')
-      },
-    })
+    await registerMutation.mutateAsync(data)
   }
 
   return (

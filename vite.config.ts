@@ -7,8 +7,7 @@ import path from 'node:path'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
-  // Backend URL - thay đổi theo backend của bạn
-  const VITE_BASE_URL = env.VITE_BASE_URL || 'https://qv-mobile-backend.onrender.com'
+  const VITE_BASE_URL = env.VITE_BASE_URL
 
   return {
     plugins: [
