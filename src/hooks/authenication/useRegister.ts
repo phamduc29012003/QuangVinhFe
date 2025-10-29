@@ -8,6 +8,7 @@ import type { AxiosResponse } from 'axios'
 export const useRegister = () => {
   const registerMutation = useMutation({
     mutationFn: async (data: any) => {
+      console.log('data', data)
       const response = await POST('/api/auth/register', data)
       return response as AxiosResponse<RegisterResponse>
     },

@@ -16,6 +16,6 @@ export const getTokenAuth = () => {
 }
 
 export const isAuthenticated = () => {
-  const token = localStorage.getItem('token')
+  const token = getTokenAuth()
   return !!token
 }

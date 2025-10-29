@@ -1,9 +1,7 @@
 import { Navigate, type RouteObject } from 'react-router'
 import {
   DashboardWeb,
-  AssignmentsWeb,
   DocumentsWeb,
-  ProfileWeb,
   PersonnelList,
   PersonnelDepartments,
   PersonnelPositions,
@@ -34,10 +32,6 @@ export const WebRoutes: RouteObject[] = [
     element: <PersonnelPositions />,
   },
   {
-    path: '/assignments',
-    element: <AssignmentsWeb />,
-  },
-  {
     path: '/documents',
     element: <DocumentsWeb />,
   },
@@ -48,9 +42,5 @@ export const WebRoutes: RouteObject[] = [
   {
     path: '/documents/shared',
     element: <DocumentsShared />,
-  },
-  {
-    path: '/profile',
-    element: <ProfileWeb />,
   },
 ]

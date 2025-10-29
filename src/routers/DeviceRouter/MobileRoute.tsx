@@ -1,11 +1,5 @@
 import { type RouteObject, Navigate } from 'react-router'
-import {
-  DashboardMobile,
-  PersonnelMobile,
-  AssignmentsMobile,
-  DocumentsMobile,
-  ProfileMobile,
-} from '@/pages'
+import { DashboardMobile, PersonnelMobile, DocumentsMobile } from '@/pages'
 import RoleRoute from '../RoleRoute/RoleRoute'
 
 export const MobileRoutes: RouteObject[] = [
@@ -22,15 +16,7 @@ export const MobileRoutes: RouteObject[] = [
     element: <RoleRoute allowedRoles={['director', 'manager']} children={<PersonnelMobile />} />,
   },
   {
-    path: 'assignments',
-    element: <AssignmentsMobile />,
-  },
-  {
     path: 'documents',
     element: <DocumentsMobile />,
-  },
-  {
-    path: 'profile',
-    element: <ProfileMobile />,
   },
 ]
