@@ -24,8 +24,6 @@ const Login = () => {
   const { loginMutation } = useLogin()
 
   const onSubmit = async (data: LoginFormData) => {
-    setTokenAuth('cccc')
-    navigate('/dashboard')
     await loginMutation.mutateAsync(data)
   }
 
