@@ -8,7 +8,6 @@ import { loginSchema } from '@/schemas/Auth'
 import { useNavigate } from 'react-router'
 import type { LoginFormData } from '@/types/Auth'
 import { useLogin } from '@/hooks/authenication/useLogin'
-import { setTokenAuth } from '@/utils/auth'
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
