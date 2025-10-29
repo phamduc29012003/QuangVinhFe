@@ -10,8 +10,8 @@ let isLoginRequest = false
 // Trong production: baseURL từ env hoặc default backend URL
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL || 'https://qv-mobile-backend.onrender.com',
-  timeout: 10000,
+  baseURL: import.meta.env.VITE_BASE_URL,
+  timeout: 30000,
 })
 
 // Attach JWT to every request if exists

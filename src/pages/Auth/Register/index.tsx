@@ -12,6 +12,7 @@ import type { RegisterFormData } from '@/types/Auth'
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
   const navigate = useNavigate()
   const {
     register,
@@ -23,7 +24,8 @@ const Register = () => {
   const { registerMutation } = useRegister()
 
   const onSubmit = async (data: RegisterFormData) => {
-    registerMutation.mutate(data, {
+    const { confirmPassword, ...payload } = data
+    await registerMutation.mutateAsync(payload, {
       onSuccess: () => {
         navigate('/login')
       },
@@ -98,6 +100,7 @@ const Register = () => {
             {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
           </div>
 
+          {/* Confirm Password Field */}
           <div className="space-y-2">
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -119,7 +122,6 @@ const Register = () => {
               <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>
             )}
           </div>
-
           {/* Register Button */}
           <Button
             type="submit"

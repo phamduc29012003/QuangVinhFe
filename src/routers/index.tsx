@@ -5,10 +5,12 @@ import PublichRoute from './RoleRoute/PublichRoute'
 import AuthLayout from '@/layouts/AuthLayout'
 import MainLayout from '@/layouts/MainLayout'
 import MobileLayout from '@/layouts/MobileLayout'
-import { Login, Register } from '@/pages'
+import { Login, Profile, Register } from '@/pages'
+import ResponsiveLayout from '@/layouts/ResponsiveLayout'
 import { WebRoutes } from './DeviceRouter/WebRoute'
 import { MobileRoutes } from './DeviceRouter/MobileRoute'
-
+import { ProjectAssignmentDetail } from '@/pages/Assignments/DetailProject/ProjectAssigmentDetail'
+import ProjectAssignment from '@/pages/Assignments/ProjectAssignment/Web'
 const router = createBrowserRouter([
   {
     path: '/',
@@ -19,6 +21,20 @@ const router = createBrowserRouter([
     path: '/mobile',
     element: <DeviceRouter children={<PrivateRoute children={<MobileLayout />} />} />,
     children: MobileRoutes,
+  },
+  {
+    path: '/assignments',
+    element: <PrivateRoute children={<ResponsiveLayout />} />,
+    children: [
+      {
+        index: true,
+        element: <ProjectAssignment />,
+      },
+      {
+        path: ':id',
+        element: <ProjectAssignmentDetail />,
+      },
+    ],
   },
   {
     element: <PublichRoute children={<AuthLayout />} />,
@@ -37,6 +53,16 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Register />,
+      },
+    ],
+  },
+  {
+    path: '/profile',
+    element: <PrivateRoute children={<ResponsiveLayout />} />,
+    children: [
+      {
+        index: true,
+        element: <Profile />,
       },
     ],
   },
