@@ -625,19 +625,6 @@ export function TableBase<T = any>({
           <Table className={cn(size === 'small' && 'text-sm', size === 'large' && 'text-base')}>
             <TableHeader>
               <TableRow>
-                {rowSelection && (
-                  <TableHead className="w-12">
-                    <input
-                      type="checkbox"
-                      checked={
-                        selectedRowKeys.length === paginatedData.length && paginatedData.length > 0
-                      }
-                      onChange={(e) => handleSelectAll(e.target.checked)}
-                      className="rounded border-input"
-                    />
-                  </TableHead>
-                )}
-
                 {columns
                   .filter((column) => {
                     const columnKey = column.key || column.dataIndex
@@ -713,17 +700,6 @@ export function TableBase<T = any>({
                       onClick={rowProps.onClick}
                       onDoubleClick={rowProps.onDoubleClick}
                     >
-                      {rowSelection && (
-                        <TableCell>
-                          <input
-                            type={rowSelection.type === 'radio' ? 'radio' : 'checkbox'}
-                            checked={selectedRowKeys.includes(key)}
-                            onChange={(e) => handleRowSelection(record, e.target.checked)}
-                            className="rounded border-input"
-                          />
-                        </TableCell>
-                      )}
-
                       {columns
                         .filter((column) => {
                           const columnKey = column.key || column.dataIndex

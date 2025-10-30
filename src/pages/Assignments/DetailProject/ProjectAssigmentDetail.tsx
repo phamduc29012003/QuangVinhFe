@@ -2,6 +2,9 @@ import React, { useMemo, useState } from 'react'
 import { useParams } from 'react-router'
 import CreateTaskModal, { type CreateTaskFormData } from '@/components/Assignments/CreateTaskModal'
 import { useAuthStore } from '@/stores/authStore'
+import TaskTable from '@/components/Assignments/ProjectDetailTable/TaskTable'
+import TaskList from '@/components/Assignments/ProjectDetailTable/TaskList'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 export type User = {
   id: string
@@ -26,12 +29,7 @@ export type Project = {
   tasks: Task[]
 }
 
-const STATUS_LABEL: Record<TaskStatus, string> = {
-  todo: 'To do',
-  in_progress: 'In progress',
-  done: 'Done',
-  blocked: 'Blocked',
-}
+//
 
 const DUMMY_USERS: User[] = [
   { id: 'u1', name: 'Alice' },
@@ -46,6 +44,7 @@ function generateId(prefix: string = 'id'): string {
 export const ProjectAssignmentDetail: React.FC = () => {
   const { id } = useParams()
   const authUser = useAuthStore((s) => s.user)
+  const isMobile = useIsMobile()
 
   const initialProject: Project = useMemo(
     () => ({
@@ -85,16 +84,7 @@ export const ProjectAssignmentDetail: React.FC = () => {
   const [project, setProject] = useState<Project>(initialProject)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
 
-  function updateTask(taskId: string, updater: (t: Task) => Task) {
-    setProject((prev) => ({
-      ...prev,
-      tasks: prev.tasks.map((t) => (t.id === taskId ? updater(t) : t)),
-    }))
-  }
-
-  function handleChangeStatus(taskId: string, status: TaskStatus) {
-    updateTask(taskId, (t) => ({ ...t, status }))
-  }
+  //
 
   function handleCreateTask(data: CreateTaskFormData) {
     const newTask: Task = {
@@ -131,11 +121,11 @@ export const ProjectAssignmentDetail: React.FC = () => {
         </button>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {project.tasks.map((task) => (
-          <TaskCard key={task.id} task={task} onChangeStatus={handleChangeStatus} />
-        ))}
-      </div>
+      {isMobile ? (
+        <TaskList tasks={project.tasks} assignees={DUMMY_USERS} />
+      ) : (
+        <TaskTable tasks={project.tasks} assignees={DUMMY_USERS} />
+      )}
 
       <CreateTaskModal
         open={isCreateOpen}
@@ -144,61 +134,6 @@ export const ProjectAssignmentDetail: React.FC = () => {
         onCreate={handleCreateTask}
         currentUserId={authUser?.id as unknown as string | undefined}
       />
-    </div>
-  )
-}
-
-function TaskCard(props: {
-  task: Task
-  onChangeStatus: (taskId: string, status: TaskStatus) => void
-}) {
-  const { task, onChangeStatus } = props
-
-  return (
-    <div
-      style={{
-        border: '1px solid #e5e7eb',
-        borderRadius: 8,
-        padding: 12,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 8,
-      }}
-    >
-      <div
-        style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center' }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <strong>{task.title}</strong>
-          {task.description ? <span style={{ color: '#6b7280' }}>{task.description}</span> : null}
-        </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <select
-            value={task.status}
-            onChange={(e) => onChangeStatus(task.id, e.target.value as TaskStatus)}
-            style={{ padding: 6, borderRadius: 6, border: '1px solid #d1d5db' }}
-          >
-            <option value="todo">{STATUS_LABEL['todo']}</option>
-            <option value="in_progress">{STATUS_LABEL['in_progress']}</option>
-            <option value="done">{STATUS_LABEL['done']}</option>
-            <option value="blocked">{STATUS_LABEL['blocked']}</option>
-          </select>
-        </div>
-      </div>
-
-      <div
-        style={{
-          display: 'flex',
-          gap: 16,
-          alignItems: 'center',
-          color: '#6b7280',
-          fontSize: 14,
-          flexWrap: 'wrap',
-        }}
-      >
-        <span>Status: {STATUS_LABEL[task.status]}</span>
-        <span>Estimate: {task.estimateHours ?? '-'} h</span>
-      </div>
     </div>
   )
 }
