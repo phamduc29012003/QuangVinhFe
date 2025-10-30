@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { Card, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea'
 import EditTaskModal from '@/components/Assignments/EditTaskModal'
 import { STATUS_LABEL } from '@/components/Assignments/ProjectDetailTable/columns'
 import type { TaskRow } from '@/components/Assignments/ProjectDetailTable/columns'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import {
@@ -22,9 +22,9 @@ import {
 } from 'lucide-react'
 
 const MOCK_USERS = [
-  { id: 'u1', name: 'Alice', avatar: '' },
-  { id: 'u2', name: 'Bob', avatar: '' },
-  { id: 'u3', name: 'Charlie', avatar: '' },
+  { id: 'u1', name: 'Alice', avatar: '/photo_2025-09-26_12-28-52 (2).jpg' },
+  { id: 'u2', name: 'Bob', avatar: '/photo_2025-09-26_12-28-52 (3).jpg' },
+  { id: 'u3', name: 'Charlie', avatar: '/photo_2025-09-26_12-28-54.jpg' },
 ]
 const MOCK_TASKS: TaskRow[] = [
   {
@@ -57,6 +57,7 @@ const MOCK_COMMENTS = [
     id: 'c1',
     userId: 'u3',
     userName: 'Charlie',
+    avatar: '/photo_2025-09-26_12-28-52 (2).jpg',
     content: 'Chỗ ước lượng t có thể làm nhanh hơn.',
     date: '2025-10-29T11:23:00Z',
   },
@@ -64,8 +65,33 @@ const MOCK_COMMENTS = [
     id: 'c2',
     userId: 'u1',
     userName: 'Alice',
+    avatar: '/photo_2025-09-26_12-28-52 (3).jpg',
     content: 'OK để t lên CI trước.',
     date: '2025-10-29T12:20:00Z',
+  },
+  {
+    id: 'c3',
+    userId: 'u2',
+    userName: 'Bob',
+    avatar: 'photo_2025-09-26_12-28-52.jpg',
+    content: 'OK để t lên CI trước.',
+    date: '2025-10-29T13:20:00Z',
+  },
+  {
+    id: 'c4',
+    userId: 'u3',
+    userName: 'Charlie',
+    avatar: '/photo_2025-09-26_12-28-53.jpg',
+    content: 'OK để t lên CI trước.',
+    date: '2025-10-29T14:20:00Z',
+  },
+  {
+    id: 'c5',
+    userId: 'u1',
+    userName: 'Alice',
+    avatar: '/photo_2025-09-26_12-28-54.jpg',
+    content: 'OK để t lên CI trước.',
+    date: '2025-10-29T15:20:00Z',
   },
 ]
 
@@ -78,6 +104,10 @@ export const DetailTask = () => {
   const [task, setTask] = useState(MOCK_TASKS.find((t) => t.id === id) || MOCK_TASKS[0])
   const assignee = useMemo(() => MOCK_USERS.find((u) => u.id === task?.assigneeId), [task])
   const assigner = MOCK_USERS[2]
+  const navigate = useNavigate()
+  function handleNavigate(userId: string) {
+    navigate(`/profile/${userId}`)
+  }
   function handleSaveTask(update: Partial<TaskRow>) {
     if (!task) return
     setTask((prev) => ({ ...prev!, ...update }))
@@ -88,11 +118,13 @@ export const DetailTask = () => {
       ...prev,
       {
         id: `c${Math.random().toString(36).slice(2, 8)}`,
-        userId: assigner.id,
-        userName: assigner.name,
+        userId: '123',
+        userName: 'John Doe',
+        avatar: '/photo_2025-09-26_12-28-52 (2).jpg',
         content: commentInput.trim(),
         date: new Date().toISOString(),
       },
+      ...comments,
     ])
     setCommentInput('')
   }
@@ -190,12 +222,21 @@ export const DetailTask = () => {
         <div className="flex flex-col gap-2">
           {comments.map((c) => (
             <div key={c.id} className="flex gap-2">
-              <Avatar className="size-8 text-xs">
+              <Avatar
+                onClick={() => handleNavigate('123')}
+                className="size-8 text-xs cursor-pointer"
+              >
+                <AvatarImage src={c.avatar} alt={c.userName} />
                 <AvatarFallback>{c.userName.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
               <div className="bg-white border border-gray-100 shadow-sm px-4 py-2 rounded-xl w-full">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-semibold text-gray-800 text-sm">{c.userName}</span>
+                  <span
+                    onClick={() => handleNavigate('123')}
+                    className="font-semibold text-gray-800 text-sm cursor-pointer hover:text-blue-500"
+                  >
+                    {c.userName}
+                  </span>
                   <span className="text-gray-400 text-[11px] md:text-xs">
                     {new Date(c.date).toLocaleString('vi-VN')}
                   </span>
