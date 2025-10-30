@@ -129,9 +129,9 @@ export function TableBase<T = any>({
     key: string
     direction: 'asc' | 'desc'
   } | null>(null)
-  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>(
-    rowSelection?.selectedRowKeys || []
-  )
+  // const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>(
+  //   rowSelection?.selectedRowKeys || []
+  // )
   const [columnFilters, setColumnFilters] = useState<Record<string, any>>({})
   const [visibleColumns, setVisibleColumns] = useState<string[]>(
     columns.map((col) => col.key || col.dataIndex).filter(Boolean)
@@ -261,40 +261,40 @@ export function TableBase<T = any>({
     [onColumnVisibilityChange]
   )
 
-  const handleRowSelection = useCallback(
-    (record: T, checked: boolean) => {
-      if (!rowSelection) return
+  // const handleRowSelection = useCallback(
+  //   (record: T, checked: boolean) => {
+  //     if (!rowSelection) return
 
-      const key = typeof rowKey === 'function' ? rowKey(record) : (record as any)[rowKey]
-      const newSelectedKeys = checked
-        ? [...selectedRowKeys, key]
-        : selectedRowKeys.filter((k) => k !== key)
+  //     const key = typeof rowKey === 'function' ? rowKey(record) : (record as any)[rowKey]
+  //     const newSelectedKeys = checked
+  //       ? [...selectedRowKeys, key]
+  //       : selectedRowKeys.filter((k) => k !== key)
 
-      setSelectedRowKeys(newSelectedKeys)
-      rowSelection.onChange?.(
-        newSelectedKeys,
-        dataSource.filter((_) =>
-          newSelectedKeys.includes(typeof rowKey === 'function' ? rowKey(_) : (_ as any)[rowKey])
-        )
-      )
-    },
-    [rowSelection, selectedRowKeys, dataSource, rowKey]
-  )
+  //     setSelectedRowKeys(newSelectedKeys)
+  //     rowSelection.onChange?.(
+  //       newSelectedKeys,
+  //       dataSource.filter((_) =>
+  //         newSelectedKeys.includes(typeof rowKey === 'function' ? rowKey(_) : (_ as any)[rowKey])
+  //       )
+  //     )
+  //   },
+  //   [rowSelection, selectedRowKeys, dataSource, rowKey]
+  // )
 
-  const handleSelectAll = useCallback(
-    (checked: boolean) => {
-      if (!rowSelection) return
+  // const handleSelectAll = useCallback(
+  //   (checked: boolean) => {
+  //     if (!rowSelection) return
 
-      const keys = paginatedData.map((record) =>
-        typeof rowKey === 'function' ? rowKey(record) : (record as any)[rowKey]
-      )
-      const newSelectedKeys = checked ? keys : []
+  //     const keys = paginatedData.map((record) =>
+  //       typeof rowKey === 'function' ? rowKey(record) : (record as any)[rowKey]
+  //     )
+  //     const newSelectedKeys = checked ? keys : []
 
-      setSelectedRowKeys(newSelectedKeys)
-      rowSelection.onChange?.(newSelectedKeys, checked ? paginatedData : [])
-    },
-    [rowSelection, paginatedData, rowKey]
-  )
+  //     setSelectedRowKeys(newSelectedKeys)
+  //     rowSelection.onChange?.(newSelectedKeys, checked ? paginatedData : [])
+  //   },
+  //   [rowSelection, paginatedData, rowKey]
+  // )
 
   const renderCell = (column: ColumnType<T>, record: T, index: number) => {
     const value = (record as any)[column.dataIndex]
