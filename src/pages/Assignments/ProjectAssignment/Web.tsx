@@ -71,7 +71,7 @@ const ProjectAssignment = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-semibold">Dự án</h1>
         <div className="flex gap-2 w-full sm:w-auto">
