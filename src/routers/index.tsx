@@ -78,6 +78,16 @@ const router = createBrowserRouter([
     ],
   },
   {
+    path: '/profile/:id',
+    element: <PrivateRoute children={<ResponsiveLayout />} />,
+    children: [
+      {
+        index: true,
+        element: <Profile />,
+      },
+    ],
+  },
+  {
     path: '*',
     element: <Navigate to="/login" replace />,
   },
