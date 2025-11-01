@@ -40,7 +40,7 @@ export default function TaskList(props: { tasks: TaskRow[]; assignees?: Assignee
 
           <div className="mt-2 grid grid-cols-2 gap-2 text-sm text-muted-foreground">
             <div>
-              <span className="mr-1">Assignee:</span>
+              <span className="mr-1">Người phụ trách:</span>
               <span className="font-medium text-foreground">
                 {assigneeIdToName?.[t.assigneeId as string] || '-'}
               </span>

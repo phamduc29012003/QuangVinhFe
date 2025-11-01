@@ -11,10 +11,10 @@ export type TaskRow = {
 }
 
 export const STATUS_LABEL: Record<TaskRow['status'], string> = {
-  todo: 'To do',
-  in_progress: 'In progress',
-  done: 'Done',
-  blocked: 'Blocked',
+  todo: 'Cần làm',
+  in_progress: 'Đang làm',
+  done: 'Hoàn thành',
+  blocked: 'Bị chặn',
 }
 
 export const taskColumns = (assigneeIdToName?: Record<string, string>): ColumnType<TaskRow>[] => [

@@ -29,24 +29,24 @@ const MOCK_USERS = [
 const MOCK_TASKS: TaskRow[] = [
   {
     id: 't1',
-    title: 'Create wireframes',
-    description: 'Design initial wireframes for dashboard views',
+    title: 'Thiết kế giao diện quản lý nhập xuất kho',
+    description: 'Thiết kế màn hình nhập xuất hàng, theo dõi tồn kho và quản lý sản phẩm',
     status: 'in_progress',
     assigneeId: 'u1',
     estimateHours: 8,
   },
   {
     id: 't2',
-    title: 'Set up CI/CD',
-    description: 'Add basic pipeline with build + lint',
+    title: 'Xây dựng tính năng quét mã vạch',
+    description: 'Phát triển chức năng quét mã vạch để nhập xuất hàng nhanh chóng',
     status: 'todo',
     assigneeId: 'u2',
     estimateHours: 3,
   },
   {
     id: 't3',
-    title: 'Implement auth flow',
-    description: 'Login, register and protected routes',
+    title: 'Tích hợp báo cáo tồn kho',
+    description: 'Xây dựng màn hình báo cáo tồn kho, lịch sử xuất nhập và thống kê',
     status: 'blocked',
     assigneeId: 'u2',
     estimateHours: 2,
@@ -206,7 +206,7 @@ export const DetailTask = () => {
         </div>
         <Separator className="my-6" />
         {/* Description */}
-        <div className="bg-neutral-50 rounded-lg px-4 md:px-6 py-4 md:py-5 mb-6 md:mb-8 min-h-[48px] border border-gray-100 text-[14px] md:text-[15px] text-gray-800 prose max-w-none">
+        <div className="bg-neutral-50 rounded-lg px-4 md:px-6 py-4 md:py-5 mb-6 md:mb-8 min-h-[25vh] border border-gray-100 text-[14px] md:text-[15px] text-gray-800 prose max-w-none overflow-y-auto">
           <div
             dangerouslySetInnerHTML={{
               __html:
@@ -219,7 +219,7 @@ export const DetailTask = () => {
           <MessageCircle className="w-5 h-5 text-gray-400 mr-1" />
           <h4 className="font-semibold text-base md:text-lg text-gray-700">Bình luận</h4>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 max-h-[20vh] overflow-y-auto pr-2">
           {comments.map((c) => (
             <div key={c.id} className="flex gap-2">
               <Avatar
