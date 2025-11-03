@@ -22,9 +22,9 @@ export const AvatarEditor = ({
     <div className="relative">
       <Avatar className="size-28 ring-4 ring-white dark:ring-slate-950">
         {avatarUrl ? (
-          <AvatarImage src={avatarUrl} alt="avatar" />
+          <AvatarImage src={'photo_2025-09-26_12-28-54.jpg'} alt="avatar" />
         ) : (
-          <AvatarImage src="" alt="avatar" />
+          <AvatarImage src={'photo_2025-09-26_12-28-54.jpg'} alt="avatar" />
         )}
       </Avatar>
       {isOwnProfile ? (
