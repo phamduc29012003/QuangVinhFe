@@ -28,6 +28,7 @@ export interface INavigateItems {
   subItems?: { label: string; href: string }[]
 }
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import BellNotification from '@/components/ui/bell'
 
 const WebLayout = ({ children }: Props) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -228,10 +229,13 @@ const WebLayout = ({ children }: Props) => {
         <header className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-            <Avatar onClick={() => handleLogout()} className="cursor-pointer">
-              <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
+            <div className="flex items-center gap-10">
+              <BellNotification />
+              <Avatar onClick={() => handleLogout()} className="cursor-pointer">
+                <AvatarImage src="https://github.com/shadcn.png" />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+            </div>
           </div>
         </header>
 
