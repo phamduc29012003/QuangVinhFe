@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/authStore'
 import TaskTable from '@/components/Assignments/ProjectDetailTable/TaskTable'
 import TaskList from '@/components/Assignments/ProjectDetailTable/TaskList'
 import { useIsMobile } from '@/hooks/use-mobile'
+import InviteMemberModal from '@/components/Assignments/InviteMemberModal'
 
 export type User = {
   id: string
@@ -27,6 +28,7 @@ export type Project = {
   name: string
   description?: string
   tasks: Task[]
+  members: string[] // user ids
 }
 
 //
@@ -49,8 +51,9 @@ export const ProjectAssignmentDetail: React.FC = () => {
   const initialProject: Project = useMemo(
     () => ({
       id: id || 'p1',
-      name: `Project ${id || 'Demo'}`,
-      description: 'This is a demo project detail using local dummy data.',
+      name: `Hệ thống quản lý kho mobile`,
+      description: 'Dự án phát triển ứng dụng quản lý kho hàng trên nền tảng di động.',
+      members: ['u1', 'u2'],
       tasks: [
         {
           id: 't1',
@@ -83,6 +86,7 @@ export const ProjectAssignmentDetail: React.FC = () => {
 
   const [project, setProject] = useState<Project>(initialProject)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isInviteOpen, setIsInviteOpen] = useState(false)
 
   //
 
@@ -98,6 +102,18 @@ export const ProjectAssignmentDetail: React.FC = () => {
     setProject((prev) => ({ ...prev, tasks: [newTask, ...prev.tasks] }))
   }
 
+  function handleInviteMembers(userIds: string[]) {
+    if (!userIds.length) {
+      setIsInviteOpen(false)
+      return
+    }
+    setProject((prev) => ({
+      ...prev,
+      members: Array.from(new Set([...prev.members, ...userIds])),
+    }))
+    setIsInviteOpen(false)
+  }
+
   return (
     <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -106,19 +122,55 @@ export const ProjectAssignmentDetail: React.FC = () => {
           {project.description ? (
             <p style={{ margin: 0, color: '#6b7280' }}>{project.description}</p>
           ) : null}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+            <span style={{ fontSize: 12, color: '#6b7280' }}>Thành viên:</span>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {project.members.map((mid) => {
+                const u = DUMMY_USERS.find((x) => x.id === mid)
+                return (
+                  <span
+                    key={mid}
+                    style={{
+                      fontSize: 12,
+                      padding: '2px 8px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: 999,
+                      background: '#f9fafb',
+                    }}
+                  >
+                    {u?.name || mid}
+                  </span>
+                )
+              })}
+            </div>
+          </div>
         </div>
-        <button
-          onClick={() => setIsCreateOpen(true)}
-          style={{
-            padding: '8px 12px',
-            borderRadius: 6,
-            border: '1px solid #d1d5db',
-            background: '#111827',
-            color: 'white',
-          }}
-        >
-          New Task
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => setIsInviteOpen(true)}
+            style={{
+              padding: '8px 12px',
+              borderRadius: 6,
+              border: '1px solid #d1d5db',
+              background: 'white',
+              color: '#111827',
+            }}
+          >
+            Mời thành viên
+          </button>
+          <button
+            onClick={() => setIsCreateOpen(true)}
+            style={{
+              padding: '8px 12px',
+              borderRadius: 6,
+              border: '1px solid #d1d5db',
+              background: '#111827',
+              color: 'white',
+            }}
+          >
+            Tạo công việc mới
+          </button>
+        </div>
       </div>
 
       {isMobile ? (
@@ -133,6 +185,14 @@ export const ProjectAssignmentDetail: React.FC = () => {
         users={DUMMY_USERS}
         onCreate={handleCreateTask}
         currentUserId={authUser?.id as unknown as string | undefined}
+      />
+
+      <InviteMemberModal
+        open={isInviteOpen}
+        onOpenChange={setIsInviteOpen}
+        users={DUMMY_USERS}
+        existingMemberIds={project.members}
+        onSend={handleInviteMembers}
       />
     </div>
   )
