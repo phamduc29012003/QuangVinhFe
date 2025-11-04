@@ -9,7 +9,7 @@ import { STATUS_LABEL } from '@/components/Assignments/ProjectDetailTable/column
 import type { TaskRow } from '@/components/Assignments/ProjectDetailTable/columns'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { BottomSheet } from '@/components/ui/bottom-sheet'
 import {
   ArrowLeft,
   UserCircle2,
@@ -336,67 +336,68 @@ export const DetailTask = () => {
       </aside>
 
       {/* Mobile detail sheet */}
-      <Sheet open={infoOpen} onOpenChange={setInfoOpen}>
-        <SheetContent side="bottom" className="rounded-t-2xl p-0">
-          <SheetHeader className="p-4 border-b">
-            <SheetTitle>Thông tin công việc</SheetTitle>
-          </SheetHeader>
-          <div className="p-4 flex flex-col gap-3">
-            <div className="flex items-center gap-3">
-              <UserPlus2 className="w-4 h-4 text-gray-400" />
-              <span className="text-xs text-gray-500 mr-2">Người được giao</span>
-              <span className="font-semibold text-base text-black ml-2">
-                {assignee?.name || <span className="text-gray-300">Chưa gán</span>}
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <UserCircle2 className="w-4 h-4 text-gray-400" />
-              <span className="text-xs text-gray-500 mr-2">Người giao</span>
-              <span className="font-semibold text-base text-black ml-2">{assigner?.name}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Clock4 className="w-4 h-4 text-gray-400" />
-              <span className="text-xs text-gray-500 mr-2">Ước lượng</span>
-              <span className="font-semibold text-base text-black ml-2">
-                {task.estimateHours ?? '-'}
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Badge variant="outline" className="px-3 py-1 text-[13px]">
-                <span
-                  className={
-                    task.status === 'done'
-                      ? 'text-green-600'
-                      : task.status === 'blocked'
-                        ? 'text-red-600'
-                        : task.status === 'in_progress'
-                          ? 'text-blue-500'
-                          : 'text-gray-400'
-                  }
-                >
-                  ●
-                </span>{' '}
-                {STATUS_LABEL[task.status]}
-              </Badge>
-            </div>
-            <Separator className="my-1" />
-            <div className="flex items-center gap-3">
-              <Calendar className="w-4 h-4 text-gray-400" />
-              <span className="text-xs text-gray-500 mr-2">Ngày tạo</span>
-              <span className="text-base text-black ml-2">
-                {new Date('2025-10-29T09:30:00Z').toLocaleDateString('vi-VN')}
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Calendar className="w-4 h-4 text-gray-400" />
-              <span className="text-xs text-gray-500 mr-2">Cập nhật</span>
-              <span className="text-base text-black ml-2">
-                {new Date('2025-10-29T13:15:00Z').toLocaleDateString('vi-VN')}
-              </span>
-            </div>
+      <BottomSheet
+        open={infoOpen}
+        onOpenChange={setInfoOpen}
+        title="Thông tin công việc"
+        padded={false}
+        contentClassName="rounded-t-2xl p-0"
+      >
+        <div className="p-4 flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <UserPlus2 className="w-4 h-4 text-gray-400" />
+            <span className="text-xs text-gray-500 mr-2">Người được giao</span>
+            <span className="font-semibold text-base text-black ml-2">
+              {assignee?.name || <span className="text-gray-300">Chưa gán</span>}
+            </span>
           </div>
-        </SheetContent>
-      </Sheet>
+          <div className="flex items-center gap-3">
+            <UserCircle2 className="w-4 h-4 text-gray-400" />
+            <span className="text-xs text-gray-500 mr-2">Người giao</span>
+            <span className="font-semibold text-base text-black ml-2">{assigner?.name}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Clock4 className="w-4 h-4 text-gray-400" />
+            <span className="text-xs text-gray-500 mr-2">Ước lượng</span>
+            <span className="font-semibold text-base text-black ml-2">
+              {task.estimateHours ?? '-'}
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Badge variant="outline" className="px-3 py-1 text-[13px]">
+              <span
+                className={
+                  task.status === 'done'
+                    ? 'text-green-600'
+                    : task.status === 'blocked'
+                      ? 'text-red-600'
+                      : task.status === 'in_progress'
+                        ? 'text-blue-500'
+                        : 'text-gray-400'
+                }
+              >
+                ●
+              </span>{' '}
+              {STATUS_LABEL[task.status]}
+            </Badge>
+          </div>
+          <Separator className="my-1" />
+          <div className="flex items-center gap-3">
+            <Calendar className="w-4 h-4 text-gray-400" />
+            <span className="text-xs text-gray-500 mr-2">Ngày tạo</span>
+            <span className="text-base text-black ml-2">
+              {new Date('2025-10-29T09:30:00Z').toLocaleDateString('vi-VN')}
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Calendar className="w-4 h-4 text-gray-400" />
+            <span className="text-xs text-gray-500 mr-2">Cập nhật</span>
+            <span className="text-base text-black ml-2">
+              {new Date('2025-10-29T13:15:00Z').toLocaleDateString('vi-VN')}
+            </span>
+          </div>
+        </div>
+      </BottomSheet>
       <EditTaskModal
         open={editOpen}
         onOpenChange={setEditOpen}

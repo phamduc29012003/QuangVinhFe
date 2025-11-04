@@ -18,15 +18,26 @@ export const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = getAuthorization()
+    const origin = window.location.origin
+    const allowedOrigins = ['https://example.com', 'https://yourdomain.com']
+    const isAllowedOrigin = allowedOrigins.includes(origin)
+
+    // Thêm token nếu có
     if (token) {
       config.headers.Authorization = token
     }
+
+    // Thêm các header CORS vào request
+    config.headers['Access-Control-Allow-Origin'] = isAllowedOrigin ? origin : 'null'
+    config.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+    config.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    config.headers['Access-Control-Allow-Credentials'] = 'true'
+    config.headers['Access-Control-Max-Age'] = '86400'
 
     return config
   },
   (error) => Promise.reject(error)
 )
-
 // Global error handling without refresh-token logic
 api.interceptors.response.use(
   (response) => {

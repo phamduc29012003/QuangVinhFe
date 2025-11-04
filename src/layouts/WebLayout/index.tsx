@@ -28,6 +28,7 @@ export interface INavigateItems {
   subItems?: { label: string; href: string }[]
 }
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+// import { useAuthStore } from '@/stores/authStore'
 import BellNotification from '@/components/ui/bell'
 
 const WebLayout = ({ children }: Props) => {
@@ -36,6 +37,9 @@ const WebLayout = ({ children }: Props) => {
 
   const location = useLocation()
   const navigate = useNavigate()
+  // const { user } = useAuthStore()
+  // const roles = user?.roles || []
+  // const isDirectorOrManager = roles.includes('DIRECTOR') || roles.includes('MANAGER')
 
   const handleLogout = () => {
     navigate('/profile')
@@ -70,7 +74,7 @@ const WebLayout = ({ children }: Props) => {
     const path = location.pathname
 
     const submenuMapping: Record<string, string[]> = {
-      personnel: ['/personnel/list', '/personnel/on-leave', '/personnel/positions'],
+      personnel: ['/personnel/list', '/personnel/leaves', '/personnel/positions'],
       documents: ['/documents/my', '/documents/shared'],
       // 'assignments': ['/assignments/pending', '/assignments/completed'],
     }
@@ -82,7 +86,7 @@ const WebLayout = ({ children }: Props) => {
     })
   }, [location.pathname])
 
-  const navigationItems: INavigateItems[] = [
+  let navigationItems: INavigateItems[] = [
     {
       id: 'dashboard',
       label: 'Tổng quan',
@@ -99,8 +103,9 @@ const WebLayout = ({ children }: Props) => {
       hasSubmenu: true,
       expanded: expandedItems.has('personnel'),
       subItems: [
+        // Only show personnel list to director/manager
         { label: 'Danh sách nhân sự', href: '/personnel/list' },
-        { label: 'Quản lý lịch nghỉ', href: '/personnel/on-leave' },
+        { label: 'Quản lý lịch nghỉ', href: '/personnel/leaves' },
         { label: 'Chức vụ', href: '/personnel/positions' },
       ],
     },
@@ -126,6 +131,12 @@ const WebLayout = ({ children }: Props) => {
       ],
     },
   ]
+
+  // If a group has no subItems (after filtering), hide the group
+  navigationItems = navigationItems.filter((item) => {
+    if (!item.hasSubmenu) return true
+    return Array.isArray(item.subItems) && item.subItems.length > 0
+  })
 
   return (
     <div className="flex h-screen bg-gray-50 ">
@@ -239,7 +250,7 @@ const WebLayout = ({ children }: Props) => {
           </div>
         </header>
 
-        <main className="flex-1 bg-gray-50 relative overflow-auto p-6 h-[calc(100vh-64px)] xl:overflow-hidden">
+        <main className="flex-1 bg-gray-50 relative overflow-auto p-6 h-[calc(100vh-64px)]">
           {children}
 
           <div className="fixed bottom-6 right-6">
