@@ -3,10 +3,10 @@ import {
   DashboardWeb,
   DocumentsWeb,
   PersonnelList,
-  PersonnelDepartments,
   PersonnelPositions,
   DocumentsMy,
   DocumentsShared,
+  LeavesWeb,
 } from '@/pages'
 
 export const WebRoutes: RouteObject[] = [
@@ -24,8 +24,8 @@ export const WebRoutes: RouteObject[] = [
     element: <PersonnelList />,
   },
   {
-    path: '/personnel/on-leave',
-    element: <PersonnelDepartments />,
+    path: '/personnel/leaves',
+    element: <LeavesWeb />,
   },
   {
     path: '/personnel/positions',

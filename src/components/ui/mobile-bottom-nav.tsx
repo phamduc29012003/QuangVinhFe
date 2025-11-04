@@ -23,7 +23,13 @@ const navItems: NavItem[] = [
     id: 'assignments',
     label: 'Công việc',
     icon: FileText,
-    path: '/mobile/assignments',
+    path: '/assignments',
+  },
+  {
+    id: 'leaves',
+    label: 'Lịch nghỉ',
+    icon: FileText,
+    path: '/mobile/leaves',
   },
   {
     id: 'documents',

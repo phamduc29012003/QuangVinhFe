@@ -1,12 +1,12 @@
 // User roles
-export type UserRole = 'director' | 'manager' | 'user'
+export type UserRole = 'DIRECTOR' | 'MANAGER' | 'WORKER'
 
 // User-related types
 export interface User {
   id: string
   email: string
   name: string
-  role?: UserRole
+  roles?: UserRole[]
   avatar?: string
   createdAt: string
   updatedAt: string
@@ -17,7 +17,7 @@ export interface UserResponse {
   id: string
   email: string
   name: string
-  role?: UserRole
+  roles?: UserRole[]
   avatar?: string
   createdAt: string
   updatedAt: string

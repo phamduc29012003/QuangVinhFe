@@ -14,9 +14,10 @@ export default function RoleRoute({ children, allowedRoles }: RoleRouteProps) {
     return <Navigate to="/login" replace />
   }
 
-  const userRole = user.role || 'user'
+  const userRoles = (user.roles as UserRole[]) || []
+  const allowed = allowedRoles.some((r) => userRoles.includes(r))
 
-  if (!allowedRoles.includes(userRole)) {
+  if (!allowed) {
     return <Navigate to="/dashboard" replace />
   }
 

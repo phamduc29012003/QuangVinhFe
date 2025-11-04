@@ -32,9 +32,9 @@ export type Project = {
 //
 
 const DUMMY_USERS: User[] = [
-  { id: 'u1', name: 'Nguyễn Văn A' },
-  { id: 'u2', name: 'Trần Thị B' },
-  { id: 'u3', name: 'Lê Văn C' },
+  { id: 'u1', name: 'Alice' },
+  { id: 'u2', name: 'Bob' },
+  { id: 'u3', name: 'Charlie' },
 ]
 
 function generateId(prefix: string = 'id'): string {
@@ -49,29 +49,29 @@ export const ProjectAssignmentDetail: React.FC = () => {
   const initialProject: Project = useMemo(
     () => ({
       id: id || 'p1',
-      name: `Hệ thống quản lý kho mobile`,
-      description: 'Dự án phát triển ứng dụng quản lý kho hàng trên nền tảng di động.',
+      name: `Project ${id || 'Demo'}`,
+      description: 'This is a demo project detail using local dummy data.',
       tasks: [
         {
           id: 't1',
-          title: 'Thiết kế giao diện quản lý nhập xuất kho',
-          description: 'Thiết kế màn hình nhập xuất hàng, theo dõi tồn kho và quản lý sản phẩm',
+          title: 'Create wireframes',
+          description: 'Design initial wireframes for dashboard views',
           status: 'in_progress',
           assigneeId: 'u1',
           estimateHours: 8,
         },
         {
           id: 't2',
-          title: 'Xây dựng tính năng quét mã vạch',
-          description: 'Phát triển chức năng quét mã vạch để nhập xuất hàng nhanh chóng',
+          title: 'Set up CI/CD',
+          description: 'Add basic pipeline with build + lint',
           status: 'todo',
           assigneeId: 'u2',
           estimateHours: 3,
         },
         {
           id: 't3',
-          title: 'Tích hợp báo cáo tồn kho',
-          description: 'Xây dựng màn hình báo cáo tồn kho, lịch sử xuất nhập và thống kê',
+          title: 'Implement auth flow',
+          description: 'Login, register and protected routes',
           status: 'blocked',
           assigneeId: undefined,
           estimateHours: 5,
@@ -117,7 +117,7 @@ export const ProjectAssignmentDetail: React.FC = () => {
             color: 'white',
           }}
         >
-          Tạo công việc mới
+          New Task
         </button>
       </div>
 
