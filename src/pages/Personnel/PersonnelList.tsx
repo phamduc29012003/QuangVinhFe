@@ -96,7 +96,7 @@ const roleVariants: Record<UserRole, 'destructive' | 'default' | 'secondary' | '
 
 const PersonnelList = () => {
   const [loading, setLoading] = useState(false)
-  const [data, setData] = useState<User[]>(samplePersonnel)
+  const [data] = useState<User[]>(samplePersonnel)
 
   const handleRefresh = () => {
     setLoading(true)

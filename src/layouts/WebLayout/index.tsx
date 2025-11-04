@@ -28,7 +28,7 @@ export interface INavigateItems {
   subItems?: { label: string; href: string }[]
 }
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { useAuthStore } from '@/stores/authStore'
+// import { useAuthStore } from '@/stores/authStore'
 
 const WebLayout = ({ children }: Props) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -36,9 +36,9 @@ const WebLayout = ({ children }: Props) => {
 
   const location = useLocation()
   const navigate = useNavigate()
-  const { user } = useAuthStore()
-  const roles = user?.roles || []
-  const isDirectorOrManager = roles.includes('DIRECTOR') || roles.includes('MANAGER')
+  // const { user } = useAuthStore()
+  // const roles = user?.roles || []
+  // const isDirectorOrManager = roles.includes('DIRECTOR') || roles.includes('MANAGER')
 
   const handleLogout = () => {
     navigate('/profile')
