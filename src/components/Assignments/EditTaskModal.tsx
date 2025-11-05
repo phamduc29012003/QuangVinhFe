@@ -131,7 +131,8 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
                 <option value="todo">{STATUS_LABEL['todo']}</option>
                 <option value="in_progress">{STATUS_LABEL['in_progress']}</option>
                 <option value="done">{STATUS_LABEL['done']}</option>
-                <option value="blocked">{STATUS_LABEL['blocked']}</option>
+                <option value="cancel">{STATUS_LABEL['cancel']}</option>
+                <option value="pending">{STATUS_LABEL['pending']}</option>
               </select>
             </div>
             <div>

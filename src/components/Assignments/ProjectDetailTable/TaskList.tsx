@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { STATUS_LABEL, type TaskRow } from './columns'
+import { STATUS_LABEL, STATUS_ICON, type TaskRow } from './columns'
 import { useNavigate } from 'react-router'
 
 type Assignee = { id: string; name: string }
@@ -20,8 +20,9 @@ export default function TaskList(props: { tasks: TaskRow[]; assignees?: Assignee
   const statusVariantMap: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
     todo: 'secondary',
     in_progress: 'outline',
+    pending: 'outline',
     done: 'default',
-    blocked: 'destructive',
+    cancel: 'destructive',
   }
 
   return (
@@ -35,7 +36,9 @@ export default function TaskList(props: { tasks: TaskRow[]; assignees?: Assignee
                 <div className="text-sm text-muted-foreground line-clamp-2">{t.description}</div>
               ) : null}
             </div>
-            <Badge variant={statusVariantMap[t.status]}>{STATUS_LABEL[t.status]}</Badge>
+            <Badge variant={statusVariantMap[t.status]}>
+              {STATUS_ICON[t.status]} {STATUS_LABEL[t.status]}
+            </Badge>
           </div>
 
           <div className="mt-2 grid grid-cols-2 gap-2 text-sm text-muted-foreground">

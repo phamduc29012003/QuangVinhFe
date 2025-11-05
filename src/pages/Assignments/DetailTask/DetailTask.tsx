@@ -47,7 +47,7 @@ const MOCK_TASKS: TaskRow[] = [
     id: 't3',
     title: 'Tích hợp báo cáo tồn kho',
     description: 'Xây dựng màn hình báo cáo tồn kho, lịch sử xuất nhập và thống kê',
-    status: 'blocked',
+    status: 'cancel',
     assigneeId: 'u2',
     estimateHours: 2,
   },
@@ -148,7 +148,7 @@ export const DetailTask = () => {
                 className={
                   task.status === 'done'
                     ? 'text-green-600'
-                    : task.status === 'blocked'
+                    : task.status === 'cancel'
                       ? 'text-red-600'
                       : task.status === 'in_progress'
                         ? 'text-blue-500'
@@ -183,7 +183,7 @@ export const DetailTask = () => {
               className={
                 task.status === 'done'
                   ? 'text-green-600'
-                  : task.status === 'blocked'
+                  : task.status === 'cancel'
                     ? 'text-red-600'
                     : task.status === 'in_progress'
                       ? 'text-blue-500'
@@ -304,7 +304,7 @@ export const DetailTask = () => {
                   className={
                     task.status === 'done'
                       ? 'text-green-600'
-                      : task.status === 'blocked'
+                      : task.status === 'cancel'
                         ? 'text-red-600'
                         : task.status === 'in_progress'
                           ? 'text-blue-500'
@@ -369,7 +369,7 @@ export const DetailTask = () => {
                 className={
                   task.status === 'done'
                     ? 'text-green-600'
-                    : task.status === 'blocked'
+                    : task.status === 'cancel'
                       ? 'text-red-600'
                       : task.status === 'in_progress'
                         ? 'text-blue-500'

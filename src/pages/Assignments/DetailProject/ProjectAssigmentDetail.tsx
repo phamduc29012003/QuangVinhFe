@@ -6,13 +6,14 @@ import TaskTable from '@/components/Assignments/ProjectDetailTable/TaskTable'
 import TaskList from '@/components/Assignments/ProjectDetailTable/TaskList'
 import { useIsMobile } from '@/hooks/use-mobile'
 import InviteMemberModal from '@/components/Assignments/InviteMemberModal'
+import { Overview } from '@/components/Assignments/overview'
 
 export type User = {
   id: string
   name: string
 }
 
-export type TaskStatus = 'todo' | 'in_progress' | 'done' | 'blocked'
+export type TaskStatus = 'todo' | 'in_progress' | 'done' | 'pending' | 'cancel'
 
 export type Task = {
   id: string
@@ -75,7 +76,31 @@ export const ProjectAssignmentDetail: React.FC = () => {
           id: 't3',
           title: 'Implement auth flow',
           description: 'Login, register and protected routes',
-          status: 'blocked',
+          status: 'cancel',
+          assigneeId: undefined,
+          estimateHours: 5,
+        },
+        {
+          id: 't4',
+          title: 'Implement auth flow',
+          description: 'Login, register and protected routes',
+          status: 'done',
+          assigneeId: undefined,
+          estimateHours: 5,
+        },
+        {
+          id: 't5',
+          title: 'Implement auth flow',
+          description: 'Login, register and protected routes',
+          status: 'done',
+          assigneeId: undefined,
+          estimateHours: 5,
+        },
+        {
+          id: 't6',
+          title: 'Implement auth flow',
+          description: 'Login, register and protected routes',
+          status: 'pending',
           assigneeId: undefined,
           estimateHours: 5,
         },
@@ -115,28 +140,20 @@ export const ProjectAssignmentDetail: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <h2 style={{ margin: 0 }}>{project.name}</h2>
-          {project.description ? (
-            <p style={{ margin: 0, color: '#6b7280' }}>{project.description}</p>
-          ) : null}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-            <span style={{ fontSize: 12, color: '#6b7280' }}>Thành viên:</span>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+    <div className="p-4 flex flex-col gap-4">
+      <div className="flex justify-between items-center">
+        <div className="flex flex-col gap-2">
+          <h2 className="m-0">{project.name}</h2>
+          {project.description ? <p className="m-0 text-gray-500">{project.description}</p> : null}
+          <div className="flex items-center gap-2 mt-2">
+            <span className="text-xs text-gray-500">Thành viên:</span>
+            <div className="flex gap-1.5 flex-wrap">
               {project.members.map((mid) => {
                 const u = DUMMY_USERS.find((x) => x.id === mid)
                 return (
                   <span
                     key={mid}
-                    style={{
-                      fontSize: 12,
-                      padding: '2px 8px',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: 999,
-                      background: '#f9fafb',
-                    }}
+                    className="text-xs px-2 py-0.5 border border-gray-200 rounded-full bg-gray-50"
                   >
                     {u?.name || mid}
                   </span>
@@ -145,33 +162,24 @@ export const ProjectAssignmentDetail: React.FC = () => {
             </div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="flex gap-2">
           <button
             onClick={() => setIsInviteOpen(true)}
-            style={{
-              padding: '8px 12px',
-              borderRadius: 6,
-              border: '1px solid #d1d5db',
-              background: 'white',
-              color: '#111827',
-            }}
+            className="px-3 py-2 rounded-md border border-gray-300 bg-white text-slate-900"
           >
             Mời thành viên
           </button>
           <button
             onClick={() => setIsCreateOpen(true)}
-            style={{
-              padding: '8px 12px',
-              borderRadius: 6,
-              border: '1px solid #d1d5db',
-              background: '#111827',
-              color: 'white',
-            }}
+            className="px-3 py-2 rounded-md border border-gray-300 bg-slate-900 text-white"
           >
             Tạo công việc mới
           </button>
         </div>
       </div>
+
+      {/* Stats Section */}
+      <Overview tasks={project.tasks} />
 
       {isMobile ? (
         <TaskList tasks={project.tasks} assignees={DUMMY_USERS} />
