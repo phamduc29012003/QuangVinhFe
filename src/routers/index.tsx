@@ -58,7 +58,7 @@ const router = createBrowserRouter([
     ],
   },
   {
-    element: <AuthLayout />,
+    element: <PublichRoute children={<AuthLayout />} />,
     path: '/register',
     children: [
       {

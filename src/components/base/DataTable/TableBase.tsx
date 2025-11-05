@@ -40,7 +40,7 @@ export interface ColumnType<T = any> {
   sorter?: boolean | ((a: T, b: T) => number)
   filterable?: boolean
   filterType?: 'text' | 'select' | 'date'
-  filterOptions?: { label: string; value: any }[]
+  filterOptions?: { label: string | React.ReactNode; value: any }[]
   render?: (value: any, record: T, index: number) => React.ReactNode
   fixed?: 'left' | 'right'
   ellipsis?: boolean
