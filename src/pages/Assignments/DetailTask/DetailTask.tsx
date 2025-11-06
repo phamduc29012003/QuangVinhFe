@@ -9,7 +9,7 @@ import { STATUS_LABEL } from '@/components/Assignments/ProjectDetailTable/column
 import type { TaskRow } from '@/components/Assignments/ProjectDetailTable/columns'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
-import { BottomSheet } from '@/components/ui/bottom-sheet'
+import BottomSheet from '@/components/ui/bottom-sheet'
 import {
   ArrowLeft,
   UserCircle2,

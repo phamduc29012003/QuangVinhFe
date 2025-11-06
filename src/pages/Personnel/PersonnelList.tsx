@@ -14,12 +14,14 @@ const samplePersonnel: User[] = [
     email: 'nguyenvana@example.com',
     roles: ['DIRECTOR'],
     avatar: undefined,
+    phone: '123123312',
     createdAt: '2024-01-15T10:00:00Z',
     updatedAt: '2024-01-20T10:00:00Z',
   },
   {
     id: '2',
     name: 'Trần Thị B',
+    phone: '123123312',
     email: 'tranthib@example.com',
     roles: ['MANAGER'],
     avatar: undefined,
@@ -28,6 +30,7 @@ const samplePersonnel: User[] = [
   },
   {
     id: '3',
+    phone: '123123312',
     name: 'Lê Văn C',
     email: 'levanc@example.com',
     roles: ['WORKER'],
@@ -37,6 +40,7 @@ const samplePersonnel: User[] = [
   },
   {
     id: '4',
+    phone: '123123312',
     name: 'Phạm Thị D',
     email: 'phamthid@example.com',
     roles: ['MANAGER', 'WORKER'],
@@ -47,6 +51,7 @@ const samplePersonnel: User[] = [
   {
     id: '5',
     name: 'Hoàng Văn E',
+    phone: '123123312',
     email: 'hoangvane@example.com',
     roles: ['WORKER'],
     avatar: undefined,
@@ -58,6 +63,7 @@ const samplePersonnel: User[] = [
     name: 'Võ Thị F',
     email: 'vothif@example.com',
     roles: ['MANAGER'],
+    phone: '123123312',
     avatar: undefined,
     createdAt: '2024-01-20T10:00:00Z',
     updatedAt: '2024-01-22T10:00:00Z',
@@ -65,6 +71,7 @@ const samplePersonnel: User[] = [
   {
     id: '7',
     name: 'Đặng Văn G',
+    phone: '123123312',
     email: 'dangvang@example.com',
     roles: ['WORKER'],
     avatar: undefined,
@@ -77,6 +84,7 @@ const samplePersonnel: User[] = [
     email: 'buithih@example.com',
     roles: ['DIRECTOR'],
     avatar: undefined,
+    phone: '123123312',
     createdAt: '2024-01-22T10:00:00Z',
     updatedAt: '2024-01-24T10:00:00Z',
   },

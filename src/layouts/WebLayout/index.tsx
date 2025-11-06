@@ -25,11 +25,12 @@ export interface INavigateItems {
   href?: string
   hasSubmenu?: boolean
   expanded?: boolean
-  subItems?: { label: string; href: string }[]
+  roles?: string[]
+  subItems?: { label: string; href: string; roles?: string[] }[]
 }
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-// import { useAuthStore } from '@/stores/authStore'
 import BellNotification from '@/components/ui/bell'
+import { useAuthStore } from '@/stores'
 
 const WebLayout = ({ children }: Props) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -37,14 +38,18 @@ const WebLayout = ({ children }: Props) => {
 
   const location = useLocation()
   const navigate = useNavigate()
-  // const { user } = useAuthStore()
-  // const roles = user?.roles || []
-  // const isDirectorOrManager = roles.includes('DIRECTOR') || roles.includes('MANAGER')
+
+  const { user } = useAuthStore()
+  const userRoles = user?.roles || []
 
   const handleLogout = () => {
     navigate('/profile')
   }
 
+  const hasPermission = (allowedRoles?: string[]) => {
+    if (!allowedRoles || allowedRoles.length === 0) return true // không truyền gì => mọi role đều có quyền
+    return allowedRoles.some((role: string) => userRoles.includes(role))
+  }
   const toggleExpanded = (item: string) => {
     const newExpanded = new Set(expandedItems)
     if (newExpanded.has(item)) {
@@ -85,7 +90,6 @@ const WebLayout = ({ children }: Props) => {
       }
     })
   }, [location.pathname])
-
   let navigationItems: INavigateItems[] = [
     {
       id: 'dashboard',
@@ -102,10 +106,10 @@ const WebLayout = ({ children }: Props) => {
       href: '/personnel',
       hasSubmenu: true,
       expanded: expandedItems.has('personnel'),
+      roles: ['DIRECTOR', 'MANAGER'],
       subItems: [
-        // Only show personnel list to director/manager
-        { label: 'Danh sách nhân sự', href: '/personnel/list' },
-        { label: 'Quản lý lịch nghỉ', href: '/personnel/leaves' },
+        { label: 'Danh sách nhân sự', href: '/personnel/list', roles: ['DIRECTOR', 'MANAGER'] },
+        { label: 'Quản lý lịch nghỉ', href: '/personnel/leaves', roles: ['MANAGER', 'DIRECTOR'] },
         { label: 'Chức vụ', href: '/personnel/positions' },
       ],
     },
@@ -113,30 +117,35 @@ const WebLayout = ({ children }: Props) => {
       id: 'assignments',
       label: 'Quản lý công việc',
       icon: CheckSquare,
-      active: location.pathname === '/assignments',
-      hasSubmenu: false,
       href: '/assignments',
     },
     {
       id: 'documents',
       label: 'Tài liệu',
       icon: FileIcon,
-      active: location.pathname.startsWith('/documents'),
       hasSubmenu: true,
       expanded: expandedItems.has('documents'),
       href: '/documents',
       subItems: [
         { label: 'Tài liệu của tôi', href: '/documents/my' },
-        { label: 'Tài liệu được chia sẻ', href: '/documents/shared' },
+        { label: 'Tài liệu được chia sẻ', href: '/documents/shared', roles: ['DIRECTOR'] },
       ],
     },
   ]
 
   // If a group has no subItems (after filtering), hide the group
-  navigationItems = navigationItems.filter((item) => {
-    if (!item.hasSubmenu) return true
-    return Array.isArray(item.subItems) && item.subItems.length > 0
-  })
+  navigationItems = navigationItems
+    .filter((item) => hasPermission(item.roles)) // chỉ hiển thị menu có quyền
+    .map((item) => {
+      if (item.subItems) {
+        item.subItems = item.subItems.filter((sub) => hasPermission(sub.roles))
+      }
+      return item
+    })
+    .filter((item) => {
+      if (!item.hasSubmenu) return true
+      return Array.isArray(item.subItems) && item.subItems.length > 0
+    })
 
   return (
     <div className="flex h-screen bg-gray-50 ">
