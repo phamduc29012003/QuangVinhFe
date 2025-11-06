@@ -56,12 +56,15 @@ type LeaveType =
   | 'Nghỉ hiếu'
   | 'Nghỉ cưới'
 
+type LeaveSession = 'FULL' | 'AM' | 'PM'
+
 type LeaveRequest = {
   id: string
   employeeName: string
   type: LeaveType
   startDate: string
   endDate: string
+  session?: LeaveSession // áp dụng khi xin nghỉ 1 ngày
   reason: string
   status: LeaveStatus
   createdAt: string
@@ -140,6 +143,7 @@ export default function LeavesWeb() {
   const [type, setType] = useState<LeaveType | ''>('')
   const [startDate, setStartDate] = useState<string>('')
   const [endDate, setEndDate] = useState<string>('')
+  const [session, setSession] = useState<LeaveSession>('FULL')
   const [reason, setReason] = useState<string>('')
   const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(null)
   const [viewDialogOpen, setViewDialogOpen] = useState(false)
@@ -182,6 +186,8 @@ export default function LeavesWeb() {
       type: type as LeaveType,
       startDate,
       endDate,
+      session:
+        new Date(startDate).toDateString() === new Date(endDate).toDateString() ? session : 'FULL',
       reason,
       status: 'pending',
       createdAt: new Date().toISOString(),
@@ -190,10 +196,12 @@ export default function LeavesWeb() {
     setType('')
     setStartDate('')
     setEndDate('')
+    setSession('FULL')
     setReason('')
     setCreateDialogOpen(false)
 
-    const days = calculateDays(startDate, endDate)
+    let days = calculateDays(startDate, endDate)
+    if (days === 1 && session !== 'FULL') days = 0.5
     toast.success('Tạo đơn thành công!', {
       description: `Đơn xin nghỉ ${days} ngày đã được gửi và đang chờ duyệt`,
     })
@@ -686,12 +694,32 @@ export default function LeavesWeb() {
               />
             </div>
 
+            {/* Theo buổi - áp dụng khi nghỉ 1 ngày */}
+            <div className="space-y-2">
+              <Label htmlFor="session">Theo buổi</Label>
+              <Select value={session} onValueChange={(v) => setSession(v as any)}>
+                <SelectTrigger id="session" className="w-full">
+                  <SelectValue placeholder="Cả ngày / Buổi sáng / Buổi chiều" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="FULL">Cả ngày</SelectItem>
+                  <SelectItem value="AM">Buổi sáng</SelectItem>
+                  <SelectItem value="PM">Buổi chiều</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Chỉ áp dụng khi xin nghỉ trong 1 ngày.
+              </p>
+            </div>
+
             <div className="space-y-2">
               <Label>Số ngày nghỉ</Label>
               <div className="flex items-center gap-2 h-9 px-3 rounded-md border bg-muted/50">
                 <Clock className="size-4 text-muted-foreground" />
                 <span className="font-medium">
-                  {startDate && endDate ? `${calculateDays(startDate, endDate)} ngày` : '0 ngày'}
+                  {startDate && endDate
+                    ? `${calculateDays(startDate, endDate) === 1 && session !== 'FULL' ? 0.5 : calculateDays(startDate, endDate)} ngày`
+                    : '0 ngày'}
                 </span>
               </div>
             </div>

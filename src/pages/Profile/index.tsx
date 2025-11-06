@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useParams } from 'react-router'
-import { useAuth } from '@/hooks/useAuth'
+import { useNavigate, useParams } from 'react-router'
 import { Button } from '@/components/ui/button'
 // import { Input } from '@/components/ui/input'
 import { AvatarEditor } from '@/components/Profile'
@@ -8,11 +7,14 @@ import { InlineField } from '@/components/Profile'
 import { InfoGrid } from '@/components/Profile'
 import { GET, PUT } from '@/core/api'
 import SonnerToaster from '@/components/ui/toaster'
+import { useAuthStore } from '@/stores'
 
 export const Profile = () => {
   const { id } = useParams()
-  const { user, logout } = useAuth()
+  const { user, logout } = useAuthStore()
+  console.log('user', user)
 
+  const navigate = useNavigate()
   const isOwnProfile = useMemo(() => !id || id === user?.id, [id, user?.id])
   const currentUserId = useMemo(() => (isOwnProfile ? user?.id : id), [isOwnProfile, id, user?.id])
   const [displayName, setDisplayName] = useState<string>(user?.name ?? '')
@@ -124,6 +126,10 @@ export const Profile = () => {
     }
   }
 
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
   // kept avatar update via dedicated change; other fields update inline by field
 
   const handleUpdateSingleField = async (
@@ -204,7 +210,7 @@ export const Profile = () => {
 
           {isOwnProfile ? (
             <div className="mt-2 flex items-center gap-3">
-              <Button variant="destructive" onClick={logout}>
+              <Button variant="destructive" onClick={handleLogout}>
                 Đăng xuất
               </Button>
             </div>

@@ -22,7 +22,7 @@ type BottomSheetProps = {
   padded?: boolean
 }
 
-export function BottomSheet({
+const BottomSheet = ({
   open,
   onOpenChange,
   title,
@@ -33,7 +33,7 @@ export function BottomSheet({
   contentClassName,
   maxHeightClassName = 'max-h-[85vh]',
   padded = true,
-}: BottomSheetProps) {
+}: BottomSheetProps) => {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent

@@ -9,13 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select.tsx'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from '@/components/ui/sheet.tsx'
+import BottomSheet from '@/components/ui/bottom-sheet.tsx'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -130,6 +124,7 @@ export default function LeavesMobile() {
   const [startDate, setStartDate] = useState<string>('')
   const [endDate, setEndDate] = useState<string>('')
   const [reason, setReason] = useState<string>('')
+  const [session, setSession] = useState<'FULL' | 'AM' | 'PM'>('FULL')
   const [createSheetOpen, setCreateSheetOpen] = useState(false)
   const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(null)
   const [viewSheetOpen, setViewSheetOpen] = useState(false)
@@ -172,6 +167,8 @@ export default function LeavesMobile() {
       type: type as LeaveType,
       startDate,
       endDate,
+      session:
+        new Date(startDate).toDateString() === new Date(endDate).toDateString() ? session : 'FULL',
       reason,
       status: 'pending',
       createdAt: new Date().toISOString(),
@@ -181,9 +178,11 @@ export default function LeavesMobile() {
     setStartDate('')
     setEndDate('')
     setReason('')
+    setSession('FULL')
     setCreateSheetOpen(false)
 
-    const days = calculateDays(startDate, endDate)
+    let days = calculateDays(startDate, endDate)
+    if (days === 1 && session !== 'FULL') days = 0.5
     toast.success('Tạo đơn thành công!', {
       description: `Đơn xin nghỉ ${days} ngày đã được gửi`,
     })
@@ -404,91 +403,88 @@ export default function LeavesMobile() {
         bottomOffsetClassName="bottom-22"
       />
 
-      {/* View Details Sheet - iOS Style */}
-      <Sheet open={viewSheetOpen} onOpenChange={setViewSheetOpen}>
-        <SheetContent side="bottom" className="rounded-t-3xl max-h-[85vh] overflow-y-auto p-4 pb-6">
-          <SheetHeader className="text-left pb-4">
-            <SheetTitle className="text-xl font-bold">Chi tiết đơn nghỉ</SheetTitle>
-            <SheetDescription className="text-sm text-gray-500">
-              Thông tin chi tiết về đơn xin nghỉ
-            </SheetDescription>
-          </SheetHeader>
-          {selectedRequest && (
-            <div className="space-y-4 pb-6">
-              {/* iOS-style Info Card */}
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Loại nghỉ</span>
-                  <div className="flex items-center gap-2">
-                    {(() => {
-                      const Icon = getLeaveIcon(selectedRequest.type)
-                      return <Icon className="size-5 text-blue-600 dark:text-blue-400" />
-                    })()}
-                    <span className="text-base font-semibold text-gray-900 dark:text-white">
-                      {selectedRequest.type}
-                    </span>
-                  </div>
-                </div>
-                <Separator className="opacity-60" />
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Từ ngày</span>
-                  <span className="text-base font-medium text-gray-900 dark:text-white">
-                    {formatDate(selectedRequest.startDate)}
+      {/* View Details BottomSheet */}
+      <BottomSheet
+        open={viewSheetOpen}
+        onOpenChange={setViewSheetOpen}
+        title="Chi tiết đơn nghỉ"
+        description="Thông tin chi tiết về đơn xin nghỉ"
+      >
+        {selectedRequest && (
+          <div className="space-y-4 pb-6">
+            {/* iOS-style Info Card */}
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500 dark:text-gray-400">Loại nghỉ</span>
+                <div className="flex items-center gap-2">
+                  {(() => {
+                    const Icon = getLeaveIcon(selectedRequest.type)
+                    return <Icon className="size-5 text-blue-600 dark:text-blue-400" />
+                  })()}
+                  <span className="text-base font-semibold text-gray-900 dark:text-white">
+                    {selectedRequest.type}
                   </span>
-                </div>
-                <Separator className="opacity-60" />
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Đến ngày</span>
-                  <span className="text-base font-medium text-gray-900 dark:text-white">
-                    {formatDate(selectedRequest.endDate)}
-                  </span>
-                </div>
-                <Separator className="opacity-60" />
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Số ngày nghỉ</span>
-                  <div className="flex items-center gap-2">
-                    <Clock className="size-4 text-gray-400" />
-                    <span className="text-base font-semibold text-blue-600 dark:text-blue-400">
-                      {calculateDays(selectedRequest.startDate, selectedRequest.endDate)} ngày
-                    </span>
-                  </div>
-                </div>
-                <Separator className="opacity-60" />
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Trạng thái</span>
-                  <div
-                    className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
-                      selectedRequest.status === 'pending'
-                        ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
-                        : selectedRequest.status === 'approved'
-                          ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-                          : 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400'
-                    }`}
-                  >
-                    {selectedRequest.status === 'pending'
-                      ? 'Chờ duyệt'
-                      : selectedRequest.status === 'approved'
-                        ? 'Đã duyệt'
-                        : 'Từ chối'}
-                  </div>
                 </div>
               </div>
-
-              {/* Reason Section */}
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold text-gray-900 dark:text-white">
-                  Lý do nghỉ
-                </Label>
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4">
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    {selectedRequest.reason}
-                  </p>
+              <Separator className="opacity-60" />
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500 dark:text-gray-400">Từ ngày</span>
+                <span className="text-base font-medium text-gray-900 dark:text-white">
+                  {formatDate(selectedRequest.startDate)}
+                </span>
+              </div>
+              <Separator className="opacity-60" />
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500 dark:text-gray-400">Đến ngày</span>
+                <span className="text-base font-medium text-gray-900 dark:text-white">
+                  {formatDate(selectedRequest.endDate)}
+                </span>
+              </div>
+              <Separator className="opacity-60" />
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500 dark:text-gray-400">Số ngày nghỉ</span>
+                <div className="flex items-center gap-2">
+                  <Clock className="size-4 text-gray-400" />
+                  <span className="text-base font-semibold text-blue-600 dark:text-blue-400">
+                    {calculateDays(selectedRequest.startDate, selectedRequest.endDate)} ngày
+                  </span>
+                </div>
+              </div>
+              <Separator className="opacity-60" />
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500 dark:text-gray-400">Trạng thái</span>
+                <div
+                  className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+                    selectedRequest.status === 'pending'
+                      ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                      : selectedRequest.status === 'approved'
+                        ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+                        : 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400'
+                  }`}
+                >
+                  {selectedRequest.status === 'pending'
+                    ? 'Chờ duyệt'
+                    : selectedRequest.status === 'approved'
+                      ? 'Đã duyệt'
+                      : 'Từ chối'}
                 </div>
               </div>
             </div>
-          )}
-        </SheetContent>
-      </Sheet>
+
+            {/* Reason Section */}
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-gray-900 dark:text-white">
+                Lý do nghỉ
+              </Label>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4">
+                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                  {selectedRequest.reason}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </BottomSheet>
 
       {/* Confirmation Dialog */}
       <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
@@ -512,164 +508,182 @@ export default function LeavesMobile() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Create Leave Request Sheet - iOS Style */}
-      <Sheet open={createSheetOpen} onOpenChange={setCreateSheetOpen}>
-        <SheetContent side="bottom" className="rounded-t-3xl max-h-[90vh] overflow-y-auto p-4 pb-6">
-          <SheetHeader className="text-left pb-4">
-            <SheetTitle className="text-xl font-bold">Tạo đơn xin nghỉ</SheetTitle>
-            <SheetDescription className="text-sm text-gray-500">
-              Điền thông tin để gửi đơn xin nghỉ mới
-            </SheetDescription>
-          </SheetHeader>
+      {/* Create Leave Request BottomSheet */}
+      <BottomSheet
+        open={createSheetOpen}
+        onOpenChange={setCreateSheetOpen}
+        title="Tạo đơn xin nghỉ"
+        description="Điền thông tin để gửi đơn xin nghỉ mới"
+        maxHeightClassName="max-h-[90vh]"
+      >
+        <div className="space-y-4 pb-6">
+          {/* Leave Type */}
+          <div className="space-y-2">
+            <Label
+              htmlFor="mobile-type"
+              className="text-sm font-semibold text-gray-900 dark:text-white"
+            >
+              Loại nghỉ <span className="text-red-500">*</span>
+            </Label>
+            <Select value={type} onValueChange={(v) => setType(v as LeaveType)}>
+              <SelectTrigger
+                id="mobile-type"
+                className="h-12 rounded-xl border-gray-200 dark:border-gray-700"
+              >
+                <SelectValue placeholder="Chọn loại nghỉ" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Nghỉ phép năm">
+                  <div className="flex items-center gap-2">
+                    <Plane className="size-4" />
+                    Nghỉ phép năm
+                  </div>
+                </SelectItem>
+                <SelectItem value="Nghỉ ốm">
+                  <div className="flex items-center gap-2">
+                    <Heart className="size-4" />
+                    Nghỉ ốm
+                  </div>
+                </SelectItem>
+                <SelectItem value="Nghỉ không lương">
+                  <div className="flex items-center gap-2">
+                    <Briefcase className="size-4" />
+                    Nghỉ không lương
+                  </div>
+                </SelectItem>
+                <SelectItem value="Nghỉ thai sản">
+                  <div className="flex items-center gap-2">
+                    <Baby className="size-4" />
+                    Nghỉ thai sản
+                  </div>
+                </SelectItem>
+                <SelectItem value="Nghỉ hiếu">
+                  <div className="flex items-center gap-2">
+                    <Umbrella className="size-4" />
+                    Nghỉ hiếu
+                  </div>
+                </SelectItem>
+                <SelectItem value="Nghỉ cưới">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="size-4" />
+                    Nghỉ cưới
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <div className="space-y-4 pb-6">
-            {/* Leave Type */}
+          {/* Date Range */}
+          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label
-                htmlFor="mobile-type"
+                htmlFor="mobile-start"
                 className="text-sm font-semibold text-gray-900 dark:text-white"
               >
-                Loại nghỉ <span className="text-red-500">*</span>
+                Từ ngày <span className="text-red-500">*</span>
               </Label>
-              <Select value={type} onValueChange={(v) => setType(v as LeaveType)}>
-                <SelectTrigger
-                  id="mobile-type"
-                  className="h-12 rounded-xl border-gray-200 dark:border-gray-700"
-                >
-                  <SelectValue placeholder="Chọn loại nghỉ" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Nghỉ phép năm">
-                    <div className="flex items-center gap-2">
-                      <Plane className="size-4" />
-                      Nghỉ phép năm
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="Nghỉ ốm">
-                    <div className="flex items-center gap-2">
-                      <Heart className="size-4" />
-                      Nghỉ ốm
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="Nghỉ không lương">
-                    <div className="flex items-center gap-2">
-                      <Briefcase className="size-4" />
-                      Nghỉ không lương
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="Nghỉ thai sản">
-                    <div className="flex items-center gap-2">
-                      <Baby className="size-4" />
-                      Nghỉ thai sản
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="Nghỉ hiếu">
-                    <div className="flex items-center gap-2">
-                      <Umbrella className="size-4" />
-                      Nghỉ hiếu
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="Nghỉ cưới">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="size-4" />
-                      Nghỉ cưới
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Date Range */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="mobile-start"
-                  className="text-sm font-semibold text-gray-900 dark:text-white"
-                >
-                  Từ ngày <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="mobile-start"
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="h-12 rounded-xl border-gray-200 dark:border-gray-700"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label
-                  htmlFor="mobile-end"
-                  className="text-sm font-semibold text-gray-900 dark:text-white"
-                >
-                  Đến ngày <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="mobile-end"
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="h-12 rounded-xl border-gray-200 dark:border-gray-700"
-                />
-              </div>
-            </div>
-
-            {/* Days Calculation */}
-            {startDate && endDate && (
-              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                    <Clock className="size-5 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-0.5">
-                      Tổng số ngày nghỉ
-                    </p>
-                    <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                      {calculateDays(startDate, endDate)} ngày
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Reason */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="mobile-reason"
-                className="text-sm font-semibold text-gray-900 dark:text-white"
-              >
-                Lý do <span className="text-red-500">*</span>
-              </Label>
-              <Textarea
-                id="mobile-reason"
-                placeholder="Nhập lý do xin nghỉ..."
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                rows={4}
-                className="resize-none rounded-xl border-gray-200 dark:border-gray-700"
+              <Input
+                id="mobile-start"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="h-12 rounded-xl border-gray-200 dark:border-gray-700"
               />
             </div>
-
-            {/* iOS-style Action Buttons */}
-            <div className="flex gap-3 pt-2">
-              <Button
-                onClick={() => setCreateSheetOpen(false)}
-                className="flex-1 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors border border-gray-200 dark:border-gray-700"
-                variant="outline"
+            <div className="space-y-2">
+              <Label
+                htmlFor="mobile-end"
+                className="text-sm font-semibold text-gray-900 dark:text-white"
               >
-                Hủy
-              </Button>
-              <Button
-                onClick={addItem}
-                disabled={!type || !startDate || !endDate || !reason}
-                className="flex-1 h-12 rounded-xl bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
-              >
-                Gửi đơn
-              </Button>
+                Đến ngày <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="mobile-end"
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="h-12 rounded-xl border-gray-200 dark:border-gray-700"
+              />
             </div>
           </div>
-        </SheetContent>
-      </Sheet>
+
+          {/* Leave session when single-day */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold text-gray-900 dark:text-white">Theo buổi</Label>
+            <Select value={session} onValueChange={(v) => setSession(v as any)}>
+              <SelectTrigger className="h-12 rounded-xl border-gray-200 dark:border-gray-700">
+                <SelectValue placeholder="Cả ngày / Buổi sáng / Buổi chiều" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="FULL">Cả ngày</SelectItem>
+                <SelectItem value="AM">Buổi sáng</SelectItem>
+                <SelectItem value="PM">Buổi chiều</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400">
+              Chỉ áp dụng khi xin nghỉ trong 1 ngày.
+            </p>
+          </div>
+
+          {/* Days Calculation */}
+          {startDate && endDate && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                  <Clock className="size-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-0.5">
+                    Tổng số ngày nghỉ
+                  </p>
+                  <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                    {calculateDays(startDate, endDate) === 1 && session !== 'FULL'
+                      ? 0.5
+                      : calculateDays(startDate, endDate)}{' '}
+                    ngày
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Reason */}
+          <div className="space-y-2">
+            <Label
+              htmlFor="mobile-reason"
+              className="text-sm font-semibold text-gray-900 dark:text-white"
+            >
+              Lý do <span className="text-red-500">*</span>
+            </Label>
+            <Textarea
+              id="mobile-reason"
+              placeholder="Nhập lý do xin nghỉ..."
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              rows={4}
+              className="resize-none rounded-xl border-gray-200 dark:border-gray-700"
+            />
+          </div>
+
+          {/* iOS-style Action Buttons */}
+          <div className="flex gap-3 pt-2">
+            <Button
+              onClick={() => setCreateSheetOpen(false)}
+              className="flex-1 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors border border-gray-200 dark:border-gray-700"
+              variant="outline"
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={addItem}
+              disabled={!type || !startDate || !endDate || !reason}
+              className="flex-1 h-12 rounded-xl bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+            >
+              Gửi đơn
+            </Button>
+          </div>
+        </div>
+      </BottomSheet>
     </div>
   )
 }

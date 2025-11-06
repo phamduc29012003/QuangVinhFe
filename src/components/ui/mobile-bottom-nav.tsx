@@ -41,7 +41,7 @@ const navItems: NavItem[] = [
     id: 'profile',
     label: 'Cá nhân',
     icon: User,
-    path: '/mobile/profile',
+    path: '/profile',
   },
 ]
 

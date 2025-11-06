@@ -6,7 +6,8 @@ export interface User {
   id: string
   email: string
   name: string
-  roles?: UserRole[]
+  phone: string
+  roles?: string[]
   avatar?: string
   createdAt: string
   updatedAt: string

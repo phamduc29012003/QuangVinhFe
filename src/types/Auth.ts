@@ -16,6 +16,7 @@ export interface AuthActions {
   register: (email: string, password: string, name: string) => Promise<void>
   clearError: () => void
   setLoading: (loading: boolean) => void
+  setAuth: (user: User, token: string, role?: string) => void
 }
 
 export type AuthStore = AuthState & AuthActions
@@ -23,6 +24,7 @@ export type AuthStore = AuthState & AuthActions
 export interface LoginResponse {
   user: User
   token: string
+  role: string
 }
 
 export interface RegisterResponse {
