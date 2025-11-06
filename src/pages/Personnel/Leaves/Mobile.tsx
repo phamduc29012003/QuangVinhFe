@@ -55,6 +55,7 @@ type LeaveRequest = {
   type: LeaveType
   startDate: string
   endDate: string
+  session?: any
   reason: string
   status: LeaveStatus
   createdAt: string
