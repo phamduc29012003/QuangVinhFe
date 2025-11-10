@@ -6,6 +6,15 @@ import { queryClient } from './lib/queryClient.ts'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 // import { SocketProvider } from './providers/SocketProvider.tsx'
 import { Toaster } from 'sonner'
+import { registerSW } from 'virtual:pwa-register'
+
+const registerServiceWorker = () => {
+  if ('serviceWorker' in navigator) {
+    registerSW({
+      immediate: true,
+    })
+  }
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -18,3 +27,5 @@ createRoot(document.getElementById('root')!).render(
     </QueryClientProvider>
   </StrictMode>
 )
+
+registerServiceWorker()

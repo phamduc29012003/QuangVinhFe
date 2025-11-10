@@ -17,9 +17,9 @@ export default defineConfig(({ mode }) => {
         registerType: 'autoUpdate',
         includeAssets: ['favicon.svg', 'robots.txt', 'apple-touch-icon.png'],
         manifest: {
-          name: 'My PWA React App',
-          short_name: 'ReactPWA',
-          description: 'My awesome React + TypeScript + Vite + PWA app',
+          name: 'Quang Vinh Management',
+          short_name: 'Quang Vinh Mobile',
+          description: 'Quang Vinh Management Task',
           theme_color: '#ffffff',
           display: 'standalone',
           background_color: '#ffffff',
@@ -59,6 +59,7 @@ export default defineConfig(({ mode }) => {
           rewrite: (path) => path.replace(/^\/api/, '/api'),
         },
       },
+      allowedHosts: true,
     },
   }
 })
