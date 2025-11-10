@@ -17,7 +17,6 @@ export const useLogin = () => {
     },
     onSuccess: (data) => {
       const { user, token } = data.data
-      console.log(data)
 
       setTokenAuth(token as unknown as string)
       SonnerToaster({
