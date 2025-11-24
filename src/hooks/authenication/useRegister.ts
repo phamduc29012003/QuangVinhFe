@@ -1,3 +1,4 @@
+import { API_ENDPOINT } from '@/common'
 import SonnerToaster from '@/components/ui/toaster'
 import { POST } from '@/core/api'
 import type { RegisterResponse } from '@/types/Auth'
@@ -11,11 +12,10 @@ export const useRegister = () => {
   const navigate = useNavigate()
   const registerMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await POST('/api/auth/register', data)
+      const response = await POST(API_ENDPOINT.REGISTER, data)
       return response as AxiosResponse<RegisterResponse>
     },
     onSuccess: (response) => {
-      console.log('response', response)
       setTokenAuth(response.data.token as unknown as string)
       SonnerToaster({
         type: 'success',
@@ -24,7 +24,6 @@ export const useRegister = () => {
       navigate('/dashboard')
     },
     onError: (error) => {
-      console.log('error', error)
       handleCommonError(error)
     },
   })

@@ -130,7 +130,7 @@ export const DetailTask = () => {
   }
   if (!task) return <div className="text-center pt-20 text-2xl text-gray-400">Task not found.</div>
   return (
-    <div className="flex flex-col xl:flex-row gap-6 xl:gap-16 p-4 md:p-7 bg-white min-h-screen">
+    <div className="flex flex-col xl:flex-row gap-6 xl:gap-16 p-4 md:p-7 bg-white">
       {/* Main content left */}
       <div className="flex-1 max-w-2xl w-full order-2 xl:order-1">
         {/* Header Bar & Title */}

@@ -1,5 +1,4 @@
 // services/api.ts
-import SonnerToaster from '@/components/ui/toaster'
 import { getAuthorization } from '@/utils/auth'
 import axios, { type AxiosRequestConfig } from 'axios'
 
@@ -18,21 +17,11 @@ export const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = getAuthorization()
-    const origin = window.location.origin
-    const allowedOrigins = ['https://example.com', 'https://yourdomain.com']
-    const isAllowedOrigin = allowedOrigins.includes(origin)
 
     // Thêm token nếu có
     if (token) {
       config.headers.Authorization = token
     }
-
-    // Thêm các header CORS vào request
-    config.headers['Access-Control-Allow-Origin'] = isAllowedOrigin ? origin : 'null'
-    config.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-    config.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
-    config.headers['Access-Control-Allow-Credentials'] = 'true'
-    config.headers['Access-Control-Max-Age'] = '86400'
 
     return config
   },
@@ -49,11 +38,6 @@ api.interceptors.response.use(
 
     if (status === 401 && !isLoginRequest) {
       // Sonner Toaster
-      SonnerToaster({
-        type: 'error',
-        message: 'Unauthorized',
-        description: error.response?.data?.message,
-      })
     }
 
     isLoginRequest = false
