@@ -3,3 +3,7 @@ export interface IProjectAssignment {
   description: string
   value: string
 }
+
+export interface IProjectTest {
+
+}
