@@ -7,53 +7,107 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { useSocketContext } from '@/providers/SocketProvider'
+import { useCheckNotiUnread } from '@/hooks/notifications/useCheckNotiUnread'
 
+/**
+ * Bell Notification Component
+ *
+ * Features:
+ * - Hiển thị badge khi có notification chưa đọc
+ * - Real-time notification qua Socket.IO (auto-handled by useNotifications in WebLayout)
+ * - Dropdown hiển thị preview notifications
+ */
 export default function BellNotification() {
+  const { isConnected, hasNewNoti } = useSocketContext()
+  const { isUnread, notifications } = useCheckNotiUnread()
+
+  // Show badge nếu có unread hoặc có notification mới từ socket
+  const showBadge = hasNewNoti || isUnread
+  const unreadCount = notifications.filter((n) => !n.read).length
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="relative rounded-full cursor-pointer">
+        <Button
+          variant="outline"
+          size="icon"
+          className="relative rounded-full cursor-pointer"
+          title={isConnected ? 'Notifications' : 'Reconnecting...'}
+        >
           <BellIcon className="h-5 w-5 rounded-full" />
-          <Badge className="absolute -top-2 -right-2 rounded-full bg-red-500 text-white px-2 py-0.5 text-xs font-medium">
-            3
-          </Badge>
+
+          {/* Badge hiển thị số notification chưa đọc */}
+          {showBadge && unreadCount > 0 && (
+            <Badge className="absolute -top-2 -right-2 rounded-full bg-red-500 text-white px-2 py-0.5 text-xs font-medium">
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </Badge>
+          )}
+
+          {/* Connection indicator (optional - for debugging) */}
+          {!isConnected && (
+            <span className="absolute -bottom-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full border border-white" />
+          )}
         </Button>
       </DropdownMenuTrigger>
+
       <DropdownMenuContent align="end" className="w-80 p-4">
         <DropdownMenuLabel className="mb-2 text-lg font-medium">Notifications</DropdownMenuLabel>
         <DropdownMenuSeparator className="my-2" />
-        <div className="space-y-4">
-          <div className="flex items-start gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white">
-              <CalendarIcon className="h-5 w-5" />
-            </div>
-            <div className="flex-1 space-y-1">
-              <p className="text-sm font-medium">Your call has been confirmed</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">5 minutes ago</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white">
-              <InboxIcon className="h-5 w-5" />
-            </div>
-            <div className="flex-1 space-y-1">
-              <p className="text-sm font-medium">You have a new message</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">1 minute ago</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white">
-              <CalendarCheck2Icon className="h-5 w-5" />
-            </div>
-            <div className="flex-1 space-y-1">
-              <p className="text-sm font-medium">Your subscription is expiring soon</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">2 hours ago</p>
-            </div>
-          </div>
+
+        {/* Hiển thị danh sách notifications */}
+        <div className="space-y-4 max-h-96 overflow-y-auto">
+          {notifications.length === 0 ? (
+            <p className="text-sm text-gray-500 text-center py-4">Không có thông báo nào</p>
+          ) : (
+            notifications.slice(0, 5).map((notification) => (
+              <div
+                key={notification.id}
+                className={`flex items-start gap-3 p-2 rounded-lg transition-colors ${
+                  !notification.read ? 'bg-blue-50' : 'hover:bg-gray-50'
+                }`}
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white flex-shrink-0">
+                  <BellIcon className="h-4 w-4" />
+                </div>
+                <div className="flex-1 space-y-1">
+                  <p className={`text-sm ${!notification.read ? 'font-medium' : ''}`}>
+                    {notification.message}
+                  </p>
+                  <p className="text-xs text-gray-500">{formatTime(notification.created_at)}</p>
+                </div>
+              </div>
+            ))
+          )}
         </div>
+
+        {/* View all link */}
+        {notifications.length > 0 && (
+          <>
+            <DropdownMenuSeparator className="my-2" />
+            <a
+              href="/notifications"
+              className="block text-sm text-blue-600 hover:text-blue-700 text-center font-medium"
+            >
+              Xem tất cả →
+            </a>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )
+}
+
+// Helper function để format thời gian
+function formatTime(timestamp: string): string {
+  const now = new Date()
+  const time = new Date(timestamp)
+  const diff = Math.floor((now.getTime() - time.getTime()) / 1000)
+
+  if (diff < 60) return 'Vừa xong'
+  if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`
+  if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`
+  return `${Math.floor(diff / 86400)} ngày trước`
 }
 
 function BellIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -72,71 +126,6 @@ function BellIcon(props: React.SVGProps<SVGSVGElement>) {
     >
       <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
       <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-    </svg>
-  )
-}
-
-function CalendarCheck2Icon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M8 2v4" />
-      <path d="M16 2v4" />
-      <path d="M21 14V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8" />
-      <path d="M3 10h18" />
-      <path d="m16 20 2 2 4-4" />
-    </svg>
-  )
-}
-
-function CalendarIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M8 2v4" />
-      <path d="M16 2v4" />
-      <rect width="18" height="18" x="3" y="4" rx="2" />
-      <path d="M3 10h18" />
-    </svg>
-  )
-}
-
-function InboxIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
-      <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
     </svg>
   )
 }

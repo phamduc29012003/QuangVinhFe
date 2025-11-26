@@ -1,5 +1,6 @@
 // User roles
-export type UserRole = 'DIRECTOR' | 'MANAGER' | 'WORKER'
+
+import type { UserRole } from '@/constants'
 
 // User-related types
 export interface User {

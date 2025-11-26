@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router'
 import { useAuthStore } from '@/stores/authStore'
-import type { UserRole } from '@/types/User'
+import type { UserRole } from '@/constants'
 
 interface RoleRouteProps {
   children: React.ReactNode

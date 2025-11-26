@@ -15,3 +15,6 @@ export function createQueryKeys<T extends string | number>(baseName: string): Qu
     detail: (id: T) => [baseName, QUERY_KEY_TYPE.DETAIL, id] as const,
   }
 }
+
+// Query keys for notifications
+export const notificationsKeys = createQueryKeys<number>('notifications')

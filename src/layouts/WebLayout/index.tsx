@@ -31,8 +31,13 @@ export interface INavigateItems {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import BellNotification from '@/components/ui/bell'
 import { useAuthStore } from '@/stores'
+import { ROLE } from '@/constants'
+import { useNotifications } from '@/hooks/notifications/useNotifications'
 
 const WebLayout = ({ children }: Props) => {
+  // Enable real-time notifications
+  useNotifications()
+
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
 
@@ -41,7 +46,6 @@ const WebLayout = ({ children }: Props) => {
 
   const { user } = useAuthStore()
   const userRoles = user?.roles || []
-
   const handleLogout = () => {
     navigate('/profile')
   }
@@ -106,10 +110,18 @@ const WebLayout = ({ children }: Props) => {
       href: '/personnel',
       hasSubmenu: true,
       expanded: expandedItems.has('personnel'),
-      roles: ['DIRECTOR', 'MANAGER'],
+      roles: [ROLE.DIRECTOR, ROLE.MANAGER, ROLE.WORKER],
       subItems: [
-        { label: 'Danh sách nhân sự', href: '/personnel/list', roles: ['DIRECTOR', 'MANAGER'] },
-        { label: 'Quản lý lịch nghỉ', href: '/personnel/leaves', roles: ['MANAGER', 'DIRECTOR'] },
+        {
+          label: 'Danh sách nhân sự',
+          href: '/personnel/list',
+          roles: [ROLE.DIRECTOR, ROLE.MANAGER],
+        },
+        {
+          label: 'Quản lý lịch nghỉ',
+          href: '/personnel/leaves',
+          roles: [ROLE.MANAGER, ROLE.DIRECTOR, ROLE.WORKER],
+        },
         { label: 'Chức vụ', href: '/personnel/positions' },
       ],
     },
@@ -128,7 +140,7 @@ const WebLayout = ({ children }: Props) => {
       href: '/documents',
       subItems: [
         { label: 'Tài liệu của tôi', href: '/documents/my' },
-        { label: 'Tài liệu được chia sẻ', href: '/documents/shared', roles: ['DIRECTOR'] },
+        { label: 'Tài liệu được chia sẻ', href: '/documents/shared', roles: [ROLE.DIRECTOR] },
       ],
     },
   ]
