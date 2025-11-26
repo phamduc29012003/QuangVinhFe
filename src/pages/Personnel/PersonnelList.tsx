@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { TableBase, type ColumnType } from '@/components/base/DataTable/TableBase'
-import type { User, UserRole } from '@/types/User'
+import type { User } from '@/types/User'
+import type { UserRole } from '@/constants'
 
 // Sample data - sẽ thay bằng API call sau
 const samplePersonnel: User[] = [

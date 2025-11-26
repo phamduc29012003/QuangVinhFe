@@ -10,7 +10,7 @@ let isLoginRequest = false
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
-  timeout: 30000,
+  timeout: 10000,
 })
 
 // Attach JWT to every request if exists

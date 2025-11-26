@@ -1,25 +1,73 @@
-/* eslint-disable react-refresh/only-export-components */
 'use client'
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 import { Socket } from 'socket.io-client'
 import { useSocket } from '@/hooks/useSocket'
 import { getTokenAuth } from '@/utils/auth'
+import { SOCKET_CONFIG } from '@/constants/socket'
+import { queryClient } from '@/lib/queryClient'
+import { notificationsKeys } from '@/constants/queryKey'
 
-const SocketContext = createContext<{ socket: Socket | null }>({ socket: null })
-//tại sao dùng context thay cho zustand với socket
-// socket được lưu trong ref → không gây re-render khi emit/on event.?\\
-// Toàn app chỉ cần useSocketContext() để lấy instance, không lo state thay đổi trigger re-render.
-export function SocketProvider({ children }: { children: React.ReactNode }) {
-  const token = getTokenAuth()
-  const socketRef = useSocket('VITE_ENV.PORT_DEMO', {
-    auth: { token: token },
-  })
-
-  return (
-    <SocketContext.Provider value={{ socket: socketRef.current }}>
-      {children}
-    </SocketContext.Provider>
-  )
+interface SocketContextValue {
+  socket: Socket | null
+  isConnected: boolean
+  hasNewNoti: boolean
+  messages: string | null
+  receiveMessageTime: number | null
+  setUnread: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const useSocketContext = () => useContext(SocketContext)
+const SocketContext = createContext<SocketContextValue | null>(null)
+
+/**
+ * SocketProvider - Quản lý Socket.IO connection và tích hợp React Query
+ *
+ * Tại sao dùng context thay cho zustand?
+ * - Socket được lưu trong ref → không gây re-render khi emit/on event
+ * - Toàn app chỉ cần useSocketContext() để lấy instance
+ * - Khi nhận message, auto-invalidate React Query để refetch data
+ */
+export function SocketProvider({ children }: { children: React.ReactNode }) {
+  const token = getTokenAuth()
+  const { socket, isConnected, messages, receiveMessageTime } = useSocket(SOCKET_CONFIG.URL, {
+    auth: { token },
+    autoConnect: true,
+  })
+
+  const [hasNewNoti, setHasNewNoti] = useState(false)
+
+  /**
+   * Auto-invalidate React Query khi nhận message mới
+   */
+  useEffect(() => {
+    if (receiveMessageTime) {
+      console.log('[SocketProvider] New message received, invalidating queries...')
+
+      // Invalidate tất cả notification queries
+      queryClient.invalidateQueries({
+        queryKey: notificationsKeys.all,
+      })
+
+      // Set flag có notification mới
+      setHasNewNoti(true)
+    }
+  }, [receiveMessageTime])
+
+  const contextValue: SocketContextValue = {
+    socket,
+    isConnected,
+    hasNewNoti,
+    messages,
+    receiveMessageTime,
+    setUnread: setHasNewNoti,
+  }
+
+  return <SocketContext.Provider value={contextValue}>{children}</SocketContext.Provider>
+}
+
+export const useSocketContext = () => {
+  const context = useContext(SocketContext)
+  if (!context) {
+    throw new Error('useSocketContext must be used within SocketProvider')
+  }
+  return context
+}
