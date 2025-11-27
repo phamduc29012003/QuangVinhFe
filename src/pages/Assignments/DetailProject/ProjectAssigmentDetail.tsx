@@ -47,7 +47,7 @@ function generateId(prefix: string = 'id'): string {
 
 export const ProjectAssignmentDetail: React.FC = () => {
   const { id } = useParams()
-  const { projectAssignmentDetail, isFetching, error } = useGetDetailProject(Number(id))
+  const { projectAssignmentDetail } = useGetDetailProject(Number(id))
   console.log('projectAssignmentDetail', projectAssignmentDetail)
   const authUser = useAuthStore((s) => s.user)
   const isMobile = useIsMobile()
