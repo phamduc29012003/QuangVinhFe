@@ -1,9 +1,10 @@
 import { POST } from '@/core/api'
 import { useMutation } from '@tanstack/react-query'
-import { handleCommonError } from '@/utils/handleErrors'
 import SonnerToaster from '@/components/ui/toaster'
 import type { IProject } from '@/types/project'
 import { API_ENDPOINT } from '@/common'
+import { projectsAssignmentsKey } from '@/constants/assignments/assignment'
+import { queryClient } from '@/lib/queryClient'
 
 export const useCreateProject = () => {
   const createProjectMutation = useMutation({
@@ -12,14 +13,12 @@ export const useCreateProject = () => {
       return response
     },
     onSuccess: (respones) => {
+      queryClient.invalidateQueries({ queryKey: [projectsAssignmentsKey.getAll] })
       SonnerToaster({
         type: 'success',
-        message: 'Project created successfully',
+        message: 'Tạo dự án thành công',
         description: respones.message,
       })
-    },
-    onError: (error) => {
-      handleCommonError(error)
     },
   })
 

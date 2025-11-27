@@ -24,7 +24,7 @@ export type AuthStore = AuthState & AuthActions
 export interface LoginResponse {
   user: User
   token: string
-  role: string
+  role?: string
 }
 
 export interface RegisterResponse {

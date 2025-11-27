@@ -8,6 +8,7 @@ export const API_ENDPOINT = {
   GET_PROJECTS: '/api/task-group/get-list',
   UPDATE_PROJECT: '/api/task-group/update',
   DELETE_PROJECT: '/api/task-group/delete',
+  GET_PROJECT_DETAIL: '/api/task-group/get-detail',
   // task
   CREATE_TASK: '/api/task/create',
   GET_TASKS: '/api/task/get-list',

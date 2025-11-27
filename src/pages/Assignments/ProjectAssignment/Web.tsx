@@ -6,26 +6,29 @@ import ProjectGrid from '@/components/Assignments/ProjectGrid'
 import { useGetProjectList } from '@/hooks/assignments/useGetProjectList'
 import { useCreateProject } from '@/hooks/assignments/useCreateProject'
 import type { IProject } from '@/types/project'
-import { useAuthStore } from '@/stores'
+import PaginationControl from '@/components/common/PaginationControl'
 
 const ProjectAssignment = () => {
-  const { user } = useAuthStore()
-  const { projectsAssignments, isFetching } = useGetProjectList({
-    statuses: null,
-    ownerIds: [Number(user?.id)],
-    offset: 0,
-    limit: 10,
-  })
+  const [currentPage, setCurrentPage] = useState(1)
+  const [search, setSearch] = useState('')
+  const itemsPerPage = 9
 
-  console.log('projectsAssignments', projectsAssignments)
+  const { projectsAssignments, total, totalPages, isFetching } = useGetProjectList({
+    statuses: null,
+    ownerIds: [],
+    offset: (currentPage - 1) * itemsPerPage,
+    limit: itemsPerPage,
+  })
 
   const { createProjectMutation } = useCreateProject()
   const [open, setOpen] = useState(false)
-  const [search, setSearch] = useState('')
 
   const onCreate = (data: IProject) => {
     createProjectMutation.mutate(data)
   }
+
+  // Calculate total pages: use API's totalPages if available, otherwise calculate from total
+  const calculatedTotalPages = totalPages > 0 ? totalPages : Math.ceil(total / itemsPerPage)
 
   return (
     <div className="space-y-6 p-4">
@@ -49,6 +52,13 @@ const ProjectAssignment = () => {
       </div>
 
       <ProjectGrid projects={projectsAssignments} loading={isFetching} />
+
+      {/* Pagination */}
+      <PaginationControl
+        currentPage={currentPage}
+        totalPages={calculatedTotalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   )
 }

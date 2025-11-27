@@ -7,6 +7,7 @@ import TaskList from '@/components/Assignments/ProjectDetailTable/TaskList'
 import { useIsMobile } from '@/hooks/use-mobile'
 import InviteMemberModal from '@/components/Assignments/InviteMemberModal'
 import { Overview } from '@/components/Assignments/overview'
+import { useGetDetailProject } from '@/hooks/assignments/useGetDetailProject'
 
 export type User = {
   id: string
@@ -46,6 +47,8 @@ function generateId(prefix: string = 'id'): string {
 
 export const ProjectAssignmentDetail: React.FC = () => {
   const { id } = useParams()
+  const { projectAssignmentDetail } = useGetDetailProject(Number(id))
+  console.log('projectAssignmentDetail', projectAssignmentDetail)
   const authUser = useAuthStore((s) => s.user)
   const isMobile = useIsMobile()
 
@@ -143,8 +146,7 @@ export const ProjectAssignmentDetail: React.FC = () => {
     <div className="p-4 flex flex-col gap-4">
       <div className="flex justify-between items-center">
         <div className="flex flex-col gap-2">
-          <h2 className="m-0">{project.name}</h2>
-          {project.description ? <p className="m-0 text-gray-500">{project.description}</p> : null}
+          <h2 className="m-0">{projectAssignmentDetail?.name}</h2>
           <div className="flex items-center gap-2 mt-2">
             <span className="text-xs text-gray-500">Thành viên:</span>
             <div className="flex gap-1.5 flex-wrap">
