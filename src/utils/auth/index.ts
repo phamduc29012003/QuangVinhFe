@@ -1,3 +1,5 @@
+import { queryClient } from '@/lib/queryClient'
+
 export const getAuthorization = () => {
   const token = getTokenAuth()
   return token ? `Bearer ${token}` : undefined
@@ -9,6 +11,7 @@ export const setTokenAuth = (token: string) => {
 
 export const logout = () => {
   localStorage.removeItem('token')
+  queryClient.clear()
 }
 
 export const getTokenAuth = () => {

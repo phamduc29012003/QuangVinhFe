@@ -31,7 +31,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     isLoginRequest = false
-    return response
+    return response.data
   },
   (error) => {
     const status = error.response?.status

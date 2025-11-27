@@ -4,28 +4,24 @@ interface InfoGridProps {
   isOwnProfile: boolean
   isLoading?: boolean
   isSaving?: boolean
-  address: string
+  email: string
   phone: string
-  education: string
   position: string
-  onChangeAddress: (v: string) => void
+  onChangeEmail: (v: string) => void
   onChangePhone: (v: string) => void
-  onChangeEducation: (v: string) => void
   onChangePosition: (v: string) => void
-  onUpdateField: (field: 'address' | 'phone' | 'education' | 'position') => void
+  onUpdateField: (field: 'email' | 'phone' | 'position') => void
 }
 
 export const InfoGrid = ({
   isOwnProfile,
   isLoading,
   isSaving,
-  address,
+  email,
   phone,
-  education,
   position,
-  onChangeAddress,
+  onChangeEmail,
   onChangePhone,
-  onChangeEducation,
   onChangePosition,
   onUpdateField,
 }: InfoGridProps) => {
@@ -33,12 +29,12 @@ export const InfoGrid = ({
   return (
     <div className="mt-2 grid w-full max-w-3xl grid-cols-1 gap-3 md:grid-cols-2">
       <InlineField
-        value={address}
-        placeholder="Địa chỉ"
+        value={email}
+        placeholder="Email"
         disabled={disabled}
         saving={isSaving}
-        onChange={onChangeAddress}
-        onUpdate={() => onUpdateField('address')}
+        onChange={onChangeEmail}
+        onUpdate={() => onUpdateField('email')}
       />
       <InlineField
         value={phone}
@@ -47,14 +43,6 @@ export const InfoGrid = ({
         saving={isSaving}
         onChange={onChangePhone}
         onUpdate={() => onUpdateField('phone')}
-      />
-      <InlineField
-        value={education}
-        placeholder="Học vấn"
-        disabled={disabled}
-        saving={isSaving}
-        onChange={onChangeEducation}
-        onUpdate={() => onUpdateField('education')}
       />
       <InlineField
         value={position}

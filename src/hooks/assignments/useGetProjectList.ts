@@ -12,8 +12,17 @@ export const useGetProjectList = (payload: getProjectListParams) => {
       return response
     },
     select(data) {
-      return data.data.taskGroups
+      return {
+        taskGroups: data.taskGroups || [],
+        total: data.total || 0,
+        totalPages: data.totalPages || 0,
+      }
     },
   })
-  return { projectsAssignments: data, isFetching }
+  return {
+    projectsAssignments: data?.taskGroups || [],
+    total: data?.total || 14,
+    totalPages: data?.totalPages || 0,
+    isFetching,
+  }
 }

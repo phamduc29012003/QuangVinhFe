@@ -24,9 +24,8 @@ export const Profile = () => {
   const [isLoading, setIsLoading] = useState(false)
 
   // extra fields
-  const [address, setAddress] = useState<string>('')
+  const [email, setEmail] = useState<string>('')
   const [phone, setPhone] = useState<string>('')
-  const [education, setEducation] = useState<string>('')
   const [position, setPosition] = useState<string>('')
 
   // inline field state handled inside components now
@@ -35,9 +34,8 @@ export const Profile = () => {
   const getMockProfile = () => ({
     name: 'Nguyễn Văn A',
     avatar: '',
-    address: '123 Lê Lợi, Quận 1, TP.HCM',
+    email: 'example@gmail.com',
     phone: '0909 123 456',
-    education: 'Đại học Công nghệ Thông tin',
     position: 'Nhân viên',
   })
 
@@ -48,10 +46,9 @@ export const Profile = () => {
     if (isOwnProfile && user) {
       setDisplayName(user.name ?? '')
       setAvatarUrl(user.avatar)
-      setAddress((user as any)?.address ?? '')
-      setPhone((user as any)?.phone ?? '')
-      setEducation((user as any)?.education ?? '')
-      setPosition((user as any)?.position ?? '')
+      setEmail(user.email ?? '')
+      setPhone(user.phone ?? '')
+      setPosition(user.roles?.[0] ?? (user as any)?.position ?? '')
       return
     }
     // Own profile but no user info available -> dummy
@@ -59,9 +56,8 @@ export const Profile = () => {
       const mock = getMockProfile()
       setDisplayName(mock.name)
       setAvatarUrl(mock.avatar)
-      setAddress(mock.address)
+      setEmail(mock.email)
       setPhone(mock.phone)
-      setEducation(mock.education)
       setPosition(mock.position)
     }
   }, [isOwnProfile, user])
@@ -76,18 +72,16 @@ export const Profile = () => {
         const other = res?.data ?? res
         setDisplayName(other?.name ?? '')
         setAvatarUrl(other?.avatar)
-        setAddress(other?.address ?? '')
+        setEmail(other?.email ?? '')
         setPhone(other?.phone ?? '')
-        setEducation(other?.education ?? '')
-        setPosition(other?.position ?? '')
+        setPosition(other?.roles?.[0] ?? other?.position ?? '')
       } catch {
         // Use dummy data when cannot fetch other user's profile
         const mock = getMockProfile()
         setDisplayName(mock.name)
         setAvatarUrl(mock.avatar)
-        setAddress(mock.address)
+        setEmail(mock.email)
         setPhone(mock.phone)
-        setEducation(mock.education)
         setPosition(mock.position)
         SonnerToaster({ type: 'error', message: 'Không tải được hồ sơ, dùng dữ liệu mẫu' })
       } finally {
@@ -127,22 +121,19 @@ export const Profile = () => {
   }
 
   const handleLogout = () => {
-    logout()
     navigate('/login')
+    logout()
   }
   // kept avatar update via dedicated change; other fields update inline by field
 
-  const handleUpdateSingleField = async (
-    field: 'name' | 'address' | 'phone' | 'education' | 'position'
-  ) => {
+  const handleUpdateSingleField = async (field: 'name' | 'email' | 'phone' | 'position') => {
     if (!currentUserId) return
     try {
       setIsSaving(true)
       const form = new FormData()
       if (field === 'name') form.append('name', displayName)
-      if (field === 'address') form.append('address', address)
+      if (field === 'email') form.append('email', email)
       if (field === 'phone') form.append('phone', phone)
-      if (field === 'education') form.append('education', education)
       if (field === 'position') form.append('position', position)
 
       await PUT(`/api/users/${currentUserId}`, form, {
@@ -197,13 +188,11 @@ export const Profile = () => {
             isOwnProfile={!!isOwnProfile}
             isLoading={isLoading}
             isSaving={isSaving}
-            address={address}
+            email={email}
             phone={phone}
-            education={education}
             position={position}
-            onChangeAddress={setAddress}
+            onChangeEmail={setEmail}
             onChangePhone={setPhone}
-            onChangeEducation={setEducation}
             onChangePosition={setPosition}
             onUpdateField={(field) => handleUpdateSingleField(field)}
           />
