@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader } from '../ui/card'
-import type { IProjectAssignment } from '@/types/Assignment'
+import type { IProjectAssignment } from '@/types/project'
 import { ProjectCard } from './ProjectCard'
 
 interface ProjectGridProps {
@@ -26,11 +26,18 @@ export const ProjectGrid = ({ projects, loading, onView }: ProjectGridProps) => 
       </div>
     )
   }
+  if (projects?.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-center text-2xl text-muted-foreground">Không có dự án</p>
+      </div>
+    )
+  }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {projects?.map((p, idx) => (
-        <ProjectCard key={p.value || p.name || idx} project={p} onView={onView} />
+        <ProjectCard key={p.taskGroupId || p.name || idx} project={p} onView={onView} />
       ))}
     </div>
   )

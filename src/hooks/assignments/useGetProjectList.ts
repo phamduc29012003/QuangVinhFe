@@ -1,30 +1,19 @@
-import { handleCommonError } from '@/utils/handleErrors'
 import { projectsAssignmentsKey } from '@/constants/assignments/assignment'
-import { GET } from '@/core/api'
+import { POST } from '@/core/api'
 import { useQuery } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { API_ENDPOINT } from '@/common'
+import type { getProjectListParams } from '@/types/project'
 
-export const useGetProjectList = () => {
-  const { data, isLoading, error, status } = useQuery({
-    queryKey: projectsAssignmentsKey.getAll,
+export const useGetProjectList = (payload: getProjectListParams) => {
+  const { data, isFetching } = useQuery({
+    queryKey: [projectsAssignmentsKey.getAll, payload],
     queryFn: async () => {
-      const response = await GET('/projects-assignments')
+      const response = await POST(API_ENDPOINT.GET_PROJECTS, payload)
       return response
     },
-    select: (data) => data.data,
-    enabled: true,
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false,
-    refetchIntervalInBackground: false,
-    retry: true,
+    select(data) {
+      return data.data.taskGroups
+    },
   })
-  // handle error luôn ở đây không cần phải return cả error và gọi useEffect ở component gọi
-  useEffect(() => {
-    if (status === 'error' || error) {
-      handleCommonError(error)
-    }
-  }, [status, error])
-
-  return { projectsAssignments: data, isLoading }
+  return { projectsAssignments: data, isFetching }
 }

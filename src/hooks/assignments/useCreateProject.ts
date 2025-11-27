@@ -1,13 +1,14 @@
 import { POST } from '@/core/api'
 import { useMutation } from '@tanstack/react-query'
-import type { IProjectAssignment } from '@/types/Assignment'
 import { handleCommonError } from '@/utils/handleErrors'
 import SonnerToaster from '@/components/ui/toaster'
+import type { IProject } from '@/types/project'
+import { API_ENDPOINT } from '@/common'
 
 export const useCreateProject = () => {
   const createProjectMutation = useMutation({
-    mutationFn: async (payload: IProjectAssignment) => {
-      const response = await POST('/projects-assignments', payload)
+    mutationFn: async (payload: IProject) => {
+      const response = await POST(API_ENDPOINT.CREATE_PROJECT, payload)
       return response
     },
     onSuccess: (respones) => {
@@ -24,14 +25,3 @@ export const useCreateProject = () => {
 
   return { createProjectMutation }
 }
-
-// how to use
-// const createProjectMutation = useCreateProject();
-//
-//   createProjectMutation.mutate(payload, {
-//     onSuccess: () => {
-// queryClient.invalidateQueries({ queryKey: projectsAssignmentsKey.getAll });
-//    add logic here
-//     },
-//   });
-// };
