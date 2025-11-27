@@ -1,0 +1,16 @@
+export const PRIVACY = {
+  PUBLIC: 1,
+  PRIVATE: 2,
+}
+
+export type PRIVACY_TYPE = keyof typeof PRIVACY
+
+export const STATUS_PROJECT = {
+  CREATED: 1,
+  VISIBLE: 2,
+  PENDING: 4,
+  IN_PROGRESS: 8,
+  COMPLETED: 9,
+}
+
+export type STATUS_PROJECT_TYPE = keyof typeof STATUS_PROJECT

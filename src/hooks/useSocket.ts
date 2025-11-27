@@ -29,8 +29,8 @@ export function useSocket(url: string, options?: any) {
       setIsConnected(false)
     })
 
-    socket.on(SOCKET_EVENTS.CONNECT_ERROR, (error) => {
-      console.error('Socket.IO Connection Error:', error)
+    socket.on(SOCKET_EVENTS.CONNECT_ERROR, (_error) => {
+      // console.error('Socket.IO Connection Error:', error)
     })
 
     socket.on(SOCKET_EVENTS.NOTIFICATION, (data) => {

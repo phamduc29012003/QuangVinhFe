@@ -3,11 +3,11 @@ export const API_ENDPOINT = {
   LOGIN: '/api/auth/login',
   LOGOUT: '/api/auth/logout',
   REGISTER: 'api/auth/register',
-  // project
-  CREATE_PROJECT: '/api/project/create',
-  GET_PROJECTS: '/api/project/get',
-  UPDATE_PROJECT: '/api/project/update',
-  DELETE_PROJECT: '/api/project/delete',
+  // project group task
+  CREATE_PROJECT: '/api/task-group/create',
+  GET_PROJECTS: '/api/task-group/get-list',
+  UPDATE_PROJECT: '/api/task-group/update',
+  DELETE_PROJECT: '/api/task-group/delete',
   // task
   CREATE_TASK: '/api/task/create',
   GET_TASKS: '/api/task/get-list',
