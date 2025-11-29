@@ -6,29 +6,31 @@ import ProjectGrid from '@/components/Assignments/ProjectGrid'
 import { useGetProjectList } from '@/hooks/assignments/useGetProjectList'
 import { useCreateProject } from '@/hooks/assignments/useCreateProject'
 import type { IProject } from '@/types/project'
-import PaginationControl from '@/components/common/PaginationControl'
 
 const ProjectAssignment = () => {
-  const [currentPage, setCurrentPage] = useState(1)
   const [search, setSearch] = useState('')
-  const itemsPerPage = 9
+  const limit = 9
 
-  const { projectsAssignments, total, totalPages, isFetching } = useGetProjectList({
-    statuses: null,
-    ownerIds: [],
-    offset: (currentPage - 1) * itemsPerPage,
-    limit: itemsPerPage,
-  })
+  const { projectsAssignments, isFetching, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useGetProjectList({
+      statuses: null,
+      ownerIds: [],
+      limit,
+    })
 
   const { createProjectMutation } = useCreateProject()
   const [open, setOpen] = useState(false)
 
   const onCreate = (data: IProject) => {
-    createProjectMutation.mutate(data)
+    createProjectMutation.mutate(data, {
+      onSuccess: () => {
+        setOpen(false)
+      },
+    })
   }
-
-  // Calculate total pages: use API's totalPages if available, otherwise calculate from total
-  const calculatedTotalPages = totalPages > 0 ? totalPages : Math.ceil(total / itemsPerPage)
+  const handleLoadMore = () => {
+    fetchNextPage()
+  }
 
   return (
     <div className="space-y-6 p-4">
@@ -53,12 +55,14 @@ const ProjectAssignment = () => {
 
       <ProjectGrid projects={projectsAssignments} loading={isFetching} />
 
-      {/* Pagination */}
-      <PaginationControl
-        currentPage={currentPage}
-        totalPages={calculatedTotalPages}
-        onPageChange={setCurrentPage}
-      />
+      {/* Load More Button */}
+      {hasNextPage && (
+        <div className="flex justify-center">
+          <Button onClick={handleLoadMore} variant="outline" disabled={isFetchingNextPage}>
+            {isFetchingNextPage ? 'Đang tải...' : 'Xem thêm'}
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

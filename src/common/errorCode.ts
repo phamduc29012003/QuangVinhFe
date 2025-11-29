@@ -5,6 +5,7 @@ export enum ERROR_CODE {
   INVALID_TOKEN = -13,
   TOKEN_EXPIRED = -14,
   FORBIDDEN = -15,
+  DUPLICATE_ACCOUNT = 49,
 
   // API Errors (-20 to -29)
   API_ERROR = -20,

@@ -47,10 +47,14 @@ export default function TaskTable(props: { tasks: TaskRow[]; assignees?: Assigne
       size="middle"
       bordered
       striped
-      onRow={(record) => ({
-        onClick: () => navigate(`/tasks/${record.id}`),
-        className: 'cursor-pointer',
-      })}
+      onRow={(record) => {
+        // Extract only the numeric part from the ID (e.g., 't5' -> '5')
+        const numericId = record.id.replace(/\D/g, '')
+        return {
+          onClick: () => navigate(`/tasks/${numericId}`),
+          className: 'cursor-pointer',
+        }
+      }}
     />
   )
 }
