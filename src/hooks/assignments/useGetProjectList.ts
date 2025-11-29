@@ -14,6 +14,7 @@ export const useGetProjectList = (payload: getProjectListParams) => {
     select(data) {
       return {
         taskGroups: data.taskGroups || [],
+
         total: data.total || 0,
         totalPages: data.totalPages || 0,
       }

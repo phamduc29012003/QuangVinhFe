@@ -8,6 +8,8 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false, // không tự refetch khi đổi tab
       retry: 1, // retry 1 lần nếu lỗi
       staleTime: 1000 * 60 * 5,
+      refetchOnReconnect: true,
+      refetchOnMount: false,
     },
     mutations: {
       onError: (error: unknown) => {

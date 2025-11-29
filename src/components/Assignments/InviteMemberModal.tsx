@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from 'react'
+import { useGetAllUser, type IUser } from '@/hooks/assignments/useGetAllUser'
+import { useInviteUser } from '@/hooks/assignments/useInviteUser'
 
 export type InviteMemberModalProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  users: { id: string; name: string }[]
+  taskGroupId: number
   existingMemberIds: string[]
-  onSend: (userIds: string[]) => void
 }
 
 const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
   open,
   onOpenChange,
-  users,
+  taskGroupId,
   existingMemberIds,
-  onSend,
 }) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const { allUser, isLoading } = useGetAllUser()
+  const { createProjectMutation } = useInviteUser()
 
   useEffect(() => {
     if (!open) setSelectedIds([])
@@ -30,117 +32,87 @@ const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
       onOpenChange(false)
       return
     }
-    onSend(selectedIds)
-    setSelectedIds([])
-    onOpenChange(false)
+
+    createProjectMutation.mutate(
+      {
+        userIds: selectedIds,
+        taskGroupId,
+      },
+      {
+        onSuccess: () => {
+          setSelectedIds([])
+          onOpenChange(false)
+        },
+      }
+    )
   }
 
   if (!open) return null
 
-  const candidates = users.filter((u) => !existingMemberIds.includes(u.id))
+  const users = allUser || []
+  const candidates = users.filter((u: IUser) => !existingMemberIds.includes(String(u.id)))
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 50 }}>
-      <div
-        onClick={() => onOpenChange(false)}
-        style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)' }}
-      />
+    <div className="fixed inset-0 z-50">
+      <div onClick={() => onOpenChange(false)} className="absolute inset-0 bg-black/35" />
       <div
         role="dialog"
         aria-modal="true"
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 'min(560px, 92vw)',
-          background: 'white',
-          borderRadius: 12,
-          border: '1px solid #e5e7eb',
-          boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
-          padding: 16,
-        }}
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(560px,92vw)] bg-white rounded-xl border border-gray-200 shadow-xl p-4"
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <strong style={{ fontSize: 18 }}>Mời thành viên vào dự án</strong>
-            <span style={{ color: '#6b7280' }}>
+        <div className="flex justify-between items-center">
+          <div className="flex flex-col">
+            <strong className="text-lg">Mời thành viên vào dự án</strong>
+            <span className="text-gray-500">
               Chọn user để mời. Những người đã là thành viên sẽ bị ẩn.
             </span>
           </div>
           <button
             onClick={() => onOpenChange(false)}
             aria-label="Close"
-            style={{
-              background: 'transparent',
-              border: 'none',
-              fontSize: 18,
-              lineHeight: 1,
-              cursor: 'pointer',
-            }}
+            className="bg-transparent border-none text-lg leading-none cursor-pointer hover:text-gray-600"
           >
             ×
           </button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16 }}>
-          <div
-            style={{
-              maxHeight: 300,
-              overflow: 'auto',
-              border: '1px solid #e5e7eb',
-              borderRadius: 8,
-            }}
-          >
-            {candidates.map((u) => (
-              <label
-                key={u.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '10px 12px',
-                  borderBottom: '1px solid #f3f4f6',
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedIds.includes(u.id)}
-                  onChange={() => toggle(u.id)}
-                />
-                <span>{u.name}</span>
-              </label>
-            ))}
-            {candidates.length === 0 ? (
-              <div style={{ padding: 12, color: '#6b7280' }}>Tất cả user đã là thành viên.</div>
-            ) : null}
+        <div className="flex flex-col gap-3 mt-4">
+          <div className="max-h-[300px] overflow-auto border border-gray-200 rounded-lg">
+            {isLoading ? (
+              <div className="p-3 text-gray-500">Đang tải danh sách user...</div>
+            ) : candidates.length > 0 ? (
+              candidates.map((u: IUser) => (
+                <label
+                  key={u.id}
+                  className="flex items-center gap-2 py-2.5 px-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(String(u.id))}
+                    onChange={() => toggle(String(u.id))}
+                    className="cursor-pointer"
+                  />
+                  <span>{u.name}</span>
+                </label>
+              ))
+            ) : (
+              <div className="p-3 text-gray-500">Tất cả user đã là thành viên.</div>
+            )}
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <div className="flex justify-end gap-2">
             <button
               onClick={() => onOpenChange(false)}
-              style={{
-                padding: '8px 12px',
-                borderRadius: 6,
-                border: '1px solid #d1d5db',
-                background: 'white',
-              }}
+              className="px-3 py-2 rounded-md border border-gray-300 bg-white hover:bg-gray-50"
             >
               Hủy
             </button>
             <button
               onClick={handleSend}
-              disabled={selectedIds.length === 0}
-              style={{
-                padding: '8px 12px',
-                borderRadius: 6,
-                border: '1px solid #111827',
-                background: '#111827',
-                color: 'white',
-                opacity: selectedIds.length === 0 ? 0.6 : 1,
-              }}
+              disabled={selectedIds.length === 0 || createProjectMutation.isPending}
+              className="px-3 py-2 rounded-md border border-gray-900 bg-gray-900 text-white disabled:opacity-60 disabled:cursor-not-allowed hover:bg-gray-800"
             >
-              Gửi lời mời
+              {createProjectMutation.isPending ? 'Đang gửi...' : 'Gửi lời mời'}
             </button>
           </div>
         </div>

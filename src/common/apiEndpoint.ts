@@ -17,4 +17,10 @@ export const API_ENDPOINT = {
   ASIGN_TASK: '/api/task/assign-task',
   UPDATE_PRIORITY: '/api/task/update-priority',
   UPDATE_STATUS: '/api/task/update-status',
+  // USER
+  GET_MEMBER_TASK: '/api/user/get-task-group-member-list',
+  GET_ALL_USER: '/api/user/get-all',
+  INVITE_USER: '/api/user/add-members',
+  // Task
+  GET_TASK_DETAIL: '/api/task/get-detail',
 }

@@ -8,6 +8,8 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import InviteMemberModal from '@/components/Assignments/InviteMemberModal'
 import { Overview } from '@/components/Assignments/overview'
 import { useGetDetailProject } from '@/hooks/assignments/useGetDetailProject'
+import { useGetMemberTask, type IMemberTask } from '@/hooks/assignments/useGetMemberTask'
+import { useGetAllUser } from '@/hooks/assignments/useGetAllUser'
 
 export type User = {
   id: string
@@ -48,10 +50,12 @@ function generateId(prefix: string = 'id'): string {
 export const ProjectAssignmentDetail: React.FC = () => {
   const { id } = useParams()
   const { projectAssignmentDetail } = useGetDetailProject(Number(id))
-  console.log('projectAssignmentDetail', projectAssignmentDetail)
   const authUser = useAuthStore((s) => s.user)
   const isMobile = useIsMobile()
 
+  const { memberTask } = useGetMemberTask(Number(id))
+  const { allUser } = useGetAllUser()
+  console.log('memberTask', allUser)
   const initialProject: Project = useMemo(
     () => ({
       id: id || 'p1',
@@ -130,18 +134,6 @@ export const ProjectAssignmentDetail: React.FC = () => {
     setProject((prev) => ({ ...prev, tasks: [newTask, ...prev.tasks] }))
   }
 
-  function handleInviteMembers(userIds: string[]) {
-    if (!userIds.length) {
-      setIsInviteOpen(false)
-      return
-    }
-    setProject((prev) => ({
-      ...prev,
-      members: Array.from(new Set([...prev.members, ...userIds])),
-    }))
-    setIsInviteOpen(false)
-  }
-
   return (
     <div className="p-4 flex flex-col gap-4">
       <div className="flex justify-between items-center">
@@ -150,17 +142,18 @@ export const ProjectAssignmentDetail: React.FC = () => {
           <div className="flex items-center gap-2 mt-2">
             <span className="text-xs text-gray-500">Thành viên:</span>
             <div className="flex gap-1.5 flex-wrap">
-              {project.members.map((mid) => {
-                const u = DUMMY_USERS.find((x) => x.id === mid)
-                return (
+              {memberTask && memberTask.length > 0 ? (
+                memberTask.map((member: IMemberTask) => (
                   <span
-                    key={mid}
+                    key={member.id}
                     className="text-xs px-2 py-0.5 border border-gray-200 rounded-full bg-gray-50"
                   >
-                    {u?.name || mid}
+                    {member.name}
                   </span>
-                )
-              })}
+                ))
+              ) : (
+                <span className="text-xs text-gray-400">Chưa có thành viên</span>
+              )}
             </div>
           </div>
         </div>
@@ -200,9 +193,8 @@ export const ProjectAssignmentDetail: React.FC = () => {
       <InviteMemberModal
         open={isInviteOpen}
         onOpenChange={setIsInviteOpen}
-        users={DUMMY_USERS}
-        existingMemberIds={project.members}
-        onSend={handleInviteMembers}
+        taskGroupId={Number(id)}
+        existingMemberIds={memberTask?.map((m: IMemberTask) => String(m.id)) || []}
       />
     </div>
   )

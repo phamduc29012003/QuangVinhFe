@@ -20,6 +20,7 @@ import {
   MessageCircle,
   Send,
 } from 'lucide-react'
+import { useGetDetailTask } from '@/hooks/assignments/useGetDetailTask'
 
 const MOCK_USERS = [
   { id: 'u1', name: 'Alice', avatar: '/photo_2025-09-26_12-28-52 (2).jpg' },
@@ -97,6 +98,8 @@ const MOCK_COMMENTS = [
 
 export const DetailTask = () => {
   const { id } = useParams()
+  const { projectAssignmentDetail } = useGetDetailTask(Number(id))
+  console.log(projectAssignmentDetail, 'projectAssignmentDetail')
   const [comments, setComments] = useState(MOCK_COMMENTS)
   const [commentInput, setCommentInput] = useState('')
   const [editOpen, setEditOpen] = useState(false)

@@ -32,7 +32,13 @@ export const AssignmentsSheet = ({
   onSubmit,
   isSubmitting,
 }: AssignmentsSheetProps) => {
-  const { register, handleSubmit, reset, control } = useForm<IProject>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm<IProject>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       name: '',
@@ -41,9 +47,13 @@ export const AssignmentsSheet = ({
     },
   })
 
+  const handleFormSubmit = (data: IProject) => {
+    onSubmit(data)
+    reset()
+  }
+
   const handleClose = () => {
     setOpen(false)
-    reset()
   }
 
   return (
@@ -52,13 +62,13 @@ export const AssignmentsSheet = ({
         <SheetHeader>
           <SheetTitle>Tạo dự án mới</SheetTitle>
         </SheetHeader>
-        <form className="mt-6 space-y-4 mx-4" onSubmit={handleSubmit(onSubmit)}>
+        <form className="mt-6 space-y-4 mx-4" onSubmit={handleSubmit(handleFormSubmit)}>
           {/* Tên dự án */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Tên dự án</label>
             <Input {...register('name')} placeholder="Nhập tên dự án" />
           </div>
-
+          {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
           {/* Status */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Trạng thái</label>

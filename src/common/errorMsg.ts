@@ -8,6 +8,7 @@ export const ERROR_MESSAGES: Record<number, string> = {
   [ERROR_CODE.TOKEN_EXPIRED]: 'Phiên đăng nhập đã hết hạn',
   [ERROR_CODE.FORBIDDEN]: 'Không có quyền truy cập',
   [ERROR_CODE.SERVER_ERROR]: 'Hệ thống có vấn đề vui lòng thử lại sau',
+  [ERROR_CODE.DUPLICATE_ACCOUNT]: 'Email này đã tồn tại',
   [ERROR_CODE.UNKNOWN_ERROR]: 'Đã xảy ra lỗi không xác định',
 }
 
