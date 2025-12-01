@@ -35,7 +35,7 @@ const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
 
     createProjectMutation.mutate(
       {
-        userIds: selectedIds,
+        memberIds: selectedIds.map((id) => Number(id)),
         taskGroupId,
       },
       {

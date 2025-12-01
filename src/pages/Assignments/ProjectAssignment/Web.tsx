@@ -5,7 +5,8 @@ import AssignmentsSheet from '@/components/Assignments/Sheet'
 import ProjectGrid from '@/components/Assignments/ProjectGrid'
 import { useGetProjectList } from '@/hooks/assignments/useGetProjectList'
 import { useCreateProject } from '@/hooks/assignments/useCreateProject'
-import type { IProject } from '@/types/project'
+import { useUpdateProject } from '@/hooks/assignments/useUpdateProject'
+import type { IProject, IProjectAssignment } from '@/types/project'
 
 const ProjectAssignment = () => {
   const [search, setSearch] = useState('')
@@ -19,15 +20,40 @@ const ProjectAssignment = () => {
     })
 
   const { createProjectMutation } = useCreateProject()
+  const { updateProjectMutation } = useUpdateProject()
   const [open, setOpen] = useState(false)
+  const [editingProject, setEditingProject] = useState<IProjectAssignment | null>(null)
 
-  const onCreate = (data: IProject) => {
-    createProjectMutation.mutate(data, {
-      onSuccess: () => {
-        setOpen(false)
-      },
-    })
+  const handleSubmit = (data: IProject) => {
+    if (editingProject) {
+      updateProjectMutation.mutate(
+        { ...data, taskGroupId: editingProject.taskGroupId },
+        {
+          onSuccess: () => {
+            setOpen(false)
+            setEditingProject(null)
+          },
+        }
+      )
+    } else {
+      createProjectMutation.mutate(data, {
+        onSuccess: () => {
+          setOpen(false)
+        },
+      })
+    }
   }
+
+  const handleEdit = (project: IProjectAssignment) => {
+    setEditingProject(project)
+    setOpen(true)
+  }
+
+  const handleCreate = () => {
+    setEditingProject(null)
+    setOpen(true)
+  }
+
   const handleLoadMore = () => {
     fetchNextPage()
   }
@@ -43,17 +69,21 @@ const ProjectAssignment = () => {
             onChange={(e) => setSearch(e.target.value)}
             className="sm:w-64"
           />
-          <Button onClick={() => setOpen(true)}>Tạo dự án</Button>
+          <Button onClick={handleCreate}>Tạo dự án</Button>
           <AssignmentsSheet
             open={open}
             setOpen={setOpen}
-            onSubmit={onCreate}
-            isSubmitting={isFetching}
+            onSubmit={handleSubmit}
+            isSubmitting={
+              isFetching || createProjectMutation.isPending || updateProjectMutation.isPending
+            }
+            mode={editingProject ? 'edit' : 'create'}
+            initialData={editingProject}
           />
         </div>
       </div>
 
-      <ProjectGrid projects={projectsAssignments} loading={isFetching} />
+      <ProjectGrid projects={projectsAssignments} loading={isFetching} onEdit={handleEdit} />
 
       {/* Load More Button */}
       {hasNextPage && (

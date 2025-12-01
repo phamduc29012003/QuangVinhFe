@@ -1,3 +1,4 @@
+import React from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../ui/sheet'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
@@ -13,6 +14,8 @@ interface AssignmentsSheetProps {
   setOpen: (open: boolean) => void
   onSubmit: (data: IProject) => void
   isSubmitting?: boolean
+  mode?: 'create' | 'edit'
+  initialData?: IProject | null
 }
 
 // Convert constants to select options
@@ -31,6 +34,8 @@ export const AssignmentsSheet = ({
   setOpen,
   onSubmit,
   isSubmitting,
+  mode = 'create',
+  initialData,
 }: AssignmentsSheetProps) => {
   const {
     register,
@@ -47,20 +52,40 @@ export const AssignmentsSheet = ({
     },
   })
 
+  // Reset form when mode changes or initial data is provided
+  React.useEffect(() => {
+    if (open) {
+      if (mode === 'edit' && initialData) {
+        reset({
+          name: initialData.name,
+          status: initialData.status,
+          privacy: initialData.privacy,
+          taskGroupId: initialData.taskGroupId,
+        })
+      } else {
+        reset({
+          name: '',
+          status: 1,
+          privacy: 1,
+        })
+      }
+    }
+  }, [open, mode, initialData, reset])
+
   const handleFormSubmit = (data: IProject) => {
     onSubmit(data)
-    reset()
   }
 
   const handleClose = () => {
     setOpen(false)
+    reset()
   }
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent side="right">
         <SheetHeader>
-          <SheetTitle>Tạo dự án mới</SheetTitle>
+          <SheetTitle>{mode === 'edit' ? 'Chỉnh sửa dự án' : 'Tạo dự án mới'}</SheetTitle>
         </SheetHeader>
         <form className="mt-6 space-y-4 mx-4" onSubmit={handleSubmit(handleFormSubmit)}>
           {/* Tên dự án */}
@@ -98,7 +123,13 @@ export const AssignmentsSheet = ({
               Hủy
             </Button>
             <Button type="submit" disabled={!!isSubmitting}>
-              {isSubmitting ? 'Đang tạo...' : 'Tạo'}
+              {isSubmitting
+                ? mode === 'edit'
+                  ? 'Đang cập nhật...'
+                  : 'Đang tạo...'
+                : mode === 'edit'
+                  ? 'Cập nhật'
+                  : 'Tạo'}
             </Button>
           </div>
         </form>

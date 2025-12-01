@@ -1,13 +1,18 @@
 export interface Task {
-  id: string
-  title: string
-  description?: string
-  completed: boolean
-  priority: 'low' | 'medium' | 'high'
-  dueDate?: string
-  createdAt: string
-  updatedAt: string
-  userId: string
+  description: string
+  priority: number
+  taskType: number
+  groupId: number
+  assignee?: {
+    id: number
+    name: string
+  }
+  status?: number
+  startTime?: number
+  estimateTime: number
+  doneTime?: number
+  imageUrls?: string[]
+  checkList?: string
 }
 
 export interface TaskResponse {

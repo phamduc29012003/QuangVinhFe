@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { useParams } from 'react-router'
 import CreateTaskModal, { type CreateTaskFormData } from '@/components/Assignments/CreateTaskModal'
-import { useAuthStore } from '@/stores/authStore'
 import TaskTable from '@/components/Assignments/ProjectDetailTable/TaskTable'
 import TaskList from '@/components/Assignments/ProjectDetailTable/TaskList'
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -9,7 +8,7 @@ import InviteMemberModal from '@/components/Assignments/InviteMemberModal'
 import { Overview } from '@/components/Assignments/overview'
 import { useGetDetailProject } from '@/hooks/assignments/useGetDetailProject'
 import { useGetMemberTask, type IMemberTask } from '@/hooks/assignments/useGetMemberTask'
-import { useGetAllUser } from '@/hooks/assignments/useGetAllUser'
+import { useCreateTask } from '@/hooks/assignments/task/useCreateTask'
 
 export type User = {
   id: string
@@ -43,19 +42,15 @@ const DUMMY_USERS: User[] = [
   { id: 'u3', name: 'Charlie' },
 ]
 
-function generateId(prefix: string = 'id'): string {
-  return `${prefix}_${Math.random().toString(36).slice(2, 8)}`
-}
-
 export const ProjectAssignmentDetail: React.FC = () => {
   const { id } = useParams()
-  const { projectAssignmentDetail } = useGetDetailProject(Number(id))
-  const authUser = useAuthStore((s) => s.user)
+  const { projectAssignmentDetail, isFetching } = useGetDetailProject(Number(id))
+  console.log('projectAssignmentDetail', projectAssignmentDetail)
   const isMobile = useIsMobile()
 
   const { memberTask } = useGetMemberTask(Number(id))
-  const { allUser } = useGetAllUser()
-  console.log('memberTask', allUser)
+  const createTaskMutation = useCreateTask()
+
   const initialProject: Project = useMemo(
     () => ({
       id: id || 'p1',
@@ -116,22 +111,39 @@ export const ProjectAssignmentDetail: React.FC = () => {
     [id]
   )
 
-  const [project, setProject] = useState<Project>(initialProject)
+  const [project] = useState<Project>(initialProject)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isInviteOpen, setIsInviteOpen] = useState(false)
 
   //
 
   function handleCreateTask(data: CreateTaskFormData) {
-    const newTask: Task = {
-      id: generateId('t'),
-      title: data.title,
-      description: data.description,
-      status: data.status as TaskStatus,
-      assigneeId: data.assigneeId,
-      estimateHours: data.estimateHours,
-    }
-    setProject((prev) => ({ ...prev, tasks: [newTask, ...prev.tasks] }))
+    createTaskMutation.mutate({
+      task: {
+        description: data.description,
+        priority: data.priority,
+        taskType: data.taskType,
+        groupId: Number(id),
+        estimateTime: data.estimateTime,
+        imageUrls: data.imageUrls,
+        checkList: data.checkList,
+        assignee: data.assignee,
+        status: data.status,
+        startTime: data.startTime,
+      },
+    })
+  }
+
+  // Loading fallback
+  if (isFetching) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-slate-900 rounded-full animate-spin" />
+          <p className="text-gray-600 font-medium">Đang tải chi tiết dự án...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -185,9 +197,9 @@ export const ProjectAssignmentDetail: React.FC = () => {
       <CreateTaskModal
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
-        users={DUMMY_USERS}
+        memberTask={memberTask || []}
         onCreate={handleCreateTask}
-        currentUserId={authUser?.id as unknown as string | undefined}
+        groupId={Number(id)}
       />
 
       <InviteMemberModal

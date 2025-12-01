@@ -7,7 +7,7 @@ import { InlineField } from '@/components/Profile'
 import { InfoGrid } from '@/components/Profile'
 import { GET, PUT } from '@/core/api'
 import SonnerToaster from '@/components/ui/toaster'
-import { useAuthStore } from '@/stores'
+import { useAuthStore } from '@/stores/authStore'
 
 export const Profile = () => {
   const { id } = useParams()
