@@ -14,10 +14,8 @@ export function useLeaves() {
   const roles = user?.roles || []
   const canApprove = roles.includes('DIRECTOR') || roles.includes('MANAGER')
 
-  // Data state
   const [requests, setRequests] = useState<LeavesListDataResponse[]>([])
 
-  // Form state
   const [type, setType] = useState<LeavesType | ''>('')
   const [leaveMode, setLeaveMode] = useState<'AM' | 'PM' | 'FULL' | 'RANGE' | ''>('')
   const [startDate, setStartDate] = useState<string>('')
@@ -25,7 +23,6 @@ export function useLeaves() {
   const [session, setSession] = useState<LeaveSession>('FULL')
   const [reason, setReason] = useState<string>('')
 
-  // Dialog/Sheet state
   const [selectedRequest, setSelectedRequest] = useState<LeavesListDataResponse | null>(null)
   const [viewDialogOpen, setViewDialogOpen] = useState<boolean>(false)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false)
@@ -33,14 +30,12 @@ export function useLeaves() {
   const [actionType, setActionType] = useState<'approve' | 'reject' | null>(null)
   const [actionRequestId, setActionRequestId] = useState<string | null>(null)
 
-  // Filter state (for mobile)
   const [filterStatus, setFilterStatus] = useState<LeavesStatus[]>([
     StatusLeaves.PENDING,
     StatusLeaves.APPROVED,
     StatusLeaves.REJECTED,
   ])
 
-  // Reset form
   const resetForm = useCallback(() => {
     setType('')
     setLeaveMode('')
@@ -50,17 +45,10 @@ export function useLeaves() {
     setReason('')
   }, [])
 
-  // Add request
   const addRequest = useCallback((request: LeavesListDataResponse) => {
-    // Convert LeaveRequest to LeavesListDataResponse format if needed
-    // For now, we'll just add it to the requests array
-    // Note: This might need adjustment based on your API structure
     setRequests((prev) => [...prev, request as any])
   }, [])
 
-  // Update request status
-
-  // Validation
   const validateForm = useCallback(() => {
     if (!type) {
       toast.error('Vui lòng chọn loại nghỉ')
@@ -89,11 +77,8 @@ export function useLeaves() {
     return true
   }, [type, leaveMode, startDate, endDate, reason])
 
-  // Create leave request
   const handleCreateLeave = useCallback(() => {
     if (!validateForm()) return
-
-    // Calculate endDate based on leaveMode
 
     setCreateDialogOpen(false)
     resetForm()
@@ -108,7 +93,6 @@ export function useLeaves() {
   const confirmAction = useCallback(() => {
     if (!actionRequestId || !actionType) return
 
-    // Show toast notification
     if (actionType === 'approve') {
       toast.success('Đã duyệt đơn!')
     } else {
