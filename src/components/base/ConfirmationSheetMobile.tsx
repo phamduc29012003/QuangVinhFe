@@ -86,11 +86,9 @@ export default function ConfirmationSheetMobile({
 }: ConfirmationSheetMobileProps) {
   const styles = variantStyles[variant]
 
-  // Render icon safely
   const renderIcon = () => {
     if (!Icon) return null
 
-    // If Icon is a React element (already rendered JSX), clone it with merged className
     if (React.isValidElement(Icon)) {
       return React.cloneElement(Icon as React.ReactElement<any>, {
         className:
@@ -98,7 +96,6 @@ export default function ConfirmationSheetMobile({
       })
     }
 
-    // If Icon is a component constructor (function)
     if (typeof Icon === 'function') {
       const IconComponent = Icon as LucideIcon
       return <IconComponent className={`size-5 ${styles.iconColor}`} />
@@ -110,7 +107,6 @@ export default function ConfirmationSheetMobile({
   return (
     <BottomSheet open={open} onOpenChange={onOpenChange} title={title} description={description}>
       <div className="space-y-4 pb-6">
-        {/* Message Card */}
         <div className={`${styles.bg} rounded-2xl p-4 space-y-2`}>
           {Icon && <div className="flex items-center gap-2">{renderIcon()}</div>}
           <p className={`text-sm ${styles.textColor} leading-relaxed`}>{message}</p>
@@ -118,7 +114,6 @@ export default function ConfirmationSheetMobile({
 
         <Separator className="opacity-60" />
 
-        {/* Action Buttons */}
         <div className="flex flex-col gap-3">
           <Button
             onClick={onConfirm}
