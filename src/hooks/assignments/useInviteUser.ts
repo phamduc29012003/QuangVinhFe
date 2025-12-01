@@ -6,7 +6,7 @@ import { memberTaskKey } from '@/constants/assignments/assignment'
 import { queryClient } from '@/lib/queryClient'
 
 interface IInviteUser {
-  userIds: string[]
+  memberIds: number[]
   taskGroupId: number
 }
 

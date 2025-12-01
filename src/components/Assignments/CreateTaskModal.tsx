@@ -1,46 +1,88 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { RichTextEditor } from '@/components/base/RichTextEditor'
-
-export type CreateTaskStatus = 'todo' | 'in_progress' | 'done' | 'blocked'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { TASK_PRIORITY_LABELS, TASK_TYPE_LABELS, TASK_STATUS } from '@/constants/assignments/task'
+import { X, Calendar, Image as ImageIcon, ListChecks } from 'lucide-react'
+import type { IMemberTask } from '@/hooks/assignments/useGetMemberTask'
 
 export type CreateTaskFormData = {
-  title: string
-  description?: string
-  estimateHours?: number
-  status: CreateTaskStatus
-  assigneeId?: string
+  description: string
+  priority: number
+  taskType: number
+  estimateTime: number
+  assignee?: {
+    id: number
+    name: string
+  }
+  status?: number
+  startTime?: number
+  imageUrls?: string[]
+  checkList?: string
 }
 
 export type CreateTaskModalProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  users: { id: string; name: string }[]
+  memberTask: IMemberTask[]
   onCreate: (data: CreateTaskFormData) => void
-  currentUserId?: string
-}
-
-const STATUS_LABEL: Record<CreateTaskStatus, string> = {
-  todo: 'To do',
-  in_progress: 'In progress',
-  done: 'Done',
-  blocked: 'Blocked',
+  groupId?: number
+  mode?: 'create' | 'edit'
+  initialData?: CreateTaskFormData
 }
 
 export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   open,
   onOpenChange,
-  users,
+  memberTask,
   onCreate,
-  currentUserId,
+  mode = 'create',
+  initialData,
 }) => {
-  const [title, setTitle] = useState('')
-  const [descriptionHtml, setDescriptionHtml] = useState('')
-  const [estimateHours, setEstimateHours] = useState<string>('')
-  const [status, setStatus] = useState<CreateTaskStatus>('todo')
+  const [description, setDescription] = useState('')
+  const [priority, setPriority] = useState<string>('2')
+  const [taskType, setTaskType] = useState<string>('1')
+  const [status, setStatus] = useState<string>(String(TASK_STATUS.CREATED))
+  const [startDate, setStartDate] = useState('')
+  const [estimateDate, setEstimateDate] = useState('')
   const [assigneeId, setAssigneeId] = useState<string>('')
-  const dialogRef = useRef<HTMLDivElement | null>(null)
+  const [imageUrl, setImageUrl] = useState('')
+  const [checkList, setCheckList] = useState('')
+
+  // Reset or fill data when open/mode/initialData changes
+  useEffect(() => {
+    if (open) {
+      if (mode === 'edit' && initialData) {
+        setDescription(initialData.description)
+        setPriority(String(initialData.priority))
+        setTaskType(String(initialData.taskType))
+        setStatus(String(initialData.status || TASK_STATUS.CREATED))
+
+        // Format dates for input type="datetime-local" (YYYY-MM-DDThh:mm)
+        const formatDate = (timestamp?: number) => {
+          if (!timestamp) return ''
+          return new Date(timestamp).toISOString().slice(0, 16)
+        }
+
+        setStartDate(formatDate(initialData.startTime))
+        setEstimateDate(formatDate(initialData.estimateTime))
+
+        setAssigneeId(initialData.assignee?.id ? String(initialData.assignee.id) : '')
+        setImageUrl(initialData.imageUrls?.[0] || '')
+        setCheckList(initialData.checkList || '')
+      } else {
+        reset()
+      }
+    }
+  }, [open, mode, initialData])
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -51,161 +93,271 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   }, [open, onOpenChange])
 
   function reset() {
-    setTitle('')
-    setDescriptionHtml('')
-    setEstimateHours('')
-    setStatus('todo')
+    setDescription('')
+    setPriority('2')
+    setTaskType('1')
+    setStatus(String(TASK_STATUS.CREATED))
+    setStartDate('')
+    setEstimateDate('')
     setAssigneeId('')
+    setImageUrl('')
+    setCheckList('')
   }
 
   function handleCreate() {
-    if (!title.trim()) return
+    if (!description.trim()) return
+    if (!estimateDate) return
+
+    const estimateTime = new Date(estimateDate).getTime()
+    const startTime = startDate ? new Date(startDate).getTime() : undefined
+
+    // Find selected member to get name
+    const selectedMember = assigneeId
+      ? memberTask.find((m) => String(m.id) === assigneeId)
+      : undefined
+
     onCreate({
-      title: title.trim(),
-      description: descriptionHtml.trim() || undefined,
-      estimateHours: estimateHours ? Number(estimateHours) : undefined,
-      status,
-      assigneeId: assigneeId || undefined,
+      description: description.trim(),
+      priority: Number(priority),
+      taskType: Number(taskType),
+      estimateTime,
+      assignee: selectedMember
+        ? {
+            id: Number(selectedMember.id),
+            name: String(selectedMember.name || selectedMember.email || ''),
+          }
+        : undefined,
+      status: Number(status),
+      startTime,
+      imageUrls: imageUrl.trim() ? [imageUrl.trim()] : undefined,
+      checkList: checkList.trim() || undefined,
     })
     reset()
     onOpenChange(false)
   }
 
-  function handleAssigneeChange(value: string) {
-    if (value === '__me__') {
-      setAssigneeId(currentUserId || '')
-      return
-    }
-    setAssigneeId(value)
-  }
-
   if (!open) return null
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 50 }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
         onClick={() => onOpenChange(false)}
-        style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)' }}
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
       />
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 'min(640px, 92vw)',
-          background: 'white',
-          borderRadius: 12,
-          border: '1px solid #e5e7eb',
-          boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
-          padding: 16,
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <strong style={{ fontSize: 18 }}>Create Task</strong>
-            <span style={{ color: '#6b7280' }}>
-              Define task details, estimate time, status and assignee.
-            </span>
+      <div className="relative w-full max-w-2xl mx-4 bg-white rounded-xl shadow-2xl border border-gray-100 max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-xl">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">
+              {mode === 'edit' ? 'Chỉnh sửa công việc' : 'Tạo công việc mới'}
+            </h2>
+            <p className="text-sm text-gray-500 mt-0.5">
+              {mode === 'edit'
+                ? 'Cập nhật thông tin công việc'
+                : 'Định nghĩa chi tiết công việc và phân công người thực hiện'}
+            </p>
           </div>
           <button
             onClick={() => onOpenChange(false)}
-            aria-label="Close"
-            style={{
-              background: 'transparent',
-              border: 'none',
-              fontSize: 18,
-              lineHeight: 1,
-              cursor: 'pointer',
-            }}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            ×
+            <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label>Title</label>
+        {/* Form */}
+        <div className="p-6 space-y-5">
+          {/* Description */}
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-sm font-medium text-gray-700">
+              Tên công việc <span className="text-red-500">*</span>
+            </Label>
             <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Task title"
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Nhập tên công việc..."
             />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label>Description</label>
-            <RichTextEditor
-              value={descriptionHtml}
-              onChange={setDescriptionHtml}
-              placeholder="Write a rich description..."
-              minHeight={150}
-            />
+
+          {/* Priority & Task Type */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="priority" className="text-sm font-medium text-gray-700">
+                Mức độ ưu tiên <span className="text-red-500">*</span>
+              </Label>
+              <Select value={priority} onValueChange={setPriority}>
+                <SelectTrigger id="priority" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(TASK_PRIORITY_LABELS).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="taskType" className="text-sm font-medium text-gray-700">
+                Loại công việc <span className="text-red-500">*</span>
+              </Label>
+              <Select value={taskType} onValueChange={setTaskType}>
+                <SelectTrigger id="taskType" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(TASK_TYPE_LABELS).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <div
-              style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1, minWidth: 180 }}
-            >
-              <label>Estimate (hours)</label>
+
+          {/* Status & Start Time */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="status" className="text-sm font-medium text-gray-700">
+                Trạng thái
+              </Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger id="status" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={String(TASK_STATUS.CREATED)}>Đã tạo</SelectItem>
+                  <SelectItem value={String(TASK_STATUS.VISIBLE)}>Hiển thị</SelectItem>
+                  <SelectItem value={String(TASK_STATUS.PENDING)}>Chờ xử lý</SelectItem>
+                  <SelectItem value={String(TASK_STATUS.IN_PROGRESS)}>Đang thực hiện</SelectItem>
+                  <SelectItem value={String(TASK_STATUS.COMPLETED)}>Hoàn thành</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label
+                htmlFor="startDate"
+                className="text-sm font-medium text-gray-700 flex items-center gap-1.5"
+              >
+                <Calendar className="w-4 h-4" />
+                Thời gian bắt đầu (tùy chọn)
+              </Label>
               <Input
-                type="number"
-                min={0}
-                step={0.5}
-                value={estimateHours}
-                onChange={(e) => setEstimateHours(e.target.value)}
-                placeholder="e.g. 4"
+                id="startDate"
+                type="datetime-local"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full"
               />
             </div>
-            <div
-              style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1, minWidth: 180 }}
-            >
-              <label>Status</label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as any)}
-                style={{ padding: 8, borderRadius: 6, border: '1px solid #d1d5db' }}
+          </div>
+
+          {/* Estimate Time & Assignee */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label
+                htmlFor="estimateDate"
+                className="text-sm font-medium text-gray-700 flex items-center gap-1.5"
               >
-                <option value="todo">{STATUS_LABEL['todo']}</option>
-                <option value="in_progress">{STATUS_LABEL['in_progress']}</option>
-                <option value="done">{STATUS_LABEL['done']}</option>
-                <option value="blocked">{STATUS_LABEL['blocked']}</option>
-              </select>
+                <Calendar className="w-4 h-4" />
+                Thời gian dự kiến hoàn thành <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="estimateDate"
+                type="datetime-local"
+                value={estimateDate}
+                onChange={(e) => setEstimateDate(e.target.value)}
+                className="w-full"
+              />
             </div>
-            <div
-              style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1, minWidth: 220 }}
-            >
-              <label>Assignee</label>
-              <select
-                value={assigneeId}
-                onChange={(e) => handleAssigneeChange(e.target.value)}
-                style={{ padding: 8, borderRadius: 6, border: '1px solid #d1d5db' }}
+
+            <div className="space-y-2">
+              <Label htmlFor="assignee" className="text-sm font-medium text-gray-700">
+                Người thực hiện
+              </Label>
+              <Select
+                value={assigneeId || 'unassigned'}
+                onValueChange={(val) => setAssigneeId(val === 'unassigned' ? '' : val)}
               >
-                <option value="">Unassigned</option>
-                {currentUserId ? <option value="__me__">Assign to me</option> : null}
-                {users.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger id="assignee" className="w-full">
+                  <SelectValue placeholder="Chưa phân công" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unassigned">Chưa phân công</SelectItem>
+                  {Array.isArray(memberTask) &&
+                    memberTask
+                      .filter((member) => member && member.id != null && member.id !== '')
+                      .map((member) => (
+                        <SelectItem key={String(member.id)} value={String(member.id)}>
+                          {String(member.name || member.email || 'Unknown')}
+                        </SelectItem>
+                      ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
-            <Button
-              variant="outline"
-              onClick={() => {
-                reset()
-                onOpenChange(false)
-              }}
+
+          {/* Image URL */}
+          <div className="space-y-2">
+            <Label
+              htmlFor="imageUrl"
+              className="text-sm font-medium text-gray-700 flex items-center gap-1.5"
             >
-              Cancel
-            </Button>
-            <Button onClick={handleCreate} disabled={!title.trim()}>
-              Create
-            </Button>
+              <ImageIcon className="w-4 h-4" />
+              URL hình ảnh (tùy chọn)
+            </Label>
+            <Input
+              id="imageUrl"
+              type="url"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://example.com/image.jpg"
+            />
           </div>
+
+          {/* Checklist */}
+          <div className="space-y-2">
+            <Label
+              htmlFor="checkList"
+              className="text-sm font-medium text-gray-700 flex items-center gap-1.5"
+            >
+              <ListChecks className="w-4 h-4" />
+              Checklist (tùy chọn)
+            </Label>
+            <Textarea
+              id="checkList"
+              value={checkList}
+              onChange={(e) => setCheckList(e.target.value)}
+              placeholder="Nhập các mục công việc cần kiểm tra, mỗi mục một dòng..."
+              className="min-h-[80px] resize-none"
+            />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-100 px-6 py-4 flex justify-end gap-3 rounded-b-xl">
+          <Button
+            variant="outline"
+            onClick={() => {
+              reset()
+              onOpenChange(false)
+            }}
+            className="min-w-[100px]"
+          >
+            Hủy
+          </Button>
+          <Button
+            onClick={handleCreate}
+            disabled={!description.trim() || !estimateDate}
+            className="min-w-[100px] bg-slate-900 hover:bg-slate-800"
+          >
+            {mode === 'edit' ? 'Lưu thay đổi' : 'Tạo công việc'}
+          </Button>
         </div>
       </div>
     </div>

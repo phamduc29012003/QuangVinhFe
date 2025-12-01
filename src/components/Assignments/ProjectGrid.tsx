@@ -6,9 +6,10 @@ interface ProjectGridProps {
   projects: IProjectAssignment[]
   loading?: boolean
   onView?: (project: IProjectAssignment) => void
+  onEdit?: (project: IProjectAssignment) => void
 }
 
-export const ProjectGrid = ({ projects, loading, onView }: ProjectGridProps) => {
+export const ProjectGrid = ({ projects, loading, onView, onEdit }: ProjectGridProps) => {
   if (loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -37,7 +38,12 @@ export const ProjectGrid = ({ projects, loading, onView }: ProjectGridProps) => 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {projects?.map((p, idx) => (
-        <ProjectCard key={p.taskGroupId || p.name || idx} project={p} onView={onView} />
+        <ProjectCard
+          key={p.taskGroupId || p.name || idx}
+          project={p}
+          onView={onView}
+          onEdit={onEdit}
+        />
       ))}
     </div>
   )

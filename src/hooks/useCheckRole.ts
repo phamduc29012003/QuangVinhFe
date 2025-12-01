@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
-import { useAuthStore } from '@/stores'
 import { ROLE } from '@/constants'
+import { useAuthStore } from '@/stores/authStore'
 const useCheckRole = () => {
   const { user } = useAuthStore()
   const roles = user?.roles ?? []

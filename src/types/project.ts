@@ -19,6 +19,6 @@ export type IProjectAssignment = z.infer<typeof projectResponseSchema>
 export type getProjectListParams = {
   statuses: STATUS_PROJECT_TYPE[] | null
   ownerIds: number[]
-  offset: number
+  offset?: number
   limit: number
 }

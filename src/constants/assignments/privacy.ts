@@ -3,6 +3,11 @@ export const PRIVACY = {
   PRIVATE: 2,
 }
 
+export const PRIVACY_LABEL = {
+  PUBLIC: 'Công khai',
+  PRIVATE: 'Riêng tư',
+}
+
 export type PRIVACY_TYPE = keyof typeof PRIVACY
 
 export const STATUS_PROJECT = {

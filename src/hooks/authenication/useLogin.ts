@@ -4,7 +4,7 @@ import type { LoginFormData, LoginResponse } from '@/types/Auth'
 import { setTokenAuth } from '@/utils/auth'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
-import { useAuthStore } from '@/stores'
+import { useAuthStore } from '@/stores/authStore'
 import { API_ENDPOINT } from '@/common'
 export const useLogin = () => {
   const navigate = useNavigate()

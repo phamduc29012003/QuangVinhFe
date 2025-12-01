@@ -30,9 +30,9 @@ export interface INavigateItems {
 }
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import BellNotification from '@/components/ui/bell'
-import { useAuthStore } from '@/stores'
 import { ROLE } from '@/constants'
 import { useNotifications } from '@/hooks/notifications/useNotifications'
+import { useAuthStore } from '@/stores/authStore'
 
 const WebLayout = ({ children }: Props) => {
   // Enable real-time notifications

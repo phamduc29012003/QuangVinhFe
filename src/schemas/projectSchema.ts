@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 // Schema for creating/updating a project (request payload)
 export const projectSchema = z.object({
+  taskGroupId: z.number().optional(),
   name: z.string().min(1, { message: 'Tên dự án không được để trống' }).trim(),
   status: z.number().int(),
   privacy: z.number().int(),

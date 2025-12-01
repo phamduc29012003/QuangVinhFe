@@ -23,4 +23,10 @@ export const API_ENDPOINT = {
   INVITE_USER: '/api/user/add-members',
   // Task
   GET_TASK_DETAIL: '/api/task/get-detail',
+  // Comment
+  CREATE_COMMENT: '/api/comment/create',
+  GET_LIST_COMMENT: '/api/comment/get-list',
+  UPDATE_COMMENT: '/api/comment/update',
+  REMOVE_COMMENT: '/api/comment/remove',
+  UPDATE_COMMENT_STATUS: '/api/comment/update-status',
 }
