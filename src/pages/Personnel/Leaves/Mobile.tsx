@@ -5,7 +5,6 @@ import { useLeaves } from '@/hooks/leaves/useLeaves.ts'
 import StatisticsCardsMobile from '@/components/Leaves/StatisticsCardsMobile.tsx'
 import LeaveListMobile from '@/components/Leaves/LeaveListMobile.tsx'
 import ViewDetailsSheetMobile from '@/components/Leaves/ViewDetailsSheetMobile.tsx'
-import ConfirmationDialogMobile from '@/components/Leaves/ConfirmationDialogMobile.tsx'
 import CreateLeaveSheetMobile from '@/components/Leaves/CreateLeaveSheetMobile.tsx'
 import useGetLeavesList from '@/hooks/leaves/useGetLeavesList.ts'
 import {
@@ -17,16 +16,8 @@ import {
 import { useState, useEffect } from 'react'
 import { convertToDateInput } from '@/utils/CommonUtils.ts'
 import { useRemoveLeaves } from '@/hooks/leaves/useRemoveLeaves'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog.tsx'
+import ConfirmationSheetMobile from '@/components/base/ConfirmationSheetMobile.tsx'
+import { Trash2, CheckCircle, XCircle } from 'lucide-react'
 
 export default function LeavesMobile() {
   const {
@@ -186,7 +177,6 @@ export default function LeavesMobile() {
         bottomOffsetClassName="bottom-22"
       />
 
-      {/* View Details BottomSheet */}
       <ViewDetailsSheetMobile
         open={viewDialogOpen}
         onOpenChange={setViewDialogOpen}
@@ -195,15 +185,29 @@ export default function LeavesMobile() {
         onDelete={handleDeleteLeave}
       />
 
-      {/* Confirmation Dialog */}
-      <ConfirmationDialogMobile
-        open={confirmDialogOpen}
-        onOpenChange={setConfirmDialogOpen}
-        actionType={actionType}
-        onConfirm={confirmAction}
-      />
+      {actionType && (
+        <ConfirmationSheetMobile
+          open={confirmDialogOpen}
+          onOpenChange={setConfirmDialogOpen}
+          onConfirm={confirmAction}
+          title={actionType === 'approve' ? 'Xác nhận duyệt đơn' : 'Xác nhận từ chối đơn'}
+          description={
+            actionType === 'approve'
+              ? 'Xác nhận duyệt đơn xin nghỉ này'
+              : 'Xác nhận từ chối đơn xin nghỉ này'
+          }
+          message={
+            actionType === 'approve'
+              ? 'Bạn có chắc chắn muốn duyệt đơn xin nghỉ này không?'
+              : 'Bạn có chắc chắn muốn từ chối đơn xin nghỉ này không?'
+          }
+          confirmText={actionType === 'approve' ? 'Xác nhận duyệt' : 'Xác nhận từ chối'}
+          cancelText="Hủy"
+          icon={actionType === 'approve' ? CheckCircle : XCircle}
+          variant={actionType === 'approve' ? 'success' : 'danger'}
+        />
+      )}
 
-      {/* Create/Update Leave Request BottomSheet */}
       <CreateLeaveSheetMobile
         open={createDialogOpen}
         onOpenChange={handleSheetClose}
@@ -212,27 +216,20 @@ export default function LeavesMobile() {
         initialValues={editInitialValues}
       />
 
-      {/* Delete Leave Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-base">Xác nhận xoá đơn nghỉ</AlertDialogTitle>
-            <AlertDialogDescription className="text-xs">
-              Bạn có chắc chắn muốn xoá đơn xin nghỉ này không? Hành động này không thể hoàn tác.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="text-xs">Hủy</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDeleteLeave}
-              className="text-xs"
-              disabled={isRemovingLeave}
-            >
-              Xác nhận
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationSheetMobile
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDeleteLeave}
+        title="Xác nhận xoá đơn nghỉ"
+        description="Thông tin chi tiết về đơn xin nghỉ"
+        message="Bạn có chắc chắn muốn xoá đơn xin nghỉ này không? Hành động này không thể hoàn tác."
+        confirmText="Xác nhận xoá"
+        cancelText="Hủy"
+        icon={Trash2}
+        variant="danger"
+        isLoading={isRemovingLeave}
+        loadingText="Đang xoá..."
+      />
     </div>
   )
 }
