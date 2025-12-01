@@ -6,10 +6,43 @@ import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
-function Select({ ...props }: React.ComponentProps<typeof SelectPrimitive.Root>) {
-  return <SelectPrimitive.Root data-slot="select" {...props} />
+type SelectProps<T extends string | number = string> = Omit<
+  React.ComponentProps<typeof SelectPrimitive.Root>,
+  'value' | 'onValueChange'
+> & {
+  value?: T
+  defaultValue?: T
+  onValueChange?: (value: T) => void
 }
 
+type SelectItemProps<T extends string | number = string> = Omit<
+  React.ComponentProps<typeof SelectPrimitive.Item>,
+  'value'
+> & {
+  value: T
+}
+
+function Select<T extends string | number = string>({
+  value,
+  defaultValue,
+  onValueChange,
+  ...props
+}: SelectProps<T>) {
+  return (
+    <SelectPrimitive.Root
+      value={value?.toString()}
+      defaultValue={defaultValue?.toString()}
+      onValueChange={(val) => {
+        if (typeof value === 'number') {
+          onValueChange?.(Number(val) as T) // map string trở lại number
+        } else {
+          onValueChange?.(val as T)
+        }
+      }}
+      {...props}
+    />
+  )
+}
 function SelectGroup({ ...props }: React.ComponentProps<typeof SelectPrimitive.Group>) {
   return <SelectPrimitive.Group data-slot="select-group" {...props} />
 }
@@ -90,15 +123,15 @@ function SelectLabel({ className, ...props }: React.ComponentProps<typeof Select
     />
   )
 }
-
-function SelectItem({
-  className,
+function SelectItem<T extends string | number = string>({
+  value,
   children,
+  className,
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Item>) {
+}: SelectItemProps<T>) {
   return (
     <SelectPrimitive.Item
-      data-slot="select-item"
+      value={value.toString()} // ép về string vì Radix chỉ nhận string
       className={cn(
         "focus:bg-accent focus:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
         className
