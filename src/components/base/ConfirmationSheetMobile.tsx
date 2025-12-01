@@ -2,7 +2,7 @@ import BottomSheet from '@/components/ui/bottom-sheet.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { Separator } from '@/components/ui/separator.tsx'
 import { type LucideIcon } from 'lucide-react'
-import { type ReactNode } from 'react'
+import React, { type ReactNode } from 'react'
 
 type ConfirmationVariant = 'danger' | 'warning' | 'info' | 'success'
 
@@ -86,13 +86,25 @@ export default function ConfirmationSheetMobile({
 }: ConfirmationSheetMobileProps) {
   const styles = variantStyles[variant]
 
+  // Render icon safely
   const renderIcon = () => {
     if (!Icon) return null
+
+    // If Icon is a React element (already rendered JSX), clone it with merged className
+    if (React.isValidElement(Icon)) {
+      return React.cloneElement(Icon as React.ReactElement<any>, {
+        className:
+          `${(Icon as React.ReactElement<any>).props?.className || ''} ${styles.iconColor}`.trim(),
+      })
+    }
+
+    // If Icon is a component constructor (function)
     if (typeof Icon === 'function') {
       const IconComponent = Icon as LucideIcon
       return <IconComponent className={`size-5 ${styles.iconColor}`} />
     }
-    return Icon
+
+    return null
   }
 
   return (
@@ -100,12 +112,7 @@ export default function ConfirmationSheetMobile({
       <div className="space-y-4 pb-6">
         {/* Message Card */}
         <div className={`${styles.bg} rounded-2xl p-4 space-y-2`}>
-          {Icon && (
-            <div className="flex items-center gap-2">
-              {renderIcon()}
-              <span className={`text-sm font-semibold ${styles.titleColor}`}>{title}</span>
-            </div>
-          )}
+          {Icon && <div className="flex items-center gap-2">{renderIcon()}</div>}
           <p className={`text-sm ${styles.textColor} leading-relaxed`}>{message}</p>
         </div>
 

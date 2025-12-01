@@ -203,7 +203,13 @@ export default function LeavesMobile() {
           }
           confirmText={actionType === 'approve' ? 'Xác nhận duyệt' : 'Xác nhận từ chối'}
           cancelText="Hủy"
-          icon={actionType === 'approve' ? CheckCircle : XCircle}
+          icon={
+            actionType === 'approve' ? (
+              <CheckCircle className="size-5" />
+            ) : (
+              <XCircle className="size-5" />
+            )
+          }
           variant={actionType === 'approve' ? 'success' : 'danger'}
         />
       )}
@@ -225,7 +231,7 @@ export default function LeavesMobile() {
         message="Bạn có chắc chắn muốn xoá đơn xin nghỉ này không? Hành động này không thể hoàn tác."
         confirmText="Xác nhận xoá"
         cancelText="Hủy"
-        icon={Trash2}
+        icon={<Trash2 className="size-5" />}
         variant="danger"
         isLoading={isRemovingLeave}
         loadingText="Đang xoá..."
