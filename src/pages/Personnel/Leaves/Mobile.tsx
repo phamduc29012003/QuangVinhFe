@@ -16,6 +16,17 @@ import {
 } from '@/types/Leave.ts'
 import { useState, useEffect } from 'react'
 import { convertToDateInput } from '@/utils/CommonUtils.ts'
+import { useRemoveLeaves } from '@/hooks/leaves/useRemoveLeaves'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog.tsx'
 
 export default function LeavesMobile() {
   const {
@@ -41,7 +52,11 @@ export default function LeavesMobile() {
   const [editMode, setEditMode] = useState<'create' | 'update'>('create')
   const [editLeaveId, setEditLeaveId] = useState<number | undefined>(undefined)
   const [editInitialValues, setEditInitialValues] = useState<Partial<LeaveFormValues> | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deleteRequest, setDeleteRequest] = useState<LeavesListDataResponse | null>(null)
   const limit = 10
+
+  const { removeLeavesMutate, isRemovingLeave } = useRemoveLeaves()
 
   const { absenceRequests, isFetching } = useGetLeavesList({
     statuses: filterStatus,
@@ -97,11 +112,36 @@ export default function LeavesMobile() {
   const handleSheetClose = (open: boolean) => {
     setCreateDialogOpen(open)
     if (!open) {
-      // Reset edit state when closing
       setEditMode('create')
       setEditLeaveId(undefined)
       setEditInitialValues(null)
     }
+  }
+
+  const handleDeleteLeave = (request: LeavesListDataResponse) => {
+    if (isRemovingLeave) return
+    setDeleteRequest(request)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDeleteLeave = () => {
+    if (!deleteRequest?.id || isRemovingLeave) return
+
+    removeLeavesMutate(
+      {
+        absenceRequestId: deleteRequest.id,
+      },
+      {
+        onSuccess: () => {
+          setViewDialogOpen(false)
+          setDeleteDialogOpen(false)
+          setDeleteRequest(null)
+        },
+        onError: () => {
+          setDeleteDialogOpen(false)
+        },
+      }
+    )
   }
 
   return (
@@ -152,6 +192,7 @@ export default function LeavesMobile() {
         onOpenChange={setViewDialogOpen}
         selectedRequest={selectedRequest}
         onEdit={handleEditLeave}
+        onDelete={handleDeleteLeave}
       />
 
       {/* Confirmation Dialog */}
@@ -170,6 +211,28 @@ export default function LeavesMobile() {
         leaveId={editLeaveId}
         initialValues={editInitialValues}
       />
+
+      {/* Delete Leave Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-base">Xác nhận xoá đơn nghỉ</AlertDialogTitle>
+            <AlertDialogDescription className="text-xs">
+              Bạn có chắc chắn muốn xoá đơn xin nghỉ này không? Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="text-xs">Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteLeave}
+              className="text-xs"
+              disabled={isRemovingLeave}
+            >
+              Xác nhận
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

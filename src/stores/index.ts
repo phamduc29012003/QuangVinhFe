@@ -1,4 +1,4 @@
-// export { useAuthStore } from './authStore'
+export { useAuthStore } from './authStore'
 // export { useTaskStore, useFilteredTasks } from './taskStore'
 
-// export * from '../types'
+export * from '../types'

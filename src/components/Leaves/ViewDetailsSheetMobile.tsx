@@ -2,7 +2,7 @@ import BottomSheet from '@/components/ui/bottom-sheet.tsx'
 import { Label } from '@/components/ui/label.tsx'
 import { Separator } from '@/components/ui/separator.tsx'
 import { Button } from '@/components/ui/button.tsx'
-import { Clock, Edit } from 'lucide-react'
+import { Clock, Edit, Trash2 } from 'lucide-react'
 import {
   getLeaveIcon,
   type LeavesListDataResponse,
@@ -17,6 +17,7 @@ type ViewDetailsSheetMobileProps = {
   onOpenChange: (open: boolean) => void
   selectedRequest: LeavesListDataResponse | null
   onEdit?: (request: LeavesListDataResponse) => void
+  onDelete?: (request: LeavesListDataResponse) => void
 }
 
 export default function ViewDetailsSheetMobile({
@@ -24,6 +25,7 @@ export default function ViewDetailsSheetMobile({
   onOpenChange,
   selectedRequest,
   onEdit,
+  onDelete,
 }: ViewDetailsSheetMobileProps) {
   const getTimeLeaves = () => {
     if (!selectedRequest?.offFrom && !selectedRequest?.offTo) return null
@@ -121,18 +123,35 @@ export default function ViewDetailsSheetMobile({
             </div>
           </div>
 
-          {/* Edit Button - Only show for pending requests */}
-          {selectedRequest.status === StatusLeaves.PENDING && onEdit && (
-            <Button
-              onClick={() => {
-                onEdit(selectedRequest)
-                onOpenChange(false)
-              }}
-              className="w-full h-12 rounded-xl bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center gap-2"
-            >
-              <Edit className="size-4" />
-              Sửa đơn
-            </Button>
+          {/* Action Buttons - Only show for pending requests */}
+          {selectedRequest.status === StatusLeaves.PENDING && (
+            <div className="space-y-3">
+              {onEdit && (
+                <Button
+                  onClick={() => {
+                    onEdit(selectedRequest)
+                    onOpenChange(false)
+                  }}
+                  className="w-full h-12 rounded-xl bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center gap-2"
+                >
+                  <Edit className="size-4" />
+                  Sửa đơn
+                </Button>
+              )}
+
+              {onDelete && (
+                <Button
+                  variant="outline"
+                  className="w-full h-12 rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-400 dark:hover:bg-rose-900/30 flex items-center justify-center gap-2"
+                  onClick={() => {
+                    onDelete(selectedRequest)
+                  }}
+                >
+                  <Trash2 className="size-4" />
+                  Xoá đơn
+                </Button>
+              )}
+            </div>
           )}
         </div>
       )}

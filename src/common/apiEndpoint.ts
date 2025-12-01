@@ -37,4 +37,5 @@ export const API_ENDPOINT = {
   DELETE_LEAVES: '/api/absence-request/update-status',
   CREATE_LEAVES: '/api/absence-request/create',
   GET_USER_APPROVE_LEAVES: '/api/absence-request/get_approvable_users',
+  REMOVE_LEAVES: '/api/absence-request/remove',
 }
