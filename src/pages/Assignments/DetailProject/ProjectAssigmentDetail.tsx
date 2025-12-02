@@ -9,6 +9,7 @@ import { Overview } from '@/components/Assignments/overview'
 import { useGetDetailProject } from '@/hooks/assignments/useGetDetailProject'
 import { useGetMemberTask, type IMemberTask } from '@/hooks/assignments/useGetMemberTask'
 import { useCreateTask } from '@/hooks/assignments/task/useCreateTask'
+import { TASK_STATUS } from '@/constants/assignments/task'
 
 export type User = {
   id: string
@@ -22,6 +23,8 @@ export type Task = {
   title: string
   description?: string
   status: TaskStatus
+  priority: number
+  taskType: number
   assigneeId?: string
   estimateHours?: number
 }
@@ -34,103 +37,80 @@ export type Project = {
   members: string[] // user ids
 }
 
-//
-
-const DUMMY_USERS: User[] = [
-  { id: 'u1', name: 'Alice' },
-  { id: 'u2', name: 'Bob' },
-  { id: 'u3', name: 'Charlie' },
-]
+// Map API task status number to TaskStatus
+function mapTaskStatus(statusCode: number): TaskStatus {
+  switch (statusCode) {
+    case TASK_STATUS.CREATED:
+    case TASK_STATUS.VISIBLE:
+      return 'todo'
+    case TASK_STATUS.PENDING:
+      return 'pending'
+    case TASK_STATUS.IN_PROGRESS:
+      return 'in_progress'
+    case TASK_STATUS.COMPLETED:
+      return 'done'
+    default:
+      return 'todo'
+  }
+}
 
 export const ProjectAssignmentDetail: React.FC = () => {
   const { id } = useParams()
   const { projectAssignmentDetail, isFetching } = useGetDetailProject(Number(id))
-  console.log('projectAssignmentDetail', projectAssignmentDetail)
   const isMobile = useIsMobile()
 
   const { memberTask } = useGetMemberTask(Number(id))
   const createTaskMutation = useCreateTask()
 
-  const initialProject: Project = useMemo(
-    () => ({
-      id: id || 'p1',
-      name: `Hệ thống quản lý kho mobile`,
-      description: 'Dự án phát triển ứng dụng quản lý kho hàng trên nền tảng di động.',
-      members: ['u1', 'u2'],
-      tasks: [
-        {
-          id: 't1',
-          title: 'Create wireframes',
-          description: 'Design initial wireframes for dashboard views',
-          status: 'in_progress',
-          assigneeId: 'u1',
-          estimateHours: 8,
-        },
-        {
-          id: 't2',
-          title: 'Set up CI/CD',
-          description: 'Add basic pipeline with build + lint',
-          status: 'todo',
-          assigneeId: 'u2',
-          estimateHours: 3,
-        },
-        {
-          id: 't3',
-          title: 'Implement auth flow',
-          description: 'Login, register and protected routes',
-          status: 'cancel',
-          assigneeId: undefined,
-          estimateHours: 5,
-        },
-        {
-          id: 't4',
-          title: 'Implement auth flow',
-          description: 'Login, register and protected routes',
-          status: 'done',
-          assigneeId: undefined,
-          estimateHours: 5,
-        },
-        {
-          id: 't5',
-          title: 'Implement auth flow',
-          description: 'Login, register and protected routes',
-          status: 'done',
-          assigneeId: undefined,
-          estimateHours: 5,
-        },
-        {
-          id: 't6',
-          title: 'Implement auth flow',
-          description: 'Login, register and protected routes',
-          status: 'pending',
-          assigneeId: undefined,
-          estimateHours: 5,
-        },
-      ],
-    }),
-    [id]
-  )
-
-  const [project] = useState<Project>(initialProject)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isInviteOpen, setIsInviteOpen] = useState(false)
 
-  //
+  // Transform API response to Project format
+  const project: Project | null = useMemo(() => {
+    if (!projectAssignmentDetail) return null
+
+    return {
+      id: String(projectAssignmentDetail.taskGroupId),
+      name: projectAssignmentDetail.name,
+      description: '',
+      members: projectAssignmentDetail.memberIds?.map(String) || [],
+      tasks:
+        projectAssignmentDetail.tasks?.map((task: any) => ({
+          id: String(task.taskId),
+          title: task.description,
+          description: task.checkList || undefined,
+          status: mapTaskStatus(task.status),
+          priority: task.priority,
+          taskType: task.taskType,
+          assigneeId: task.assignee?.id ? String(task.assignee.id) : undefined,
+          estimateHours: task.estimateTime
+            ? Math.round((task.estimateTime - Date.now()) / (1000 * 60 * 60))
+            : undefined,
+        })) || [],
+    }
+  }, [projectAssignmentDetail])
+
+  // Transform members to User format
+  const users: User[] = useMemo(() => {
+    if (!projectAssignmentDetail?.members) return []
+    return projectAssignmentDetail.members.map((member: any) => ({
+      id: String(member.id),
+      name: member.name || member.email,
+    }))
+  }, [projectAssignmentDetail])
 
   function handleCreateTask(data: CreateTaskFormData) {
     createTaskMutation.mutate({
-      task: {
-        description: data.description,
-        priority: data.priority,
-        taskType: data.taskType,
-        groupId: Number(id),
-        estimateTime: data.estimateTime,
-        imageUrls: data.imageUrls,
-        checkList: data.checkList,
-        assignee: data.assignee,
-        status: data.status,
-        startTime: data.startTime,
-      },
+      description: data.description,
+      priority: data.priority,
+      taskType: data.taskType,
+      groupId: Number(id),
+      estimateTime: data.estimateTime,
+      imageUrls: data.imageUrls,
+      checkList: data.checkList,
+      assignee: data.assignee,
+      status: data.status,
+      startTime: data.startTime,
     })
   }
 
@@ -146,11 +126,22 @@ export const ProjectAssignmentDetail: React.FC = () => {
     )
   }
 
+  // No data fallback
+  if (!project) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-gray-600 font-medium">Không tìm thấy dự án</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="p-4 flex flex-col gap-4">
       <div className="flex justify-between items-center">
         <div className="flex flex-col gap-2">
-          <h2 className="m-0">{projectAssignmentDetail?.name}</h2>
+          <h2 className="m-0">{project.name}</h2>
           <div className="flex items-center gap-2 mt-2">
             <span className="text-xs text-gray-500">Thành viên:</span>
             <div className="flex gap-1.5 flex-wrap">
@@ -189,9 +180,9 @@ export const ProjectAssignmentDetail: React.FC = () => {
       <Overview tasks={project.tasks} />
 
       {isMobile ? (
-        <TaskList tasks={project.tasks} assignees={DUMMY_USERS} />
+        <TaskList tasks={project.tasks} assignees={users} />
       ) : (
-        <TaskTable tasks={project.tasks} assignees={DUMMY_USERS} />
+        <TaskTable tasks={project.tasks} assignees={users} />
       )}
 
       <CreateTaskModal

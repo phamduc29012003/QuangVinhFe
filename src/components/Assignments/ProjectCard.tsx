@@ -41,32 +41,33 @@ export const ProjectCard = ({ project, onEdit }: ProjectCardProps) => {
 
   return (
     <Card className="group relative">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between gap-2">
-          <span className="truncate">{project.name}</span>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">{getPrivacy(project.privacy)}</Badge>
-            {onEdit && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={handleEdit}>
-                    <Pencil className="mr-2 h-4 w-4" />
-                    Chỉnh sửa
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
-        </CardTitle>
+      {/* Badge và Dropdown ở góc phải trên */}
+      <div className="absolute top-3 right-0 flex items-center gap-2 z-10">
+        <Badge variant="secondary">{getPrivacy(project.privacy)}</Badge>
+        {onEdit && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleEdit}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Chỉnh sửa
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
+
+      <CardHeader className="pr-32">
+        {/* Title - tối đa 2 dòng với ellipsis */}
+        <CardTitle className="line-clamp-2 break-words">{project.name}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3 mb-4">

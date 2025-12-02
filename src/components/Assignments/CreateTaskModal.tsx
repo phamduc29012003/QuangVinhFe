@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -39,6 +40,18 @@ export type CreateTaskModalProps = {
   initialData?: CreateTaskFormData
 }
 
+type FormValues = {
+  description: string
+  priority: string
+  taskType: string
+  status: string
+  startDate: string
+  estimateDate: string
+  assigneeId: string
+  imageUrl: string
+  checkList: string
+}
+
 export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   open,
   onOpenChange,
@@ -47,43 +60,71 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   mode = 'create',
   initialData,
 }) => {
-  const [description, setDescription] = useState('')
-  const [priority, setPriority] = useState<string>('2')
-  const [taskType, setTaskType] = useState<string>('1')
-  const [status, setStatus] = useState<string>(String(TASK_STATUS.CREATED))
-  const [startDate, setStartDate] = useState('')
-  const [estimateDate, setEstimateDate] = useState('')
-  const [assigneeId, setAssigneeId] = useState<string>('')
-  const [imageUrl, setImageUrl] = useState('')
-  const [checkList, setCheckList] = useState('')
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<FormValues>({
+    defaultValues: {
+      description: '',
+      priority: '2',
+      taskType: '1',
+      status: String(TASK_STATUS.CREATED),
+      startDate: '',
+      estimateDate: '',
+      assigneeId: '',
+      imageUrl: '',
+      checkList: '',
+    },
+  })
 
-  // Reset or fill data when open/mode/initialData changes
+  // Watch values for Select components (they need controlled state)
+  const priority = watch('priority')
+  const taskType = watch('taskType')
+  const status = watch('status')
+  const assigneeId = watch('assigneeId')
+
+  // Format timestamp to datetime-local format
+  const formatDate = (timestamp?: number) => {
+    if (!timestamp) return ''
+    return new Date(timestamp).toISOString().slice(0, 16)
+  }
+
+  // Reset or populate form when modal opens
   useEffect(() => {
     if (open) {
       if (mode === 'edit' && initialData) {
-        setDescription(initialData.description)
-        setPriority(String(initialData.priority))
-        setTaskType(String(initialData.taskType))
-        setStatus(String(initialData.status || TASK_STATUS.CREATED))
-
-        // Format dates for input type="datetime-local" (YYYY-MM-DDThh:mm)
-        const formatDate = (timestamp?: number) => {
-          if (!timestamp) return ''
-          return new Date(timestamp).toISOString().slice(0, 16)
-        }
-
-        setStartDate(formatDate(initialData.startTime))
-        setEstimateDate(formatDate(initialData.estimateTime))
-
-        setAssigneeId(initialData.assignee?.id ? String(initialData.assignee.id) : '')
-        setImageUrl(initialData.imageUrls?.[0] || '')
-        setCheckList(initialData.checkList || '')
+        reset({
+          description: initialData.description,
+          priority: String(initialData.priority),
+          taskType: String(initialData.taskType),
+          status: String(initialData.status || TASK_STATUS.CREATED),
+          startDate: formatDate(initialData.startTime),
+          estimateDate: formatDate(initialData.estimateTime),
+          assigneeId: initialData.assignee?.id ? String(initialData.assignee.id) : '',
+          imageUrl: initialData.imageUrls?.[0] || '',
+          checkList: initialData.checkList || '',
+        })
       } else {
-        reset()
+        reset({
+          description: '',
+          priority: '2',
+          taskType: '1',
+          status: String(TASK_STATUS.CREATED),
+          startDate: '',
+          estimateDate: '',
+          assigneeId: '',
+          imageUrl: '',
+          checkList: '',
+        })
       }
     }
-  }, [open, mode, initialData])
+  }, [open, mode, initialData, reset])
 
+  // ESC key to close
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape' && open) onOpenChange(false)
@@ -92,34 +133,22 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onOpenChange])
 
-  function reset() {
-    setDescription('')
-    setPriority('2')
-    setTaskType('1')
-    setStatus(String(TASK_STATUS.CREATED))
-    setStartDate('')
-    setEstimateDate('')
-    setAssigneeId('')
-    setImageUrl('')
-    setCheckList('')
-  }
+  const onSubmit = (data: FormValues) => {
+    if (!data.description.trim()) return
+    if (!data.estimateDate) return
 
-  function handleCreate() {
-    if (!description.trim()) return
-    if (!estimateDate) return
+    const estimateTime = new Date(data.estimateDate).getTime()
+    const startTime = data.startDate ? new Date(data.startDate).getTime() : undefined
 
-    const estimateTime = new Date(estimateDate).getTime()
-    const startTime = startDate ? new Date(startDate).getTime() : undefined
-
-    // Find selected member to get name
-    const selectedMember = assigneeId
-      ? memberTask.find((m) => String(m.id) === assigneeId)
+    // Find selected member
+    const selectedMember = data.assigneeId
+      ? memberTask.find((m) => String(m.id) === data.assigneeId)
       : undefined
 
     onCreate({
-      description: description.trim(),
-      priority: Number(priority),
-      taskType: Number(taskType),
+      description: data.description.trim(),
+      priority: Number(data.priority),
+      taskType: Number(data.taskType),
       estimateTime,
       assignee: selectedMember
         ? {
@@ -127,11 +156,12 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
             name: String(selectedMember.name || selectedMember.email || ''),
           }
         : undefined,
-      status: Number(status),
+      status: Number(data.status),
       startTime,
-      imageUrls: imageUrl.trim() ? [imageUrl.trim()] : undefined,
-      checkList: checkList.trim() || undefined,
+      imageUrls: data.imageUrl.trim() ? [data.imageUrl.trim()] : undefined,
+      checkList: data.checkList.trim() || undefined,
     })
+
     reset()
     onOpenChange(false)
   }
@@ -167,176 +197,179 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
 
         {/* Form */}
         <div className="p-6 space-y-5">
-          {/* Description */}
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-medium text-gray-700">
-              Tên công việc <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Nhập tên công việc..."
-            />
-          </div>
-
-          {/* Priority & Task Type */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="priority" className="text-sm font-medium text-gray-700">
-                Mức độ ưu tiên <span className="text-red-500">*</span>
-              </Label>
-              <Select value={priority} onValueChange={setPriority}>
-                <SelectTrigger id="priority" className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(TASK_PRIORITY_LABELS).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="taskType" className="text-sm font-medium text-gray-700">
-                Loại công việc <span className="text-red-500">*</span>
-              </Label>
-              <Select value={taskType} onValueChange={setTaskType}>
-                <SelectTrigger id="taskType" className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(TASK_TYPE_LABELS).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Status & Start Time */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="status" className="text-sm font-medium text-gray-700">
-                Trạng thái
-              </Label>
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger id="status" className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={String(TASK_STATUS.CREATED)}>Đã tạo</SelectItem>
-                  <SelectItem value={String(TASK_STATUS.VISIBLE)}>Hiển thị</SelectItem>
-                  <SelectItem value={String(TASK_STATUS.PENDING)}>Chờ xử lý</SelectItem>
-                  <SelectItem value={String(TASK_STATUS.IN_PROGRESS)}>Đang thực hiện</SelectItem>
-                  <SelectItem value={String(TASK_STATUS.COMPLETED)}>Hoàn thành</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label
-                htmlFor="startDate"
-                className="text-sm font-medium text-gray-700 flex items-center gap-1.5"
-              >
-                <Calendar className="w-4 h-4" />
-                Thời gian bắt đầu (tùy chọn)
+          <form onSubmit={handleSubmit(onSubmit)} id="create-task-form">
+            {/* Description */}
+            <div className="space-y-2 mb-5">
+              <Label htmlFor="description" className="text-sm font-medium text-gray-700">
+                Tên công việc <span className="text-red-500">*</span>
               </Label>
               <Input
-                id="startDate"
-                type="datetime-local"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full"
+                id="description"
+                {...register('description', { required: 'Tên công việc là bắt buộc' })}
+                placeholder="Nhập tên công việc..."
               />
+              {errors.description && (
+                <p className="text-sm text-red-500">{errors.description.message}</p>
+              )}
             </div>
-          </div>
 
-          {/* Estimate Time & Assignee */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
+            {/* Priority & Task Type */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+              <div className="space-y-2">
+                <Label htmlFor="priority" className="text-sm font-medium text-gray-700">
+                  Mức độ ưu tiên <span className="text-red-500">*</span>
+                </Label>
+                <Select value={priority} onValueChange={(val) => setValue('priority', val)}>
+                  <SelectTrigger id="priority" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(TASK_PRIORITY_LABELS).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="taskType" className="text-sm font-medium text-gray-700">
+                  Loại công việc <span className="text-red-500">*</span>
+                </Label>
+                <Select value={taskType} onValueChange={(val) => setValue('taskType', val)}>
+                  <SelectTrigger id="taskType" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(TASK_TYPE_LABELS).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Status & Start Time */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+              <div className="space-y-2">
+                <Label htmlFor="status" className="text-sm font-medium text-gray-700">
+                  Trạng thái
+                </Label>
+                <Select value={status} onValueChange={(val) => setValue('status', val)}>
+                  <SelectTrigger id="status" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={String(TASK_STATUS.CREATED)}>Đã tạo</SelectItem>
+                    <SelectItem value={String(TASK_STATUS.VISIBLE)}>Hiển thị</SelectItem>
+                    <SelectItem value={String(TASK_STATUS.PENDING)}>Chờ xử lý</SelectItem>
+                    <SelectItem value={String(TASK_STATUS.IN_PROGRESS)}>Đang thực hiện</SelectItem>
+                    <SelectItem value={String(TASK_STATUS.COMPLETED)}>Hoàn thành</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="startDate"
+                  className="text-sm font-medium text-gray-700 flex items-center gap-1.5"
+                >
+                  <Calendar className="w-4 h-4" />
+                  Thời gian bắt đầu (tùy chọn)
+                </Label>
+                <Input
+                  id="startDate"
+                  type="datetime-local"
+                  {...register('startDate')}
+                  className="w-full"
+                />
+              </div>
+            </div>
+
+            {/* Estimate Time & Assignee */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="estimateDate"
+                  className="text-sm font-medium text-gray-700 flex items-center gap-1.5"
+                >
+                  <Calendar className="w-4 h-4" />
+                  Thời gian dự kiến hoàn thành <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="estimateDate"
+                  type="datetime-local"
+                  {...register('estimateDate', { required: 'Thời gian hoàn thành là bắt buộc' })}
+                  className="w-full"
+                />
+                {errors.estimateDate && (
+                  <p className="text-sm text-red-500">{errors.estimateDate.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="assignee" className="text-sm font-medium text-gray-700">
+                  Người thực hiện
+                </Label>
+                <Select
+                  value={assigneeId || 'unassigned'}
+                  onValueChange={(val) => setValue('assigneeId', val === 'unassigned' ? '' : val)}
+                >
+                  <SelectTrigger id="assignee" className="w-full">
+                    <SelectValue placeholder="Chưa phân công" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="unassigned">Chưa phân công</SelectItem>
+                    {Array.isArray(memberTask) &&
+                      memberTask
+                        .filter((member) => member && member.id != null && member.id !== '')
+                        .map((member) => (
+                          <SelectItem key={String(member.id)} value={String(member.id)}>
+                            {String(member.name || member.email || 'Unknown')}
+                          </SelectItem>
+                        ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Image URL */}
+            <div className="space-y-2 mb-5">
               <Label
-                htmlFor="estimateDate"
+                htmlFor="imageUrl"
                 className="text-sm font-medium text-gray-700 flex items-center gap-1.5"
               >
-                <Calendar className="w-4 h-4" />
-                Thời gian dự kiến hoàn thành <span className="text-red-500">*</span>
+                <ImageIcon className="w-4 h-4" />
+                URL hình ảnh (tùy chọn)
               </Label>
               <Input
-                id="estimateDate"
-                type="datetime-local"
-                value={estimateDate}
-                onChange={(e) => setEstimateDate(e.target.value)}
-                className="w-full"
+                id="imageUrl"
+                type="url"
+                {...register('imageUrl')}
+                placeholder="https://example.com/image.jpg"
               />
             </div>
 
+            {/* Checklist */}
             <div className="space-y-2">
-              <Label htmlFor="assignee" className="text-sm font-medium text-gray-700">
-                Người thực hiện
-              </Label>
-              <Select
-                value={assigneeId || 'unassigned'}
-                onValueChange={(val) => setAssigneeId(val === 'unassigned' ? '' : val)}
+              <Label
+                htmlFor="checkList"
+                className="text-sm font-medium text-gray-700 flex items-center gap-1.5"
               >
-                <SelectTrigger id="assignee" className="w-full">
-                  <SelectValue placeholder="Chưa phân công" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="unassigned">Chưa phân công</SelectItem>
-                  {Array.isArray(memberTask) &&
-                    memberTask
-                      .filter((member) => member && member.id != null && member.id !== '')
-                      .map((member) => (
-                        <SelectItem key={String(member.id)} value={String(member.id)}>
-                          {String(member.name || member.email || 'Unknown')}
-                        </SelectItem>
-                      ))}
-                </SelectContent>
-              </Select>
+                <ListChecks className="w-4 h-4" />
+                Checklist (tùy chọn)
+              </Label>
+              <Textarea
+                id="checkList"
+                {...register('checkList')}
+                placeholder="Nhập các mục công việc cần kiểm tra, mỗi mục một dòng..."
+                className="min-h-[80px] resize-none"
+              />
             </div>
-          </div>
-
-          {/* Image URL */}
-          <div className="space-y-2">
-            <Label
-              htmlFor="imageUrl"
-              className="text-sm font-medium text-gray-700 flex items-center gap-1.5"
-            >
-              <ImageIcon className="w-4 h-4" />
-              URL hình ảnh (tùy chọn)
-            </Label>
-            <Input
-              id="imageUrl"
-              type="url"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://example.com/image.jpg"
-            />
-          </div>
-
-          {/* Checklist */}
-          <div className="space-y-2">
-            <Label
-              htmlFor="checkList"
-              className="text-sm font-medium text-gray-700 flex items-center gap-1.5"
-            >
-              <ListChecks className="w-4 h-4" />
-              Checklist (tùy chọn)
-            </Label>
-            <Textarea
-              id="checkList"
-              value={checkList}
-              onChange={(e) => setCheckList(e.target.value)}
-              placeholder="Nhập các mục công việc cần kiểm tra, mỗi mục một dòng..."
-              className="min-h-[80px] resize-none"
-            />
-          </div>
+          </form>
         </div>
 
         {/* Footer */}
@@ -348,12 +381,13 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               onOpenChange(false)
             }}
             className="min-w-[100px]"
+            type="button"
           >
             Hủy
           </Button>
           <Button
-            onClick={handleCreate}
-            disabled={!description.trim() || !estimateDate}
+            type="submit"
+            form="create-task-form"
             className="min-w-[100px] bg-slate-900 hover:bg-slate-800"
           >
             {mode === 'edit' ? 'Lưu thay đổi' : 'Tạo công việc'}
