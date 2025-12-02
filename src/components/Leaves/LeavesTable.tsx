@@ -1,60 +1,115 @@
 import React from 'react'
 import { Card } from '@/components/ui/card.tsx'
-import { AlertCircle, Briefcase, CheckCircle2, Clock, Eye, XCircle } from 'lucide-react'
+import {
+  AlertCircle,
+  Briefcase,
+  CheckCircle2,
+  Clock,
+  Eye,
+  XCircle,
+  Edit,
+  Trash2,
+  MoreVertical,
+} from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu.tsx'
 import { type ColumnType, TableBase } from '@/components/base/DataTable'
 import { Badge } from '@/components/ui/badge.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { calculateDays, formatDate } from '@/utils/CommonUtils.ts'
-import { getLeaveIcon, type LeaveRequest, type LeaveType } from '@/types/Leave.ts'
+import {
+  getLeaveIcon,
+  type LeavesListDataResponse,
+  MappingLeavesType,
+  mapDayOffType,
+  StatusLeaves,
+  DaysOffType,
+  LeavesType,
+} from '@/types/Leave.ts'
 
 type LeavesTableProps = {
-  data: LeaveRequest[]
+  data: LeavesListDataResponse[]
   canApprove: boolean
+  currentPage?: number
+  pageSize?: number
+  onPageChange?: (page: number) => void
+  onPageSizeChange?: (size: number) => void
+  total?: number
+  hasMore?: boolean
+  loading?: boolean
   onActionClick: (id: string, action: 'approve' | 'reject') => void
-  onViewDetails: (request: LeaveRequest) => void
+  onViewDetails: (request: LeavesListDataResponse) => void
+  onEdit?: (request: LeavesListDataResponse) => void
+  onDelete?: (request: LeavesListDataResponse) => void
 }
 
 const LeavesTable: React.FC<LeavesTableProps> = (props) => {
-  const { data, canApprove, onActionClick, onViewDetails } = props
+  const {
+    data,
+    canApprove,
+    currentPage,
+    pageSize = 10,
+    onPageChange,
+    onPageSizeChange,
+    total,
+    hasMore = false,
+    loading = false,
+    onActionClick,
+    onViewDetails,
+    onEdit,
+    onDelete,
+  } = props
 
-  const columns: ColumnType<LeaveRequest>[] = [
+  const columns: ColumnType<LeavesListDataResponse>[] = [
     {
       title: 'Nhân viên',
-      dataIndex: 'employeeName',
+      dataIndex: 'creator',
       key: 'employeeName',
       sorter: true,
       filterable: true,
       filterType: 'text',
-      render: (value) => <div className="font-medium">{value}</div>,
+      render: (_) => (
+        <div className="font-medium">
+          {/*{record.creator?.fullName || record.creator?.email || 'N/A'}*/}
+        </div>
+      ),
     },
     {
       title: 'Loại nghỉ',
-      dataIndex: 'type',
+      dataIndex: 'absenceType',
       key: 'type',
       sorter: true,
       filterable: true,
       filterType: 'select',
-      filterOptions: [
-        { label: 'Nghỉ phép năm', value: 'Nghỉ phép năm' },
-        { label: 'Nghỉ ốm', value: 'Nghỉ ốm' },
-        { label: 'Nghỉ không lương', value: 'Nghỉ không lương' },
-        { label: 'Nghỉ thai sản', value: 'Nghỉ thai sản' },
-        { label: 'Nghỉ hiếu', value: 'Nghỉ hiếu' },
-        { label: 'Nghỉ cưới', value: 'Nghỉ cưới' },
-      ],
-      render: (value: LeaveType) => {
+      filterOptions: Object.entries(MappingLeavesType).map(([key, value]) => ({
+        label: value,
+        value: key,
+      })),
+      render: (value) => {
         const Icon = getLeaveIcon(value)
         return (
           <div className="flex items-center gap-2">
             <Icon className="size-4 text-muted-foreground" />
-            <span>{value}</span>
+            <span>{MappingLeavesType[value as LeavesType] || 'N/A'}</span>
           </div>
         )
       },
     },
     {
+      title: 'Chế độ nghỉ',
+      dataIndex: 'dayOffType',
+      key: 'dayOffType',
+      sorter: true,
+      render: (value: number) => <span>{value ? mapDayOffType[value as DaysOffType] : 'N/A'}</span>,
+    },
+    {
       title: 'Từ ngày',
-      dataIndex: 'startDate',
+      dataIndex: 'offFrom',
       key: 'startDate',
       sorter: true,
       filterable: true,
@@ -63,7 +118,7 @@ const LeavesTable: React.FC<LeavesTableProps> = (props) => {
     },
     {
       title: 'Đến ngày',
-      dataIndex: 'endDate',
+      dataIndex: 'offTo',
       key: 'endDate',
       sorter: true,
       filterable: true,
@@ -72,15 +127,17 @@ const LeavesTable: React.FC<LeavesTableProps> = (props) => {
     },
     {
       title: 'Số ngày',
-      dataIndex: 'days',
+      dataIndex: 'dayOff',
       key: 'days',
       sorter: true,
       render: (_, record) => {
-        const days = calculateDays(record.startDate, record.endDate)
+        const { days, hours } = calculateDays(record.offFrom, record.offTo)
         return (
           <div className="flex items-center gap-1.5">
             <Clock className="size-3.5 text-muted-foreground" />
-            <span className="font-medium">{days} ngày</span>
+            <span className="font-medium">
+              {days} ngày {hours > 0 ? `${hours} giờ` : ''}
+            </span>
           </div>
         )
       },
@@ -104,26 +161,26 @@ const LeavesTable: React.FC<LeavesTableProps> = (props) => {
       filterable: true,
       filterType: 'select',
       filterOptions: [
-        { label: 'Chờ duyệt', value: 'pending' },
-        { label: 'Đã duyệt', value: 'approved' },
-        { label: 'Từ chối', value: 'rejected' },
+        { label: 'Chờ duyệt', value: StatusLeaves.PENDING.toString() },
+        { label: 'Đã duyệt', value: StatusLeaves.APPROVED.toString() },
+        { label: 'Từ chối', value: StatusLeaves.REJECTED.toString() },
       ],
       render: (value) => {
-        if (value === 'pending')
+        if (value === StatusLeaves.PENDING)
           return (
             <Badge variant="secondary" className="gap-1.5">
               <AlertCircle className="size-3" />
               Chờ duyệt
             </Badge>
           )
-        if (value === 'approved')
+        if (value === StatusLeaves.APPROVED)
           return (
             <Badge className="gap-1.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-0">
               <CheckCircle2 className="size-3" />
               Đã duyệt
             </Badge>
           )
-        if (value === 'rejected')
+        if (value === StatusLeaves.REJECTED)
           return (
             <Badge className="gap-1.5 bg-gradient-to-r from-rose-500 to-rose-600 text-white border-0">
               <XCircle className="size-3" />
@@ -138,43 +195,73 @@ const LeavesTable: React.FC<LeavesTableProps> = (props) => {
       dataIndex: 'actions',
       key: 'actions',
       align: 'left',
-      render: (_, record) => (
-        <div className="flex gap-2">
-          <Button variant="ghost" size="sm" onClick={() => onViewDetails(record)}>
-            <Eye className="size-4" />
-          </Button>
-          {canApprove && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onActionClick(record.id, 'approve')}
-                disabled={record.status !== 'pending'}
-                className="gap-1.5"
-              >
-                <CheckCircle2 className="size-3.5" />
-                Duyệt
+      render: (_, record) => {
+        const hasActions =
+          canApprove ||
+          record.status === StatusLeaves.PENDING ||
+          onViewDetails ||
+          onEdit ||
+          onDelete
+
+        if (!hasActions) return null
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <MoreVertical className="size-4" />
               </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => onActionClick(record.id, 'reject')}
-                disabled={record.status !== 'pending'}
-                className="gap-1.5"
-              >
-                <XCircle className="size-3.5" />
-                Từ chối
-              </Button>
-            </>
-          )}
-        </div>
-      ),
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {onViewDetails && (
+                <DropdownMenuItem onClick={() => onViewDetails(record)}>
+                  <Eye className="size-4 mr-2" />
+                  Xem chi tiết
+                </DropdownMenuItem>
+              )}
+              {canApprove && record.status === StatusLeaves.PENDING && (
+                <>
+                  <DropdownMenuItem onClick={() => onActionClick(record.id.toString(), 'approve')}>
+                    <CheckCircle2 className="size-4 mr-2" />
+                    Duyệt đơn
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => onActionClick(record.id.toString(), 'reject')}
+                    variant="destructive"
+                  >
+                    <XCircle className="size-4 mr-2" />
+                    Từ chối đơn
+                  </DropdownMenuItem>
+                </>
+              )}
+              {record.status === StatusLeaves.PENDING && (
+                <>
+                  {onEdit && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => onEdit(record)}>
+                        <Edit className="size-4 mr-2" />
+                        Sửa đơn
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  {onDelete && (
+                    <DropdownMenuItem onClick={() => onDelete(record)} variant="destructive">
+                      <Trash2 className="size-4 mr-2" />
+                      Xoá đơn
+                    </DropdownMenuItem>
+                  )}
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
     },
   ]
 
   return (
     <>
-      {/* Leave Requests Table */}
       <Card className="p-6 rounded-xl border-muted shadow-sm">
         <div className="mb-4">
           <h2 className="text-lg font-semibold flex items-center gap-2">
@@ -186,19 +273,23 @@ const LeavesTable: React.FC<LeavesTableProps> = (props) => {
         <TableBase
           dataSource={data}
           columns={columns}
+          loading={loading}
           searchable={true}
           searchPlaceholder="Tìm kiếm theo tên nhân viên..."
           filterable={true}
           columnVisibility={true}
           rowKey="id"
           pagination={{
-            current: 1,
-            pageSize: 10,
-            total: data.length,
+            showQuickJumper: false,
+            current: currentPage || 1,
+            pageSize: pageSize,
+            total: hasMore ? (total || data.length) + 1 : total || data.length,
             showSizeChanger: true,
             showTotal: (total, range) =>
               `Hiển thị ${range[0]}-${range[1]} trong tổng số ${total} mục`,
             pageSizeOptions: [5, 10, 20, 50],
+            onChange: onPageChange,
+            onShowSizeChange: onPageSizeChange ? (_, size) => onPageSizeChange(size) : undefined,
           }}
           size="middle"
           bordered={true}

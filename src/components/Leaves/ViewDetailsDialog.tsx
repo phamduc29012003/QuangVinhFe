@@ -7,21 +7,38 @@ import {
 } from '@/components/ui/dialog.tsx'
 import { Label } from '@/components/ui/label.tsx'
 import { Badge } from '@/components/ui/badge.tsx'
-import { Eye, Clock, AlertCircle, CheckCircle2, XCircle } from 'lucide-react'
-import { getLeaveIcon, type LeaveRequest } from '@/types/Leave.ts'
+import { Button } from '@/components/ui/button.tsx'
+import { Eye, Clock, AlertCircle, CheckCircle2, XCircle, Edit, Trash2 } from 'lucide-react'
+import {
+  getLeaveIcon,
+  type LeavesListDataResponse,
+  MappingLeavesType,
+  mapDayOffType,
+  StatusLeaves,
+} from '@/types/Leave.ts'
 import { calculateDays, formatDate } from '@/utils/CommonUtils.ts'
 
 type ViewDetailsDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  selectedRequest: LeaveRequest | null
+  selectedRequest: LeavesListDataResponse | null
+  onEdit?: (request: LeavesListDataResponse) => void
+  onDelete?: (request: LeavesListDataResponse) => void
 }
 
 export default function ViewDetailsDialog({
   open,
   onOpenChange,
   selectedRequest,
+  onEdit,
+  onDelete,
 }: ViewDetailsDialogProps) {
+  const getTimeLeaves = () => {
+    if (!selectedRequest?.offFrom && !selectedRequest?.offTo) return null
+    const { days, hours } = calculateDays(selectedRequest.offFrom, selectedRequest.offTo)
+    return { days, hours }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl" animationVariant="fade">
@@ -37,51 +54,59 @@ export default function ViewDetailsDialog({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label className="text-muted-foreground">Nhân viên</Label>
-                <p className="font-medium">{selectedRequest.employeeName}</p>
+                <p className="font-medium">
+                  {/*{selectedRequest.creator?.fullName || selectedRequest.creator?.email || 'N/A'}*/}
+                </p>
               </div>
               <div className="space-y-1">
                 <Label className="text-muted-foreground">Loại nghỉ</Label>
                 <div className="flex items-center gap-2">
                   {(() => {
-                    const Icon = getLeaveIcon(selectedRequest.type)
+                    const Icon = getLeaveIcon(selectedRequest.absenceType)
                     return <Icon className="size-4 text-muted-foreground" />
                   })()}
-                  <p className="font-medium">{selectedRequest.type}</p>
+                  <p className="font-medium">
+                    {MappingLeavesType[selectedRequest.absenceType] || 'N/A'}
+                  </p>
                 </div>
               </div>
               <div className="space-y-1">
+                <Label className="text-muted-foreground">Chế độ nghỉ</Label>
+                <p className="font-medium">{mapDayOffType[selectedRequest.dayOffType] || 'N/A'}</p>
+              </div>
+              <div className="space-y-1">
                 <Label className="text-muted-foreground">Từ ngày</Label>
-                <p className="font-medium">{formatDate(selectedRequest.startDate)}</p>
+                <p className="font-medium">{formatDate(selectedRequest.offFrom)}</p>
               </div>
               <div className="space-y-1">
                 <Label className="text-muted-foreground">Đến ngày</Label>
-                <p className="font-medium">{formatDate(selectedRequest.endDate)}</p>
+                <p className="font-medium">{formatDate(selectedRequest.offTo)}</p>
               </div>
               <div className="space-y-1">
                 <Label className="text-muted-foreground">Số ngày nghỉ</Label>
                 <div className="flex items-center gap-2">
                   <Clock className="size-4 text-muted-foreground" />
                   <p className="font-medium">
-                    {calculateDays(selectedRequest.startDate, selectedRequest.endDate)} ngày
+                    {getTimeLeaves()?.days || 0} ngày {getTimeLeaves()?.hours || 0} giờ
                   </p>
                 </div>
               </div>
               <div className="space-y-1">
                 <Label className="text-muted-foreground">Trạng thái</Label>
                 <div>
-                  {selectedRequest.status === 'pending' && (
+                  {selectedRequest.status === StatusLeaves.PENDING && (
                     <Badge variant="secondary" className="gap-1.5">
                       <AlertCircle className="size-3" />
                       Chờ duyệt
                     </Badge>
                   )}
-                  {selectedRequest.status === 'approved' && (
+                  {selectedRequest.status === StatusLeaves.APPROVED && (
                     <Badge className="gap-1.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-0">
                       <CheckCircle2 className="size-3" />
                       Đã duyệt
                     </Badge>
                   )}
-                  {selectedRequest.status === 'rejected' && (
+                  {selectedRequest.status === StatusLeaves.REJECTED && (
                     <Badge className="gap-1.5 bg-gradient-to-r from-rose-500 to-rose-600 text-white border-0">
                       <XCircle className="size-3" />
                       Từ chối
@@ -96,8 +121,38 @@ export default function ViewDetailsDialog({
             </div>
             <div className="space-y-1">
               <Label className="text-muted-foreground">Ngày tạo</Label>
-              <p className="text-sm">{formatDate(selectedRequest.createdAt)}</p>
+              <p className="text-sm">{formatDate(selectedRequest.createdTime)}</p>
             </div>
+
+            {/* Action Buttons - Only show for pending requests */}
+            {selectedRequest.status === StatusLeaves.PENDING && (onEdit || onDelete) && (
+              <div className="flex gap-2 pt-2">
+                {onEdit && (
+                  <Button
+                    onClick={() => {
+                      onEdit(selectedRequest)
+                      onOpenChange(false)
+                    }}
+                    className="flex-1 gap-2"
+                  >
+                    <Edit className="size-4" />
+                    Sửa đơn
+                  </Button>
+                )}
+                {onDelete && (
+                  <Button
+                    variant="destructive"
+                    onClick={() => {
+                      onDelete(selectedRequest)
+                    }}
+                    className="flex-1 gap-2"
+                  >
+                    <Trash2 className="size-4" />
+                    Xoá đơn
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         )}
       </DialogContent>

@@ -1,17 +1,17 @@
 import { Card } from '@/components/ui/card.tsx'
 import { Calendar, AlertCircle, CheckCircle2, XCircle } from 'lucide-react'
-import { type LeaveRequest } from '@/types/Leave.ts'
+import { type LeavesListDataResponse, StatusLeaves } from '@/types/Leave.ts'
 
 type StatisticsCardsProps = {
-  requests: LeaveRequest[]
+  requests: LeavesListDataResponse[]
 }
 
 export default function StatisticsCards({ requests }: StatisticsCardsProps) {
   const stats = {
     total: requests.length,
-    pending: requests.filter((r) => r.status === 'pending').length,
-    approved: requests.filter((r) => r.status === 'approved').length,
-    rejected: requests.filter((r) => r.status === 'rejected').length,
+    pending: requests.filter((r) => r.status === StatusLeaves.PENDING).length,
+    approved: requests.filter((r) => r.status === StatusLeaves.APPROVED).length,
+    rejected: requests.filter((r) => r.status === StatusLeaves.REJECTED).length,
   }
 
   return (
