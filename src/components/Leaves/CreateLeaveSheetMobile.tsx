@@ -48,6 +48,7 @@ export default function CreateLeaveSheetMobile({
     defaultValues: {
       absenceType: initialValues?.absenceType ?? LeavesType.SICK,
       dayOffType: initialValues?.dayOffType ?? DaysOffType.MORNING,
+      dayOff: initialValues?.dayOff ?? 0.5,
       offFrom: initialValues?.offFrom ?? '',
       offTo: initialValues?.offTo ?? '',
       reason: initialValues?.reason ?? '',
@@ -60,6 +61,7 @@ export default function CreateLeaveSheetMobile({
         reset({
           absenceType: initialValues.absenceType ?? LeavesType.SICK,
           dayOffType: initialValues.dayOffType ?? DaysOffType.MORNING,
+          dayOff: initialValues.dayOff ?? 0.5,
           offFrom: initialValues.offFrom ?? '',
           offTo: initialValues.offTo ?? '',
           reason: initialValues.reason ?? '',
@@ -68,6 +70,7 @@ export default function CreateLeaveSheetMobile({
         reset({
           absenceType: LeavesType.SICK,
           dayOffType: DaysOffType.MORNING,
+          dayOff: 0.5,
           offFrom: '',
           offTo: '',
           reason: '',
@@ -78,10 +81,16 @@ export default function CreateLeaveSheetMobile({
 
   const onSubmit = (value: LeaveFormValues) => {
     if (value) {
+      const offFromDate = new Date(value.offFrom)
+      const offToDate = new Date(value.offTo || value.offFrom)
+      const diffTime = offToDate.getTime() - offFromDate.getTime()
+      const dayOff = diffTime / (1000 * 60 * 60 * 24) || 0.5
+
       const payload: LeaveFormValues = {
         ...value,
+        dayOff: value.offTo ? dayOff : 0.5,
         offFrom: convertToISO(value.offFrom),
-        offTo: value.offTo ? value.offTo : convertToISO(value.offFrom),
+        offTo: value.offTo ? convertToISO(value.offTo) : convertToISO(value.offFrom),
       }
 
       if (mode === 'update' && leaveId) {

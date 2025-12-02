@@ -8,7 +8,7 @@ type LeaveListMobileProps = {
   items: LeavesListDataResponse[]
   canApprove: boolean
   onViewDetails: (request: LeavesListDataResponse) => void
-  onActionClick: (id: string, action: 'approve' | 'reject') => void
+  onActionClick: (id: number, action: 'approve' | 'reject', request: LeavesListDataResponse) => void
   onCreateClick: () => void
   onLoadMore?: () => void
   hasMore?: boolean

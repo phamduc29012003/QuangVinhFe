@@ -6,9 +6,9 @@ export type LeaveStatus = 'pending' | 'approved' | 'rejected'
 export type LeaveSession = 'FULL' | 'AM' | 'PM'
 
 export const StatusLeaves = {
-  PENDING: 4,
-  APPROVED: 5,
-  REJECTED: 6,
+  PENDING: 1,
+  APPROVED: 2,
+  REJECTED: 3,
 } as const
 
 export enum DaysOffType {
@@ -28,7 +28,7 @@ export const mapDayOffType = {
 export type LeaveFormValues = {
   absenceType: LeavesType
   dayOffType: DaysOffType
-  startDate: string
+  dayOff: number
   offFrom: string
   offTo: string
   reason: string

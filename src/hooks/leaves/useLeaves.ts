@@ -8,9 +8,11 @@ import {
   StatusLeaves,
 } from '@/types/Leave.ts'
 import useCheckRole from '@/hooks/useCheckRole.ts'
+import { useUpdateLeavesStatus } from '@/hooks/leaves/useUpdateLeavesStatus.ts'
 
 export function useLeaves() {
   const { isManagerPermission: canApprove } = useCheckRole()
+  const { updateLeavesStatusMutate, isUpdatingStatus } = useUpdateLeavesStatus()
 
   const [requests, setRequests] = useState<LeavesListDataResponse[]>([])
 
@@ -26,7 +28,7 @@ export function useLeaves() {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false)
   const [createDialogOpen, setCreateDialogOpen] = useState<boolean>(false)
   const [actionType, setActionType] = useState<'approve' | 'reject' | null>(null)
-  const [actionRequestId, setActionRequestId] = useState<string | null>(null)
+  const [actionRequest, setActionRequest] = useState<LeavesListDataResponse | null>(null)
 
   const [filterStatus, setFilterStatus] = useState<LeavesStatus[]>([
     StatusLeaves.PENDING,
@@ -82,25 +84,44 @@ export function useLeaves() {
     resetForm()
   }, [validateForm, type, leaveMode, startDate, endDate, reason, addRequest, resetForm])
 
-  const handleActionClick = useCallback((id: string, action: 'approve' | 'reject') => {
-    setActionRequestId(id)
-    setActionType(action)
-    setConfirmDialogOpen(true)
-  }, [])
+  const handleActionClick = useCallback(
+    (id: number, action: 'approve' | 'reject', request?: LeavesListDataResponse) => {
+      // Find the request if not provided
+      const targetRequest = request || requests.find((r) => r.id === id)
+      if (!targetRequest) return
+
+      setActionRequest(targetRequest)
+      setActionType(action)
+      setConfirmDialogOpen(true)
+    },
+    [requests]
+  )
 
   const confirmAction = useCallback(() => {
-    if (!actionRequestId || !actionType) return
+    if (!actionRequest || !actionType) return
 
-    if (actionType === 'approve') {
-      toast.success('Đã duyệt đơn!')
-    } else {
-      toast.error('Đã từ chối đơn!')
-    }
+    const newStatus = actionType === 'approve' ? StatusLeaves.APPROVED : StatusLeaves.REJECTED
 
-    setConfirmDialogOpen(false)
-    setActionRequestId(null)
-    setActionType(null)
-  }, [actionRequestId, actionType])
+    updateLeavesStatusMutate(
+      {
+        absenceRequestId: actionRequest.id,
+        status: actionRequest.status,
+        newStatus: newStatus,
+      },
+      {
+        onSuccess: () => {
+          setConfirmDialogOpen(false)
+          setActionRequest(null)
+          setActionType(null)
+          // Close view dialog if open
+          setViewDialogOpen(false)
+        },
+        onError: () => {
+          // Error is handled in the hook
+        },
+      }
+    )
+  }, [actionRequest, actionType, updateLeavesStatusMutate])
 
   const viewDetails = useCallback((request: LeavesListDataResponse) => {
     setSelectedRequest(request)
@@ -153,7 +174,7 @@ export function useLeaves() {
     createDialogOpen,
     setCreateDialogOpen,
     actionType,
-    actionRequestId,
+    actionRequest,
     filterStatus,
     setFilterStatus,
     handleCreateLeave,
@@ -161,5 +182,6 @@ export function useLeaves() {
     confirmAction,
     viewDetails,
     validateForm,
+    isUpdatingStatus,
   }
 }

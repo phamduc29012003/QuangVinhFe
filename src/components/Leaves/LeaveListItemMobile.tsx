@@ -15,13 +15,14 @@ type LeaveListItemMobileProps = {
   request: LeavesListDataResponse
   canApprove: boolean
   onViewDetails: (request: LeavesListDataResponse) => void
-  onActionClick: (id: string, action: 'approve' | 'reject') => void
+  onActionClick: (id: number, action: 'approve' | 'reject', request: LeavesListDataResponse) => void
 }
 
 export default function LeaveListItemMobile({
   request,
   canApprove,
   onViewDetails,
+  onActionClick,
 }: LeaveListItemMobileProps) {
   const Icon = getLeaveIcon(request?.absenceType)
   const getTimeLeaves = () => {
@@ -95,20 +96,20 @@ export default function LeaveListItemMobile({
             <Separator className="my-3 opacity-60" />
             <div className="flex gap-2">
               <Button
-                // onClick={(e) => {
-                //   e.stopPropagation()
-                //   onActionClick(request.id, 'approve')
-                // }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onActionClick(request.id, 'approve', request)
+                }}
                 className="flex-1 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-sm font-semibold hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors border border-emerald-200/60 dark:border-emerald-800/40"
                 variant="secondary"
               >
                 Duyệt
               </Button>
               <Button
-                // onClick={(e) => {
-                //   e.stopPropagation()
-                //   onActionClick(request.id, 'reject')
-                // }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onActionClick(request.id, 'reject', request)
+                }}
                 className="flex-1 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 text-sm font-semibold hover:bg-rose-100 dark:hover:bg-rose-900/30 transition-colors border border-rose-200/60 dark:border-rose-800/40"
                 variant="secondary"
               >

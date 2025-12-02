@@ -35,6 +35,7 @@ export default function LeavesMobile() {
     handleActionClick,
     confirmAction,
     viewDetails,
+    isUpdatingStatus,
   } = useLeaves()
 
   const [offset, setOffset] = useState(0)
@@ -88,7 +89,6 @@ export default function LeavesMobile() {
       offFrom: convertToDateInput(request.offFrom),
       offTo: convertToDateInput(request.offTo),
       reason: request.reason,
-      startDate: convertToDateInput(request.offFrom),
     })
     setCreateDialogOpen(true)
   }
@@ -211,6 +211,8 @@ export default function LeavesMobile() {
             )
           }
           variant={actionType === 'approve' ? 'success' : 'danger'}
+          isLoading={isUpdatingStatus}
+          loadingText={actionType === 'approve' ? 'Đang duyệt...' : 'Đang từ chối...'}
         />
       )}
 
