@@ -1,8 +1,10 @@
 import { Navigate } from 'react-router'
-import { isAuthenticated } from '@/utils/auth'
+import { useAuthStore } from '@/stores/authStore'
 
 export default function PrivateRoute({ children }: { children: React.ReactNode }) {
-  if (!isAuthenticated()) {
+  const { user } = useAuthStore()
+
+  if (!user) {
     return <Navigate to="/login" replace />
   }
 

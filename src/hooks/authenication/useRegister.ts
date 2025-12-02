@@ -15,7 +15,7 @@ export const useRegister = () => {
       return response
     },
     onSuccess: (response: RegisterResponse) => {
-      setTokenAuth(response.token)
+      setTokenAuth(response.token as unknown as string, response.refreshToken as unknown as string)
       SonnerToaster({
         type: 'success',
         message: 'Đăng ký thành công',

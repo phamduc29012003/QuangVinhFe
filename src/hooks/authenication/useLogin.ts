@@ -1,7 +1,6 @@
 import SonnerToaster from '@/components/ui/toaster'
 import { POST } from '@/core/api'
 import type { LoginFormData, LoginResponse } from '@/types/Auth'
-import { setTokenAuth } from '@/utils/auth'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 import { useAuthStore } from '@/stores/authStore'
@@ -14,13 +13,13 @@ export const useLogin = () => {
       const response = await POST(API_ENDPOINT.LOGIN, data)
       return response
     },
-    onSuccess: ({ user, token }: LoginResponse) => {
-      setTokenAuth(token as unknown as string)
+    onSuccess: (response: LoginResponse) => {
+      const { user, token, refreshToken } = response
       SonnerToaster({
         type: 'success',
         message: 'Đăng nhập thành công',
       })
-      setAuth(user, token)
+      setAuth(user, token, refreshToken)
       navigate('/dashboard')
     },
   })
