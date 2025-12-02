@@ -1,4 +1,3 @@
-import { useAuthStore } from '@/stores'
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import {
@@ -8,11 +7,10 @@ import {
   LeavesType,
   StatusLeaves,
 } from '@/types/Leave.ts'
+import useCheckRole from '@/hooks/useCheckRole.ts'
 
 export function useLeaves() {
-  const { user } = useAuthStore()
-  const roles = user?.roles || []
-  const canApprove = roles.includes('DIRECTOR') || roles.includes('MANAGER')
+  const { isManagerPermission: canApprove } = useCheckRole()
 
   const [requests, setRequests] = useState<LeavesListDataResponse[]>([])
 
@@ -82,7 +80,7 @@ export function useLeaves() {
 
     setCreateDialogOpen(false)
     resetForm()
-  }, [validateForm, type, leaveMode, startDate, endDate, reason, user?.name, addRequest, resetForm])
+  }, [validateForm, type, leaveMode, startDate, endDate, reason, addRequest, resetForm])
 
   const handleActionClick = useCallback((id: string, action: 'approve' | 'reject') => {
     setActionRequestId(id)
