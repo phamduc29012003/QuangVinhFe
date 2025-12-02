@@ -30,4 +30,12 @@ export const API_ENDPOINT = {
   UPDATE_COMMENT: '/api/comment/update',
   REMOVE_COMMENT: '/api/comment/remove',
   UPDATE_COMMENT_STATUS: '/api/comment/update-status',
+  // leaves
+  GET_LIST_LEAVES: '/api/absence-request/get-list',
+  GET_LIST_LEAVES_MANAGER: '/api/absence-request/get-subordinates-list',
+  UPDATE_LEAVES: '/api/absence-request/update',
+  UPDATE_LEAVES_STATUS: '/api/absence-request/update-status',
+  CREATE_LEAVES: '/api/absence-request/create',
+  GET_USER_APPROVE_LEAVES: '/api/absence-request/get_approvable_users',
+  REMOVE_LEAVES: '/api/absence-request/remove',
 }

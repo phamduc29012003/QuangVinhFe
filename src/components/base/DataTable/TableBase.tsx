@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { Search, Download, RefreshCw, ChevronDown, Filter, Eye, EyeOff, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -59,6 +59,8 @@ export interface TableBaseProps<T = any> {
     showQuickJumper?: boolean
     showTotal?: (total: number, range: [number, number]) => string
     pageSizeOptions?: number[]
+    onChange?: (page: number, pageSize?: number) => void
+    onShowSizeChange?: (current: number, size: number) => void
   }
 
   searchable?: boolean
@@ -125,6 +127,13 @@ export function TableBase<T = any>({
   const [searchValue, setSearchValue] = useState('')
   const [currentPage, setCurrentPage] = useState(pagination.current || 1)
   const [pageSize, setPageSize] = useState(pagination.pageSize || 10)
+
+  // Sync currentPage with external pagination.current prop
+  useEffect(() => {
+    if (pagination?.current && pagination.current !== currentPage) {
+      setCurrentPage(pagination.current)
+    }
+  }, [pagination?.current, currentPage])
   const [sortConfig, setSortConfig] = useState<{
     key: string
     direction: 'asc' | 'desc'
@@ -209,14 +218,22 @@ export function TableBase<T = any>({
     })
   }, [])
 
-  const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page)
-  }, [])
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setCurrentPage(page)
+      pagination?.onChange?.(page, pageSize)
+    },
+    [pagination, pageSize]
+  )
 
-  const handlePageSizeChange = useCallback((size: number) => {
-    setPageSize(size)
-    setCurrentPage(1)
-  }, [])
+  const handlePageSizeChange = useCallback(
+    (size: number) => {
+      setPageSize(size)
+      setCurrentPage(1)
+      pagination?.onShowSizeChange?.(1, size)
+    },
+    [pagination]
+  )
 
   const handleColumnFilter = useCallback(
     (columnKey: string, value: any) => {

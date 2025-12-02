@@ -1,28 +1,30 @@
 import { cn } from '@/lib/utils'
 
-export type SegmentedOption<ValueType extends string> = {
+export type SegmentedOption = {
   label: string
-  value: ValueType
+  value: number[] // <-- array number
 }
 
-type SegmentedControlProps<ValueType extends string> = {
-  options: SegmentedOption<ValueType>[]
-  value: ValueType
-  onChange: (value: ValueType) => void
+type SegmentedControlProps = {
+  options: SegmentedOption[]
+  value: number[] // <-- array number
+  onChange: (value: number[]) => void
   className?: string
 }
-
-export function SegmentedControl<ValueType extends string>(
-  props: SegmentedControlProps<ValueType>
-) {
+export function SegmentedControl(props: SegmentedControlProps) {
   const { options, value, onChange, className } = props
+
+  const isSameArray = (a: number[], b: number[]) =>
+    a.length === b.length && a.every((v, i) => v === b[i])
+
   return (
     <div className={cn('bg-gray-100 dark:bg-gray-800 rounded-xl p-1 flex gap-1', className)}>
       {options.map((opt) => {
-        const active = value === opt.value
+        const active = isSameArray(value, opt.value)
+
         return (
           <button
-            key={opt.value}
+            key={opt.label}
             type="button"
             onClick={() => onChange(opt.value)}
             className={cn(
