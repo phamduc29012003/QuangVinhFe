@@ -6,6 +6,7 @@ import { getTokenAuth } from '@/utils/auth'
 import { SOCKET_CONFIG } from '@/constants/socket'
 import { queryClient } from '@/lib/queryClient'
 import { notificationsKeys } from '@/constants/queryKey'
+import { useAuthStore } from '@/stores/authStore'
 
 interface SocketContextValue {
   socket: Socket | null
@@ -27,10 +28,16 @@ const SocketContext = createContext<SocketContextValue | null>(null)
  * - Khi nhận message, auto-invalidate React Query để refetch data
  */
 export function SocketProvider({ children }: { children: React.ReactNode }) {
+  // Chỉ khởi tạo socket khi đã login (có user)
+  const { user } = useAuthStore()
   const token = getTokenAuth()
+
+  // Chỉ connect khi có user (đã login thành công)
+  const shouldConnect = !!user && !!token
+
   const { socket, isConnected, messages, receiveMessageTime } = useSocket(SOCKET_CONFIG.URL, {
     auth: { token },
-    autoConnect: true,
+    autoConnect: shouldConnect, // Chỉ auto connect khi đã login
   })
 
   const [hasNewNoti, setHasNewNoti] = useState(false)

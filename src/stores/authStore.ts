@@ -12,13 +12,15 @@ export const useAuthStore = create<AuthStore>()(
         token: null,
         isAuthenticated: false,
         role: undefined,
+        refreshToken: null,
         error: null,
 
-        setAuth: (user: User, token: string) => {
-          setTokenAuth(token)
+        setAuth: (user: User, token: string, refreshToken: string) => {
+          setTokenAuth(token, refreshToken)
           set({
             user,
             token,
+            refreshToken,
             isAuthenticated: true,
             error: null,
           })
@@ -29,6 +31,7 @@ export const useAuthStore = create<AuthStore>()(
           set({
             user: null,
             token: null,
+            refreshToken: null,
             isAuthenticated: false,
             error: null,
           })
@@ -42,6 +45,7 @@ export const useAuthStore = create<AuthStore>()(
         partialize: (state: any) => ({
           user: state.user,
           token: state.token,
+          refreshToken: state.refreshToken,
           isAuthenticated: state.isAuthenticated,
         }),
       }

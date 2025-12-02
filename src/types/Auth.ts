@@ -25,11 +25,13 @@ export interface LoginResponse {
   user: User
   token: string
   role?: string
+  refreshToken: string
 }
 
 export interface RegisterResponse {
   user: User
   token: string
+  refreshToken: string
 }
 
 export type RegisterFormData = z.infer<typeof registerSchema>

@@ -5,17 +5,25 @@ export const getAuthorization = () => {
   return token ? `Bearer ${token}` : undefined
 }
 
-export const setTokenAuth = (token: string) => {
+export const setTokenAuth = (token: string, refreshToken: string) => {
+  console.log('refreshToken', refreshToken)
   localStorage.setItem('token', token)
+  localStorage.setItem('refreshToken', refreshToken)
 }
 
 export const logout = () => {
   localStorage.removeItem('token')
+  localStorage.removeItem('refreshToken')
+  localStorage.removeItem('auth-storage')
   queryClient.clear()
 }
 
 export const getTokenAuth = () => {
   return localStorage.getItem('token')
+}
+
+export const getRefreshToken = () => {
+  return localStorage.getItem('refreshToken')
 }
 
 export const isAuthenticated = () => {
