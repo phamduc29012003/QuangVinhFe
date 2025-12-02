@@ -21,7 +21,7 @@ export const API_ENDPOINT = {
   // USER
   GET_MEMBER_TASK: '/api/user/get-task-group-member-list',
   GET_ALL_USER: '/api/user/get-all',
-  INVITE_USER: '/api/user/add-members',
+  INVITE_USER: '/api/task-group/add-members',
   // Task
   GET_TASK_DETAIL: '/api/task/get-detail',
   // Comment

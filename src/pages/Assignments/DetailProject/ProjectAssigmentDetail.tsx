@@ -61,7 +61,6 @@ export const ProjectAssignmentDetail: React.FC = () => {
 
   const { memberTask } = useGetMemberTask(Number(id))
   const createTaskMutation = useCreateTask()
-
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isInviteOpen, setIsInviteOpen] = useState(false)
 
@@ -145,13 +144,13 @@ export const ProjectAssignmentDetail: React.FC = () => {
           <div className="flex items-center gap-2 mt-2">
             <span className="text-xs text-gray-500">Thành viên:</span>
             <div className="flex gap-1.5 flex-wrap">
-              {memberTask && memberTask.length > 0 ? (
-                memberTask.map((member: IMemberTask) => (
+              {projectAssignmentDetail?.memberIds && projectAssignmentDetail.members.length > 0 ? (
+                projectAssignmentDetail.members.map((m: any) => (
                   <span
-                    key={member.id}
+                    key={m.id}
                     className="text-xs px-2 py-0.5 border border-gray-200 rounded-full bg-gray-50"
                   >
-                    {member.name}
+                    {m.name}
                   </span>
                 ))
               ) : (
