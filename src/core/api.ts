@@ -50,6 +50,7 @@ api.interceptors.response.use(
     return response.data
   },
   async (error) => {
+    console.log(error, 'error')
     const originalRequest = error.config
     const status = error.response?.status
 

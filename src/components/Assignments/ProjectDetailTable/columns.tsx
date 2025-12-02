@@ -2,12 +2,15 @@ import React from 'react'
 import { Badge } from '@/components/ui/badge'
 import { type ColumnType } from '@/components/base/DataTable'
 import { CheckCircle2, CircleDashed, Clock4, Pencil, XCircle } from 'lucide-react'
+import { getTaskPriorityLabel, getTaskTypeLabel } from '@/utils/getLable'
 
 export type TaskRow = {
   id: string
   title: string
   description?: string
   status: 'todo' | 'in_progress' | 'done' | 'pending' | 'cancel'
+  priority: number
+  taskType: number
   assigneeId?: string
   estimateHours?: number
 }
@@ -94,6 +97,22 @@ export const taskColumns = (assigneeIdToName?: Record<string, string>): ColumnTy
     filterable: true,
     filterType: 'text',
     render: (value) => assigneeIdToName?.[value as string] || value || '-',
+  },
+  {
+    title: 'Ưu tiên',
+    dataIndex: 'priority',
+    key: 'priority',
+    filterable: true,
+    filterType: 'text',
+    render: (value) => getTaskPriorityLabel(value),
+  },
+  {
+    title: 'Loại công việc',
+    dataIndex: 'taskType',
+    key: 'taskType',
+    filterable: true,
+    filterType: 'text',
+    render: (value) => getTaskTypeLabel(value),
   },
   {
     title: 'Ước lượng (giờ)',

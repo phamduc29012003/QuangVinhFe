@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { STATUS_LABEL, STATUS_ICON, type TaskRow } from './columns'
 import { useNavigate } from 'react-router'
+import { getTaskPriorityLabel, getTaskTypeLabel } from '@/utils/getLable'
 
 type Assignee = { id: string; name: string }
 
@@ -28,7 +29,7 @@ export default function TaskList(props: { tasks: TaskRow[]; assignees?: Assignee
   return (
     <div className="flex flex-col gap-3">
       {tasks.map((t) => {
-        // Extract only the numeric part from the ID (e.g., 't5' -> '5')
+        console.log('t', t)
         const numericId = t.id.replace(/\D/g, '')
         return (
           <Card key={t.id} className="p-3" onClick={() => navigate(`/tasks/${numericId}`)}>
@@ -48,12 +49,22 @@ export default function TaskList(props: { tasks: TaskRow[]; assignees?: Assignee
               <div>
                 <span className="mr-1">Người phụ trách:</span>
                 <span className="font-medium text-foreground">
-                  {assigneeIdToName?.[t.assigneeId as string] || '-'}
+                  {assigneeIdToName?.[t.assigneeId as string] || 'Chưa gán người phụ trách'}
                 </span>
               </div>
               <div className="text-right">
                 <span className="mr-1">Ước lượng:</span>
-                <span className="font-medium text-foreground">{t.estimateHours ?? '-'} h</span>
+                <span className="font-medium text-foreground">{t.estimateHours ?? ''} h</span>
+              </div>
+              <div>
+                <span className="mr-1">Ưu tiên:</span>
+                <span className="font-medium text-foreground">
+                  {getTaskPriorityLabel(t.priority)}
+                </span>
+              </div>
+              <div className="text-right">
+                <span className="mr-1">Loại:</span>
+                <span className="font-medium text-foreground">{getTaskTypeLabel(t.taskType)}</span>
               </div>
             </div>
           </Card>
