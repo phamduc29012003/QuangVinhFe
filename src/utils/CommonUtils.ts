@@ -27,8 +27,47 @@ export const formatDate = (dateString: string): string => {
   })
 }
 
+// Convert timestamp (milliseconds) to formatted date string
+export const formatTimestamp = (timestamp: number): string => {
+  if (!timestamp) return ''
+  const date = new Date(timestamp)
+  return date.toLocaleDateString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+}
+
 // Convert ISO date string to YYYY-MM-DD format for input type="date"
 export const convertToDateInput = (dateString: string): string => {
   if (!dateString) return ''
   return dayjs(dateString).format('YYYY-MM-DD')
+}
+
+// Calculate and format estimate hours from timestamps or direct hours input
+export const getFormattedEstimate = (startTimeOrHours: number, endTime?: number): string => {
+  let hours: number
+
+  // If endTime is provided, calculate hours from timestamps
+  if (endTime !== undefined) {
+    if (!startTimeOrHours || !endTime) return '0 giờ'
+    const diffMs = endTime - startTimeOrHours
+    hours = Math.floor(diffMs / (1000 * 60 * 60))
+  } else {
+    // Otherwise, treat first param as hours directly
+    hours = startTimeOrHours
+  }
+
+  if (!hours || hours <= 0) return '0 giờ'
+
+  const days = Math.floor(hours / 24)
+  const remainingHours = hours % 24
+
+  if (days > 0 && remainingHours > 0) {
+    return `${days} ngày ${remainingHours} giờ`
+  } else if (days > 0) {
+    return `${days} ngày`
+  } else {
+    return `${remainingHours} giờ`
+  }
 }

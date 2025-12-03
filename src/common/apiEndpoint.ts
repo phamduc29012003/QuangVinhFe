@@ -18,6 +18,7 @@ export const API_ENDPOINT = {
   ASIGN_TASK: '/api/task/assign-task',
   UPDATE_PRIORITY: '/api/task/update-priority',
   UPDATE_STATUS: '/api/task/update-status',
+  UPDATE_CHECKLIST: '/api/task/update-checklist',
   // USER
   GET_MEMBER_TASK: '/api/user/get-task-group-member-list',
   GET_ALL_USER: '/api/user/get-all',
@@ -38,4 +39,6 @@ export const API_ENDPOINT = {
   CREATE_LEAVES: '/api/absence-request/create',
   GET_USER_APPROVE_LEAVES: '/api/absence-request/get_approvable_users',
   REMOVE_LEAVES: '/api/absence-request/remove',
+  // profile
+  GET_PROFILE: '/api/user/get-profile',
 }

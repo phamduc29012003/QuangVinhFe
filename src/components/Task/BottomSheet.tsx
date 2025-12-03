@@ -7,14 +7,10 @@ export const BottomSheetTask = ({
   infoOpen,
   setInfoOpen,
   task,
-  assignee,
-  assigner,
 }: {
   infoOpen: boolean
   setInfoOpen: (open: boolean) => void
   task: any
-  assignee: any
-  assigner: any
 }) => {
   return (
     <BottomSheet
@@ -33,7 +29,7 @@ export const BottomSheetTask = ({
           <div className="flex-1 min-w-0">
             <div className="text-xs text-gray-500 mb-0.5">Người được giao</div>
             <div className="font-medium text-sm text-gray-900 truncate">
-              {assignee?.name || <span className="text-gray-400">Chưa gán</span>}
+              {task?.assignee?.name || <span className="text-gray-400">Chưa gán</span>}
             </div>
           </div>
         </div>
@@ -45,7 +41,7 @@ export const BottomSheetTask = ({
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-xs text-gray-500 mb-0.5">Người giao</div>
-            <div className="font-medium text-sm text-gray-900">{assigner.name}</div>
+            <div className="font-medium text-sm text-gray-900">{task?.assigner?.name}</div>
           </div>
         </div>
 
