@@ -8,11 +8,15 @@ export type TaskRow = {
   id: string
   title: string
   description?: string
-  status: 'todo' | 'in_progress' | 'done' | 'pending' | 'cancel'
+  status: any
   priority: number
   taskType: number
-  assigneeId?: string
+  assigneeId?: any
   estimateHours?: number
+  groupId?: number
+  startTime?: any
+  endTime?: any
+  estimateTime?: any
 }
 
 export const STATUS_LABEL: Record<TaskRow['status'], React.ReactNode> = {

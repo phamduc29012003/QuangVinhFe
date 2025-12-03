@@ -2,7 +2,7 @@ import { POST } from '@/core/api'
 import { useMutation } from '@tanstack/react-query'
 import SonnerToaster from '@/components/ui/toaster'
 import { API_ENDPOINT } from '@/common'
-import { memberTaskKey } from '@/constants/assignments/assignment'
+import { projectAssignmentDetailKey } from '@/constants/assignments/assignment'
 import { queryClient } from '@/lib/queryClient'
 
 interface IInviteUser {
@@ -16,8 +16,13 @@ export const useInviteUser = () => {
       const response = await POST(API_ENDPOINT.INVITE_USER, payload)
       return response
     },
-    onSuccess: (respones) => {
-      queryClient.invalidateQueries({ queryKey: [memberTaskKey.detail] })
+    onSuccess: (respones, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [
+          projectAssignmentDetailKey.detail(variables.taskGroupId.toString()),
+          { taskGroupId: variables.taskGroupId },
+        ],
+      })
       SonnerToaster({
         type: 'success',
         message: 'Mời thành viên thành công',

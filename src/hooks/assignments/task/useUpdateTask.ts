@@ -3,9 +3,10 @@ import { useMutation } from '@tanstack/react-query'
 import SonnerToaster from '@/components/ui/toaster'
 import { API_ENDPOINT } from '@/common'
 import { queryClient } from '@/lib/queryClient'
-import { projectAssignmentDetailKey } from '@/constants'
+import { detailTaskKey } from '@/constants'
 
-export interface CreateTaskPayload {
+export interface updateTaskPayload {
+  taskId: number
   description: string
   priority: number
   taskType: number
@@ -18,24 +19,22 @@ export interface CreateTaskPayload {
   startTime?: number
 }
 
-export const useCreateTask = () => {
-  const createTaskMutation = useMutation({
-    mutationFn: async (payload: CreateTaskPayload) => {
-      const response = await POST(API_ENDPOINT.CREATE_TASK, payload)
+export const useUpdateTask = () => {
+  const updateTaskMutation = useMutation({
+    mutationFn: async (payload: updateTaskPayload) => {
+      const response = await POST(API_ENDPOINT.UPDATE_TASK, payload)
       return response
     },
     onSuccess: (response, variables) => {
-      const { groupId } = variables
-      // Invalidate all project detail queries (regardless of specific ID)
       queryClient.invalidateQueries({
-        queryKey: [projectAssignmentDetailKey.detail(groupId.toString()), { taskGroupId: groupId }],
+        queryKey: [detailTaskKey.detail(variables.taskId.toString()), { taskId: variables.taskId }],
       })
       SonnerToaster({
         type: 'success',
-        message: 'Tạo công việc thành công',
+        message: 'Cập nhật công việc thành công',
         description: response.message,
       })
     },
   })
-  return createTaskMutation
+  return updateTaskMutation
 }

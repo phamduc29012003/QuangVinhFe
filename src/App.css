@@ -49,8 +49,10 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.527 0.223 264.37); /* blue-600 ~ #2563eb */
-  --primary-foreground: oklch(0.985 0 0); /* trắng hoặc màu khác phù hợp */
+  --primary: oklch(0.527 0.223 264.37);
+  /* blue-600 ~ #2563eb */
+  --primary-foreground: oklch(0.985 0 0);
+  /* trắng hoặc màu khác phù hợp */
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -83,7 +85,8 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.527 0.223 264.37); /* blue-600 ~ #2563eb */
+  --primary: oklch(0.527 0.223 264.37);
+  /* blue-600 ~ #2563eb */
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
@@ -148,6 +151,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -160,8 +164,15 @@
     opacity: 0;
     transform: translateX(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
   }
+}
+
+
+.codex-editor__redactor {
+  padding-bottom: 10px !important;
+  margin-right: 0px !important;
 }

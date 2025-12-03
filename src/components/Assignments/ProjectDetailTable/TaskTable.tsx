@@ -5,7 +5,7 @@ import { taskColumns, type TaskRow } from './columns'
 
 type Assignee = { id: string; name: string }
 
-export default function TaskTable(props: { tasks: TaskRow[]; assignees?: Assignee[] }) {
+export default function TaskTable(props: { tasks: any; assignees?: Assignee[] }) {
   const { tasks, assignees } = props
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)

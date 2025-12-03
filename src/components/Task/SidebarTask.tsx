@@ -1,14 +1,5 @@
-import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
-import { Calendar, Flag, CheckCircle2, Circle, XCircle, Clock, Clock4 } from 'lucide-react'
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Calendar, Clock4 } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 
 const MOCK_USERS = [
@@ -17,76 +8,9 @@ const MOCK_USERS = [
   { id: 'u3', name: 'Charlie', avatar: '/photo_2025-09-26_12-28-54.jpg' },
 ]
 
-const STATUS_OPTIONS = [
-  { value: 'todo', label: 'Cần làm', icon: Circle, color: 'text-gray-500', bgColor: 'bg-gray-100' },
-  {
-    value: 'in_progress',
-    label: 'Đang làm',
-    icon: Clock,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-100',
-  },
-  {
-    value: 'done',
-    label: 'Hoàn thành',
-    icon: CheckCircle2,
-    color: 'text-green-500',
-    bgColor: 'bg-green-100',
-  },
-  { value: 'cancel', label: 'Đã hủy', icon: XCircle, color: 'text-red-500', bgColor: 'bg-red-100' },
-]
-
-const PRIORITY_OPTIONS = [
-  {
-    value: '1',
-    label: 'Thấp',
-    color: 'text-gray-600',
-    bgColor: 'bg-gray-100',
-    dotColor: 'bg-gray-400',
-  },
-  {
-    value: '2',
-    label: 'Trung bình',
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-100',
-    dotColor: 'bg-blue-500',
-  },
-  {
-    value: '3',
-    label: 'Cao',
-    color: 'text-orange-600',
-    bgColor: 'bg-orange-100',
-    dotColor: 'bg-orange-500',
-  },
-  {
-    value: '4',
-    label: 'Khẩn cấp',
-    color: 'text-red-600',
-    bgColor: 'bg-red-100',
-    dotColor: 'bg-red-500',
-  },
-]
-
 export const SidebarTask = () => {
-  const [status, setStatus] = useState('in_progress')
-  const [priority, setPriority] = useState('2')
   const assigner = MOCK_USERS[2]
   const assignee = MOCK_USERS[0]
-
-  const currentStatus = STATUS_OPTIONS.find((s) => s.value === status)
-  const currentPriority = PRIORITY_OPTIONS.find((p) => p.value === priority)
-
-  const handleStatusChange = async (newStatus: string) => {
-    setStatus(newStatus)
-    // TODO: Call API to update status
-    console.log('Updating status to:', newStatus)
-  }
-
-  const handlePriorityChange = async (newPriority: string) => {
-    setPriority(newPriority)
-    // TODO: Call API to update priority
-    console.log('Updating priority to:', newPriority)
-  }
 
   return (
     <div className="lg:col-span-1">
@@ -95,83 +19,6 @@ export const SidebarTask = () => {
           <h3 className="text-sm font-semibold text-gray-900 mb-5">Thông tin công việc</h3>
 
           <div className="space-y-5">
-            {/* Status Selector */}
-            <div>
-              <label className="text-xs font-medium text-gray-500 mb-2 block">Trạng thái</label>
-              <Select value={status} onValueChange={handleStatusChange}>
-                <SelectTrigger className="w-full h-10 border-gray-200 hover:border-gray-300 transition-colors">
-                  <SelectValue>
-                    <div className="flex items-center gap-2">
-                      {currentStatus && (
-                        <>
-                          <div
-                            className={`w-8 h-8 rounded-lg ${currentStatus.bgColor} flex items-center justify-center`}
-                          >
-                            <currentStatus.icon className={`w-4 h-4 ${currentStatus.color}`} />
-                          </div>
-                          <span className="font-medium text-sm">{currentStatus.label}</span>
-                        </>
-                      )}
-                    </div>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {STATUS_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-8 h-8 rounded-lg ${option.bgColor} flex items-center justify-center`}
-                        >
-                          <option.icon className={`w-4 h-4 ${option.color}`} />
-                        </div>
-                        <span className="font-medium">{option.label}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Priority Selector */}
-            <div>
-              <label className="text-xs font-medium text-gray-500 mb-2 block">Độ ưu tiên</label>
-              <Select value={priority} onValueChange={handlePriorityChange}>
-                <SelectTrigger className="w-full h-10 border-gray-200 hover:border-gray-300 transition-colors">
-                  <SelectValue>
-                    <div className="flex items-center gap-2">
-                      {currentPriority && (
-                        <>
-                          <div
-                            className={`w-8 h-8 rounded-lg ${currentPriority.bgColor} flex items-center justify-center`}
-                          >
-                            <Flag className={`w-4 h-4 ${currentPriority.color}`} />
-                          </div>
-                          <span className="font-medium text-sm">{currentPriority.label}</span>
-                        </>
-                      )}
-                    </div>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {PRIORITY_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-8 h-8 rounded-lg ${option.bgColor} flex items-center justify-center`}
-                        >
-                          <Flag className={`w-4 h-4 ${option.color}`} />
-                        </div>
-                        <span className="font-medium">{option.label}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Separator className="my-4" />
-
-            {/* Assignee */}
             <div>
               <label className="text-xs font-medium text-gray-500 mb-2 block">
                 Người được giao

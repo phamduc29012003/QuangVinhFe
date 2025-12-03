@@ -107,7 +107,7 @@ export const ProjectAssignmentDetail: React.FC = () => {
       estimateTime: data.estimateTime,
       imageUrls: data.imageUrls,
       checkList: data.checkList,
-      assignee: data.assignee,
+      assigneeId: data.assigneeId,
       status: data.status,
       startTime: data.startTime,
     })

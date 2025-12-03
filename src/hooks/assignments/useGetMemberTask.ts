@@ -14,7 +14,7 @@ export const useGetMemberTask = (id: number) => {
     queryKey: [projectAssignmentDetailKey.detail(id.toString())],
     queryFn: () => POST(API_ENDPOINT.GET_MEMBER_TASK, { taskGroupId: id }),
     select(data) {
-      return data.data as IMemberTask[]
+      return data.users as IMemberTask[]
     },
   })
   return { memberTask: data, isFetching, error }

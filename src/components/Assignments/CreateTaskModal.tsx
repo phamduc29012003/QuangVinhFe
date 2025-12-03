@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -13,17 +12,17 @@ import {
 } from '@/components/ui/select'
 import { TASK_PRIORITY_LABELS, TASK_TYPE_LABELS, TASK_STATUS } from '@/constants/assignments/task'
 import { X, Calendar, Image as ImageIcon, ListChecks } from 'lucide-react'
-import type { IMemberTask } from '@/hooks/assignments/useGetMemberTask'
+import { EditorJSComponent } from '../Editor'
+import { useState } from 'react'
+import { convertHTMLToEditorJS, convertEditorJSToHTML } from '@/utils/editorjs'
+import type { OutputData } from '@editorjs/editorjs'
 
 export type CreateTaskFormData = {
   description: string
   priority: number
   taskType: number
   estimateTime: number
-  assignee?: {
-    id: number
-    name: string
-  }
+  assigneeId?: number
   status?: number
   startTime?: number
   imageUrls?: string[]
@@ -33,7 +32,7 @@ export type CreateTaskFormData = {
 export type CreateTaskModalProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  memberTask: IMemberTask[]
+  memberTask: any
   onCreate: (data: CreateTaskFormData) => void
   groupId?: number
   mode?: 'create' | 'edit'
@@ -80,6 +79,9 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
       checkList: '',
     },
   })
+  const [editedDescription, setEditedDescription] = useState<OutputData>(() =>
+    convertHTMLToEditorJS(initialData?.checkList || '')
+  )
 
   // Watch values for Select components (they need controlled state)
   const priority = watch('priority')
@@ -104,10 +106,11 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
           status: String(initialData.status || TASK_STATUS.CREATED),
           startDate: formatDate(initialData.startTime),
           estimateDate: formatDate(initialData.estimateTime),
-          assigneeId: initialData.assignee?.id ? String(initialData.assignee.id) : '',
+          assigneeId: initialData.assigneeId ? String(initialData.assigneeId) : '',
           imageUrl: initialData.imageUrls?.[0] || '',
           checkList: initialData.checkList || '',
         })
+        setEditedDescription(convertHTMLToEditorJS(initialData.checkList || ''))
       } else {
         reset({
           description: '',
@@ -120,6 +123,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
           imageUrl: '',
           checkList: '',
         })
+        setEditedDescription(convertHTMLToEditorJS(''))
       }
     }
   }, [open, mode, initialData, reset])
@@ -142,7 +146,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
 
     // Find selected member
     const selectedMember = data.assigneeId
-      ? memberTask.find((m) => String(m.id) === data.assigneeId)
+      ? memberTask.find((m: any) => String(m.id) === data.assigneeId)
       : undefined
 
     onCreate({
@@ -150,12 +154,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
       priority: Number(data.priority),
       taskType: Number(data.taskType),
       estimateTime,
-      assignee: selectedMember
-        ? {
-            id: Number(selectedMember.id),
-            name: String(selectedMember.name || selectedMember.email || ''),
-          }
-        : undefined,
+      assigneeId: selectedMember ? Number(selectedMember.id) : undefined,
       status: Number(data.status),
       startTime,
       imageUrls: data.imageUrl.trim() ? [data.imageUrl.trim()] : undefined,
@@ -360,14 +359,15 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                 className="text-sm font-medium text-gray-700 flex items-center gap-1.5"
               >
                 <ListChecks className="w-4 h-4" />
-                Checklist (tùy chọn)
+                Mô tả chi tiết (tùy chọn)
               </Label>
-              <Textarea
-                id="checkList"
-                {...register('checkList')}
-                placeholder="Nhập các mục công việc cần kiểm tra, mỗi mục một dòng..."
-                className="min-h-[80px] resize-none"
-              />
+              <div className="border border-gray-200 rounded-md p-2">
+                <EditorJSComponent
+                  data={editedDescription}
+                  onChange={(value) => setValue('checkList', convertEditorJSToHTML(value))}
+                  placeholder="Nhập mô tả chi tiết công việc..."
+                />
+              </div>
             </div>
           </form>
         </div>
