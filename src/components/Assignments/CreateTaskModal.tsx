@@ -65,6 +65,8 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
     reset,
     watch,
     setValue,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: {
@@ -143,6 +145,18 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
 
     const estimateTime = new Date(data.estimateDate).getTime()
     const startTime = data.startDate ? new Date(data.startDate).getTime() : undefined
+
+    // Validate: estimateTime must be >= startTime
+    if (startTime && estimateTime < startTime) {
+      setError('estimateDate', {
+        type: 'manual',
+        message: 'Thời gian hoàn thành phải sau hoặc bằng thời gian bắt đầu',
+      })
+      return
+    }
+
+    // Clear any previous errors
+    clearErrors('estimateDate')
 
     // Find selected member
     const selectedMember = data.assigneeId

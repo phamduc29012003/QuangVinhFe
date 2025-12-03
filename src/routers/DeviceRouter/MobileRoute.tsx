@@ -27,4 +27,8 @@ export const MobileRoutes: RouteObject[] = [
     path: 'leaves',
     element: <LeavesMobile />,
   },
+  {
+    path: 'notifications',
+    element: <h1>Notifications</h1>,
+  },
 ]

@@ -8,6 +8,7 @@ const defaultMap: Record<string, string> = {
   '/mobile/leaves': 'Lịch nghỉ',
   '/mobile/documents': 'Tài liệu',
   '/mobile/profile': 'Cá nhân',
+  '/mobile/notifications': 'Thông báo',
 }
 
 const defaultGetter: TitleGetter = (pathname: string) => {

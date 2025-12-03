@@ -8,6 +8,7 @@ import { projectSchema } from '@/schemas'
 import type { IProject } from '@/types/project'
 import { FormSelect } from '../ui/selectDropwdown'
 import { STATUS_PROJECT, PRIVACY } from '@/constants/assignments/privacy'
+import { isMobile } from 'react-device-detect'
 
 interface AssignmentsSheetProps {
   open: boolean
@@ -83,7 +84,7 @@ export const AssignmentsSheet = ({
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetContent side="right">
+      <SheetContent side={isMobile ? 'bottom' : 'right'}>
         <SheetHeader>
           <SheetTitle>{mode === 'edit' ? 'Chỉnh sửa dự án' : 'Tạo dự án mới'}</SheetTitle>
         </SheetHeader>
