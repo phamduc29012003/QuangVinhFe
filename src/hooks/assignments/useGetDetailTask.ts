@@ -8,7 +8,7 @@ export const useGetDetailTask = (id: number) => {
     queryKey: [detailTaskKey.detail(id.toString()), { taskId: id }],
     queryFn: () => POST(API_ENDPOINT.GET_TASK_DETAIL, { taskId: Number(id) }),
     select(data) {
-      console.log(data)
+      return data.task
     },
   })
   return { projectAssignmentDetail: data, isFetching, error }

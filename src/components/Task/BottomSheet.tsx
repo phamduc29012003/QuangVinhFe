@@ -16,7 +16,6 @@ export const BottomSheetTask = ({
   assignee: any
   assigner: any
 }) => {
-  console.log(task, 'task')
   return (
     <BottomSheet
       open={infoOpen}

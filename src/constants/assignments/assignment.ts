@@ -5,3 +5,4 @@ export const projectAssignmentDetailKey = createQueryKeys<string>('project-assig
 export const memberTaskKey = createQueryKeys<string>('member-task')
 export const allUserKey = createQueryKeys<string>('all-user')
 export const detailTaskKey = createQueryKeys<string>('detail-task')
+export const listCommentKey = createQueryKeys<string>('list-comment')

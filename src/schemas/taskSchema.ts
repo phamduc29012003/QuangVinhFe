@@ -11,7 +11,6 @@ export const CreateTaskSchema = z.object({
 
   assignee: z.object({
     id: z.number().int().positive('Assignee ID bắt buộc'),
-    name: z.string().optional(),
   }),
 
   // Optional fields
