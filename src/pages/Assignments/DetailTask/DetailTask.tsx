@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams } from 'react-router'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -10,7 +10,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-import type { TaskRow } from '@/components/Assignments/ProjectDetailTable/columns'
 import { Pencil, Check, X, MessageCircle } from 'lucide-react'
 import { useGetDetailTask } from '@/hooks/assignments/useGetDetailTask'
 import { CommentTask } from '@/components/Task/CommentTask'
@@ -25,47 +24,6 @@ import { useGetMemberTask } from '@/hooks/assignments/useGetMemberTask'
 import { DetailSection } from '@/components/Task/DetailSection'
 import { useUpdateTask } from '@/hooks/assignments/task/useUpdateTask'
 import { useUpdateDescription } from '@/hooks/assignments/task/useUpdateDescription'
-
-const MOCK_USERS = [
-  { id: 'u1', name: 'Alice', avatar: '/photo_2025-09-26_12-28-52 (2).jpg' },
-  { id: 'u2', name: 'Bob', avatar: '/photo_2025-09-26_12-28-52 (3).jpg' },
-  { id: 'u3', name: 'Charlie', avatar: '/photo_2025-09-26_12-28-54.jpg' },
-]
-const MOCK_TASKS: TaskRow[] = [
-  {
-    id: 't1',
-    title: 'Thiết kế giao diện quản lý nhập xuất kho',
-    description: 'Thiết kế màn hình nhập xuất hàng, theo dõi tồn kho và quản lý sản phẩm',
-    status: 'in_progress',
-    assigneeId: 'u1',
-    estimateHours: 8,
-    priority: 1,
-    taskType: 1,
-    estimateTime: 8,
-  },
-  {
-    id: 't2',
-    title: 'Xây dựng tính năng quét mã vạch',
-    description: 'Phát triển chức năng quét mã vạch để nhập xuất hàng nhanh chóng',
-    status: 'todo',
-    assigneeId: 'u2',
-    estimateHours: 3,
-    priority: 1,
-    taskType: 1,
-    estimateTime: 3,
-  },
-  {
-    id: 't3',
-    title: 'Tích hợp báo cáo tồn kho',
-    description: 'Xây dựng màn hình báo cáo tồn kho, lịch sử xuất nhập và thống kê',
-    status: 'cancel',
-    assigneeId: 'u2',
-    estimateHours: 2,
-    priority: 1,
-    taskType: 1,
-    estimateTime: 2,
-  },
-]
 
 export const DetailTask = () => {
   const { id } = useParams()
