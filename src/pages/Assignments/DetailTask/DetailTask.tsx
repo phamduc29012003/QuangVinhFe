@@ -75,7 +75,6 @@ export const DetailTask = () => {
   const { memberTask } = useGetMemberTask(projectAssignmentDetail?.groupId || 0)
   const [editOpen, setEditOpen] = useState(false)
   const [infoOpen, setInfoOpen] = useState(false)
-  const [task, setTask] = useState(MOCK_TASKS.find((t) => t.id === id) || MOCK_TASKS[0])
   const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [editedDescription, setEditedDescription] = useState<OutputData>(() =>
     convertHTMLToEditorJS(projectAssignmentDetail?.checkList || '')
@@ -91,9 +90,6 @@ export const DetailTask = () => {
       setEditedDescription(converted)
     }
   }, [projectAssignmentDetail?.checkList])
-
-  const assignee = useMemo(() => MOCK_USERS.find((u) => u.id === task?.assigneeId), [task])
-  const assigner = MOCK_USERS[2]
 
   const handleSaveDescription = () => {
     console.log('editedDescription state:', editedDescription)
@@ -121,7 +117,7 @@ export const DetailTask = () => {
       <div className="max-w-7xl mx-auto p-4 md:p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <MobileBar assignee={assignee} setInfoOpen={setInfoOpen} />
+            <MobileBar assignee={projectAssignmentDetail.assignee} setInfoOpen={setInfoOpen} />
 
             <Card className="border-0 shadow-sm">
               <CardContent className="p-6">
@@ -247,9 +243,7 @@ export const DetailTask = () => {
       <BottomSheetTask
         infoOpen={infoOpen}
         setInfoOpen={setInfoOpen}
-        task={task}
-        assignee={assignee}
-        assigner={assigner}
+        task={projectAssignmentDetail}
       />
       <CreateTaskModal
         open={editOpen}
