@@ -138,7 +138,7 @@ export default function DashboardWeb() {
                 <Skeleton className="h-32 w-full" />
               ) : leaveChartData.length ? (
                 <>
-                  <MiniLeaveStacked data={leaveChartData as any} />
+                  <MiniLeaveStacked data={leaveChartData} />
                   <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <span className="inline-block h-2 w-2 rounded-sm bg-emerald-500" /> Đã duyệt:{' '}
