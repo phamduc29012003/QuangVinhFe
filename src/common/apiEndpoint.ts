@@ -50,4 +50,6 @@ export const API_ENDPOINT = {
   // web push notification
   NOTIFICATION_SUBSCRIBE: '/api/notifications/webpush/subscribe',
   NOTIFICATION_TEST_PUSH: '/api/notifications/webpush/test',
+  // upload file
+  UPLOAD_FILE: '/api/file/upload',
 }

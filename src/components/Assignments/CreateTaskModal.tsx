@@ -16,7 +16,7 @@ import { EditorJSComponent } from '../Editor'
 import { useState } from 'react'
 import { convertHTMLToEditorJS, convertEditorJSToHTML } from '@/utils/editorjs'
 import type { OutputData } from '@editorjs/editorjs'
-
+import { FileUploadValidationDemo } from '../ui/uploadFile'
 export type CreateTaskFormData = {
   description: string
   priority: number
@@ -363,11 +363,13 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                 URL hình ảnh (tùy chọn)
               </Label>
               <Input
+                className="hidden"
                 id="imageUrl"
                 type="url"
                 {...register('imageUrl')}
                 placeholder="https://example.com/image.jpg"
               />
+              <FileUploadValidationDemo />
             </div>
 
             {/* Checklist */}
