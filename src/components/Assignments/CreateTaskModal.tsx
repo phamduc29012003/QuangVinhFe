@@ -37,6 +37,7 @@ export type CreateTaskModalProps = {
   groupId?: number
   mode?: 'create' | 'edit'
   initialData?: CreateTaskFormData
+  isLoading?: boolean
 }
 
 type FormValues = {
@@ -58,6 +59,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   onCreate,
   mode = 'create',
   initialData,
+  isLoading,
 }) => {
   const {
     register,
@@ -84,7 +86,6 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   const [editedDescription, setEditedDescription] = useState<OutputData>(() =>
     convertHTMLToEditorJS(initialData?.checkList || '')
   )
-
   // Watch values for Select components (they need controlled state)
   const priority = watch('priority')
   const taskType = watch('taskType')
@@ -130,14 +131,16 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
     }
   }, [open, mode, initialData, reset])
 
-  // ESC key to close
+  // ESC key to close (disabled when loading)
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape' && open) onOpenChange(false)
+      if (e.key === 'Escape' && open && !isLoading) {
+        onOpenChange(false)
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [open, onOpenChange])
+  }, [open, onOpenChange, isLoading])
 
   const onSubmit = (data: FormValues) => {
     if (!data.description.trim()) return
@@ -175,8 +178,8 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
       checkList: data.checkList.trim() || undefined,
     })
 
+    // Don't close modal here - let parent handle it after API success
     reset()
-    onOpenChange(false)
   }
 
   if (!open) return null
@@ -184,7 +187,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
-        onClick={() => onOpenChange(false)}
+        onClick={() => !isLoading && onOpenChange(false)}
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
       />
       <div className="relative w-full max-w-2xl mx-4 bg-white rounded-xl shadow-2xl border border-gray-100 max-h-[90vh] overflow-y-auto">
@@ -201,8 +204,9 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
             </p>
           </div>
           <button
-            onClick={() => onOpenChange(false)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            onClick={() => !isLoading && onOpenChange(false)}
+            disabled={isLoading}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X className="w-5 h-5 text-gray-500" />
           </button>
@@ -234,7 +238,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                 </Label>
                 <Select value={priority} onValueChange={(val) => setValue('priority', val)}>
                   <SelectTrigger id="priority" className="w-full">
-                    <SelectValue />
+                    <SelectValue placeholder={TASK_PRIORITY_LABELS[Number(priority)]} />
                   </SelectTrigger>
                   <SelectContent>
                     {Object.entries(TASK_PRIORITY_LABELS).map(([value, label]) => (
@@ -252,7 +256,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                 </Label>
                 <Select value={taskType} onValueChange={(val) => setValue('taskType', val)}>
                   <SelectTrigger id="taskType" className="w-full">
-                    <SelectValue />
+                    <SelectValue placeholder={TASK_TYPE_LABELS[Number(taskType)]} />
                   </SelectTrigger>
                   <SelectContent>
                     {Object.entries(TASK_TYPE_LABELS).map(([value, label]) => (
@@ -396,6 +400,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
             }}
             className="min-w-[100px]"
             type="button"
+            disabled={isLoading}
           >
             Hủy
           </Button>
@@ -403,8 +408,9 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
             type="submit"
             form="create-task-form"
             className="min-w-[100px] bg-slate-900 hover:bg-slate-800"
+            disabled={isLoading}
           >
-            {mode === 'edit' ? 'Lưu thay đổi' : 'Tạo công việc'}
+            {isLoading ? 'Đang lưu...' : mode === 'edit' ? 'Lưu thay đổi' : 'Tạo công việc'}
           </Button>
         </div>
       </div>

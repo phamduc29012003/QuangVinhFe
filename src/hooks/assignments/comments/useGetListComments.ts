@@ -44,7 +44,6 @@ export const useGetListComments = (taskId: number) => {
       return response as GetListCommentsResponse
     },
     select(data) {
-      console.log('commnets', data)
       return data?.comments || []
     },
     // refetchInterval: (query) => {

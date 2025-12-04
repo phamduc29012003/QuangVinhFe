@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { type ColumnType } from '@/components/base/DataTable'
 import { CheckCircle2, CircleDashed, Clock4, Pencil, XCircle } from 'lucide-react'
 import { getTaskPriorityLabel, getTaskTypeLabel } from '@/utils/getLable'
+import { formatEstimateHours } from '@/utils/CommonUtils'
 
 export type TaskRow = {
   id: string
@@ -124,6 +125,14 @@ export const taskColumns = (assigneeIdToName?: Record<string, string>): ColumnTy
     key: 'estimateHours',
     sorter: true,
     align: 'right',
-    render: (value) => value ?? '-',
+    render: (value) => {
+      if (typeof value !== 'number') return '-'
+      const isOverdue = value <= 0
+      return (
+        <span className={isOverdue ? 'text-red-500 font-semibold' : ''}>
+          {formatEstimateHours(value)}
+        </span>
+      )
+    },
   },
 ]

@@ -1,7 +1,12 @@
+import { useMemo } from 'react'
 import { STATUS_ICON, STATUS_LABEL } from './ProjectDetailTable/columns'
 
 export const Overview = (props: { tasks: any }) => {
   const { tasks } = props
+  const totalHours = useMemo(() => {
+    return tasks.reduce((sum: any, t: any) => sum + (t.estimateHours || 0), 0)
+  }, [tasks])
+
   return (
     <>
       <div className="rounded-lg border border-gray-200 bg-white p-3">
@@ -13,7 +18,11 @@ export const Overview = (props: { tasks: any }) => {
           <div className="flex items-center justify-between rounded-md border border-gray-100 bg-gray-50 p-3">
             <div className="text-sm text-gray-600">Tổng số giờ</div>
             <div className="text-lg font-semibold">
-              {tasks.reduce((sum: any, t: any) => sum + (t.estimateHours || 0), 0)} h
+              {totalHours > 0 ? (
+                `${totalHours} giờ`
+              ) : (
+                <p className="text-red-500">Quá hạn {totalHours} giờ</p>
+              )}
             </div>
           </div>
         </div>
