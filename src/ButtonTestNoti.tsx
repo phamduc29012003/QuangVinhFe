@@ -4,18 +4,27 @@ import OneSignal from 'react-onesignal'
 export default function CustomNotifyButton() {
   const [isSubscribed, setIsSubscribed] = useState(false)
 
+  // Kiểm tra trạng thái subscribe khi load
   useEffect(() => {
-    ;(OneSignal as any).getUserId?.().then((id: any) => setIsSubscribed(!!id))
+    ;(async () => {
+      try {
+        const subscriptionId = await (OneSignal as any)?.User?.PushSubscription?.getId?.()
+        setIsSubscribed(Boolean(subscriptionId))
+      } catch (err) {
+        console.error('Check subscription error', err)
+      }
+    })()
   }, [])
 
   const handleSubscribe = async () => {
     try {
-      await OneSignal.Slidedown?.promptPush?.()
+      // Gợi ý: dùng API permission chính thức thay vì Slidedown (tùy version SDK bạn dùng)
+      await (OneSignal as any)?.Notifications?.requestPermission?.()
 
-      const userId = OneSignal.User?.onesignalId ?? OneSignal.User?.PushSubscription?.id
-      setIsSubscribed(Boolean(userId))
+      const subscriptionId = await (OneSignal as any)?.User?.PushSubscription?.getId?.()
+      setIsSubscribed(Boolean(subscriptionId))
     } catch (err) {
-      console.error(err)
+      console.error('Subscribe error', err)
     }
   }
 
