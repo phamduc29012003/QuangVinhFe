@@ -14,16 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Separator } from '@/components/ui/separator'
-import {
-  Users,
-  CheckSquare,
-  ClipboardList,
-  Clock,
-  BarChart3,
-  PieChart,
-  LineChart,
-  Calendar,
-} from 'lucide-react'
+import { ClipboardList, Clock, BarChart3, PieChart, LineChart, Calendar } from 'lucide-react'
 import useCheckRole from '@/hooks/useCheckRole'
 import { useTeamLeaveStats } from '@/hooks/dashboard/useTeamLeaveStats'
 import { formatDateRangeShort, getDayOfWeekShortLabel } from '@/utils/CommonUtils'
@@ -147,7 +138,7 @@ export default function DashboardWeb() {
                 <Skeleton className="h-32 w-full" />
               ) : leaveChartData.length ? (
                 <>
-                  <MiniLeaveStacked data={leaveChartData} />
+                  <MiniLeaveStacked data={leaveChartData as any} />
                   <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <span className="inline-block h-2 w-2 rounded-sm bg-emerald-500" /> Đã duyệt:{' '}
