@@ -4,23 +4,16 @@ import OneSignal from 'react-onesignal'
 export default function CustomNotifyButton() {
   const [isSubscribed, setIsSubscribed] = useState(false)
 
-  const checkSubscription = async () => {
-    try {
-      const user = await (OneSignal as any).getUser?.()
-      setIsSubscribed(!!user?.id)
-    } catch (e) {
-      console.error(e)
-    }
-  }
-
   useEffect(() => {
-    checkSubscription()
+    ;(OneSignal as any).getUserId?.().then((id: any) => setIsSubscribed(!!id))
   }, [])
 
   const handleSubscribe = async () => {
     try {
       await OneSignal.Slidedown?.promptPush?.()
-      checkSubscription()
+
+      const userId = OneSignal.User?.onesignalId ?? OneSignal.User?.PushSubscription?.id
+      setIsSubscribed(Boolean(userId))
     } catch (err) {
       console.error(err)
     }
