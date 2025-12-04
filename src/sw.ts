@@ -1,6 +1,14 @@
 /// <reference lib="webworker" />
 
-declare const self: ServiceWorkerGlobalScope
+import { precacheAndRoute } from 'workbox-precaching'
+
+declare const self: ServiceWorkerGlobalScope & {
+  __WB_MANIFEST: any
+}
+
+// Bắt buộc cho chế độ injectManifest của vite-plugin-pwa
+// Workbox sẽ tự inject danh sách asset vào self.__WB_MANIFEST khi build
+precacheAndRoute(self.__WB_MANIFEST || [])
 
 // Lắng nghe sự kiện push từ server
 self.addEventListener('push', (event) => {
