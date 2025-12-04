@@ -1,1 +1,1 @@
-importScripts('https://cdn.onesignal.com/sdks/OneSignalSDKWorker.js')
+// Legacy OneSignal worker (không còn được sử dụng)
