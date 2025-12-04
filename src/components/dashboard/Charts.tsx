@@ -1,3 +1,5 @@
+import type { WeeklyLeaveStats } from '@/hooks/dashboard/useTeamLeaveStats.ts'
+
 export function MiniLine({ className = 'h-24 w-full' }: { className?: string }) {
   return (
     <svg viewBox="0 0 100 40" className={className}>
@@ -51,26 +53,19 @@ export function MiniDonut({ className = 'h-24 w-24' }: { className?: string }) {
   )
 }
 
-// Stacked mini bar showing Approved vs Pending leaves across a week
-type LeaveStackedDatum = {
-  label: string
-  approved: number
-  pending: number
-}
-
-const defaultLeaveStackedData: LeaveStackedDatum[] = [
-  { label: 'T2', approved: 8, pending: 2 },
-  { label: 'T3', approved: 4, pending: 1 },
-  { label: 'T4', approved: 6, pending: 3 },
-  { label: 'T5', approved: 10, pending: 2 },
-  { label: 'T6', approved: 5, pending: 1 },
-  { label: 'T7', approved: 2, pending: 1 },
-  { label: 'CN', approved: 3, pending: 1 },
+const defaultLeaveStackedData = [
+  { dayLabel: 'T2', approved: 8, pending: 2 },
+  { dayLabel: 'T3', approved: 4, pending: 1 },
+  { dayLabel: 'T4', approved: 6, pending: 3 },
+  { dayLabel: 'T5', approved: 10, pending: 2 },
+  { dayLabel: 'T6', approved: 5, pending: 1 },
+  { dayLabel: 'T7', approved: 2, pending: 1 },
+  { dayLabel: 'CN', approved: 3, pending: 1 },
 ]
 
 interface MiniLeaveStackedProps {
   className?: string
-  data?: LeaveStackedDatum[]
+  data?: WeeklyLeaveStats[]
 }
 
 export function MiniLeaveStacked({ className = 'h-28 w-full', data }: MiniLeaveStackedProps) {
@@ -91,9 +86,8 @@ export function MiniLeaveStacked({ className = 'h-28 w-full', data }: MiniLeaveS
         const pendingHeight = (day.pending / maxValue) * chartHeight
         const approvedY = baseY - approvedHeight
         const pendingY = approvedY - pendingHeight
-
         return (
-          <g key={`${day.label}-${index}`}>
+          <g key={`${day?.dayLabel}-${index}`}>
             <rect
               x={x}
               y={approvedY}
@@ -111,7 +105,7 @@ export function MiniLeaveStacked({ className = 'h-28 w-full', data }: MiniLeaveS
               rx="1"
             />
             <text x={x + barWidth / 2} y={58} textAnchor="middle" fontSize="4" fill="#6b7280">
-              {day.label}
+              {day.dayLabel}
             </text>
           </g>
         )

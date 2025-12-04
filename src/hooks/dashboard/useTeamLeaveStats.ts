@@ -38,7 +38,7 @@ type FlattenedRequest = RequestItem & {
 }
 
 export interface WeeklyLeaveStats {
-  dayLabel: string
+  dayLabel?: string
   approved: number
   pending: number
 }

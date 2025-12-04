@@ -14,16 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Separator } from '@/components/ui/separator'
-import {
-  Users,
-  CheckSquare,
-  ClipboardList,
-  Clock,
-  BarChart3,
-  PieChart,
-  LineChart,
-  Calendar,
-} from 'lucide-react'
+import { ClipboardList, Clock, BarChart3, PieChart, LineChart, Calendar } from 'lucide-react'
 import useCheckRole from '@/hooks/useCheckRole'
 import { useTeamLeaveStats } from '@/hooks/dashboard/useTeamLeaveStats'
 import { formatDateRangeShort, getDayOfWeekShortLabel } from '@/utils/CommonUtils'
