@@ -8,6 +8,13 @@ export default function CustomNotifyButton() {
   useEffect(() => {
     ;(async () => {
       try {
+        // Nếu trình duyệt đã được cấp quyền thông báo thì coi như đã bật
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+          setIsSubscribed(true)
+          return
+        }
+
+        // Fallback: kiểm tra theo subscription của OneSignal
         const subscriptionId = await (OneSignal as any)?.User?.PushSubscription?.getId?.()
         setIsSubscribed(Boolean(subscriptionId))
       } catch (err) {
@@ -20,6 +27,12 @@ export default function CustomNotifyButton() {
     try {
       // Gợi ý: dùng API permission chính thức thay vì Slidedown (tùy version SDK bạn dùng)
       await (OneSignal as any)?.Notifications?.requestPermission?.()
+
+      // Sau khi xin quyền xong, nếu được cấp quyền thì cập nhật trạng thái
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        setIsSubscribed(true)
+        return
+      }
 
       const subscriptionId = await (OneSignal as any)?.User?.PushSubscription?.getId?.()
       setIsSubscribed(Boolean(subscriptionId))
