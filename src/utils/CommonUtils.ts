@@ -71,3 +71,18 @@ export const getFormattedEstimate = (startTimeOrHours: number, endTime?: number)
     return `${remainingHours} giờ`
   }
 }
+
+export const formatEstimateHours = (hours: number): string => {
+  if (!hours || hours <= 0) return 'Quá hạn'
+
+  const days = Math.floor(hours / 24)
+  const remainingHours = hours % 24
+
+  if (days > 0 && remainingHours > 0) {
+    return `${days} ngày ${remainingHours} giờ`
+  } else if (days > 0) {
+    return `${days} ngày`
+  } else {
+    return `${remainingHours} giờ`
+  }
+}

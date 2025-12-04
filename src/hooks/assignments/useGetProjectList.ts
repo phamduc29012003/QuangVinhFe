@@ -14,7 +14,6 @@ export const useGetProjectList = (payload: UseGetProjectListParams) => {
         ...payload,
         offset: pageParam,
       })
-      console.log('API Response:', response)
       return response
     },
     getNextPageParam: (lastPage, allPages) => {

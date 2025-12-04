@@ -36,5 +36,5 @@ export const useUpdateTask = () => {
       })
     },
   })
-  return updateTaskMutation
+  return { updateTaskMutation, isUpdateTaskLoading: updateTaskMutation.isPending }
 }

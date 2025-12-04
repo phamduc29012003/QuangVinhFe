@@ -1,5 +1,4 @@
 export const TASK_PRIORITY = {
-  UNKNOWN: 0,
   LOW: 1,
   MEDIUM: 2,
   HIGH: 3,
@@ -9,7 +8,6 @@ export const TASK_PRIORITY = {
 export type TASK_PRIORITY_TYPE = keyof typeof TASK_PRIORITY
 
 export const TASK_PRIORITY_LABELS: Record<number, string> = {
-  0: 'Không xác định',
   1: 'Thấp',
   2: 'Trung bình',
   3: 'Cao',

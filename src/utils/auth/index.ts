@@ -6,7 +6,6 @@ export const getAuthorization = () => {
 }
 
 export const setTokenAuth = (token: string, refreshToken: string) => {
-  console.log('refreshToken', refreshToken)
   localStorage.setItem('token', token)
   localStorage.setItem('refreshToken', refreshToken)
 }

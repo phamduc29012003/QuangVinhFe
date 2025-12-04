@@ -26,7 +26,6 @@ export const refreshAccessToken = async (): Promise<string> => {
     throw new Error('No token returned from refresh endpoint')
   }
 
-  console.log('✅ Lưu token mới vào localStorage')
   // Update local storage with new tokens
   setTokenAuth(token, newRefreshToken || refreshToken)
 

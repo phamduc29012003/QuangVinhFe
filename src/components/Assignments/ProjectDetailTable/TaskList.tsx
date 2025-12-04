@@ -29,7 +29,6 @@ export default function TaskList(props: { tasks: any; assignees?: Assignee[] }) 
   return (
     <div className="flex flex-col gap-3">
       {tasks.map((t: any) => {
-        console.log('t', t)
         const numericId = t.id.replace(/\D/g, '')
         return (
           <Card key={t.id} className="p-3" onClick={() => navigate(`/tasks/${numericId}`)}>

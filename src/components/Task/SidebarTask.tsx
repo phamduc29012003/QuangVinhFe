@@ -23,7 +23,7 @@ export const SidebarTask = ({ projectAssignmentDetail }: { projectAssignmentDeta
                 <MdOutlineContentCopy className="w-4 h-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent side="bottom" align="end" sideOffset={4} alignOffset={4}>
-                <DropdownMenuLabel>Copy Link</DropdownMenuLabel>
+                <DropdownMenuLabel>Sao chép liên đường dẫn</DropdownMenuLabel>
                 <Input
                   value={path}
                   readOnly

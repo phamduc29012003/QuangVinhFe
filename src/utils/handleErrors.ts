@@ -37,7 +37,6 @@ const handleCommonError = (
 ) => {
   // Lấy error code
   const errorCode = getErrorCode(error)
-  console.log('errorCode', errorCode)
   // Lấy message từ API (dùng làm fallback)
   const apiMessage =
     error?.response?.data?.message || // Axios error có response
@@ -46,7 +45,6 @@ const handleCommonError = (
 
   //  ƯU TIÊN: Lấy message từ error code mapping trong code
   const codeMappedMessage = getErrorMessage(errorCode)
-  console.log('codeMappedMessage', codeMappedMessage)
   // Thứ tự ưu tiên:
   // 1. customMessage (do developer truyền vào)
   // 2. codeMappedMessage (từ ERROR_MESSAGES mapping - based on error code)
