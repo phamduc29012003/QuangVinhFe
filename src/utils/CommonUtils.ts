@@ -44,6 +44,30 @@ export const convertToDateInput = (dateString: string): string => {
   return dayjs(dateString).format('YYYY-MM-DD')
 }
 
+export const formatDateRangeShort = (startTimestamp?: number, endTimestamp?: number): string => {
+  if (!startTimestamp || !endTimestamp) return ''
+  const formatter = new Intl.DateTimeFormat('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+  })
+  return `${formatter.format(new Date(startTimestamp))} - ${formatter.format(new Date(endTimestamp))}`
+}
+
+const DAY_OF_WEEK_SHORT_LABELS: Record<string, string> = {
+  MONDAY: 'T2',
+  TUESDAY: 'T3',
+  WEDNESDAY: 'T4',
+  THURSDAY: 'T5',
+  FRIDAY: 'T6',
+  SATURDAY: 'T7',
+  SUNDAY: 'CN',
+}
+
+export const getDayOfWeekShortLabel = (dayOfWeek?: string): string => {
+  if (!dayOfWeek) return ''
+  return DAY_OF_WEEK_SHORT_LABELS[dayOfWeek.toUpperCase()] ?? dayOfWeek
+}
+
 // Calculate and format estimate hours from timestamps or direct hours input
 export const getFormattedEstimate = (startTimeOrHours: number, endTime?: number): string => {
   let hours: number

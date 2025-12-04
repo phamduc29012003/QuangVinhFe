@@ -52,29 +52,71 @@ export function MiniDonut({ className = 'h-24 w-24' }: { className?: string }) {
 }
 
 // Stacked mini bar showing Approved vs Pending leaves across a week
-export function MiniLeaveStacked({ className = 'h-28 w-full' }: { className?: string }) {
+type LeaveStackedDatum = {
+  label: string
+  approved: number
+  pending: number
+}
+
+const defaultLeaveStackedData: LeaveStackedDatum[] = [
+  { label: 'T2', approved: 8, pending: 2 },
+  { label: 'T3', approved: 4, pending: 1 },
+  { label: 'T4', approved: 6, pending: 3 },
+  { label: 'T5', approved: 10, pending: 2 },
+  { label: 'T6', approved: 5, pending: 1 },
+  { label: 'T7', approved: 2, pending: 1 },
+  { label: 'CN', approved: 3, pending: 1 },
+]
+
+interface MiniLeaveStackedProps {
+  className?: string
+  data?: LeaveStackedDatum[]
+}
+
+export function MiniLeaveStacked({ className = 'h-28 w-full', data }: MiniLeaveStackedProps) {
+  const chartData = (data && data.length > 0 ? data : defaultLeaveStackedData).slice(0, 7)
+  const totals = chartData.map((item) => item.approved + item.pending)
+  const maxValue = Math.max(...totals, 1)
+  const baseY = 54
+  const chartHeight = 38
+  const barWidth = 10
+  const barSpacing = 16
+  const viewBoxWidth = Math.max(120, chartData.length * barSpacing + 10)
+
   return (
-    <svg viewBox="0 0 120 60" className={className}>
-      {Array.from({ length: 7 }).map((_, i) => {
-        const approved = [8, 4, 6, 10, 5, 2, 3][i]
-        const pending = [2, 1, 3, 2, 1, 1, 1][i]
-        const x = i * 16 + 6
-        const base = 54
+    <svg viewBox={`0 0 ${viewBoxWidth} 60`} className={className}>
+      {chartData.map((day, index) => {
+        const x = index * barSpacing + 6
+        const approvedHeight = (day.approved / maxValue) * chartHeight
+        const pendingHeight = (day.pending / maxValue) * chartHeight
+        const approvedY = baseY - approvedHeight
+        const pendingY = approvedY - pendingHeight
+
         return (
-          <g key={i}>
-            <rect x={x} y={base - approved} width="10" height={approved} fill="#22c55e" rx="1" />
+          <g key={`${day.label}-${index}`}>
             <rect
               x={x}
-              y={base - approved - pending}
-              width="10"
-              height={pending}
+              y={approvedY}
+              width={barWidth}
+              height={approvedHeight}
+              fill="#22c55e"
+              rx="1"
+            />
+            <rect
+              x={x}
+              y={pendingY}
+              width={barWidth}
+              height={pendingHeight}
               fill="#f59e0b"
               rx="1"
             />
+            <text x={x + barWidth / 2} y={58} textAnchor="middle" fontSize="4" fill="#6b7280">
+              {day.label}
+            </text>
           </g>
         )
       })}
-      <line x1="0" y1="54" x2="120" y2="54" stroke="#e5e7eb" strokeWidth="1" />
+      <line x1="0" y1="54" x2={viewBoxWidth} y2="54" stroke="#e5e7eb" strokeWidth="1" />
     </svg>
   )
 }

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import SectionTitle from '@/components/dashboard/SectionTitle'
-import StatCard, { type Stat } from '@/components/dashboard/StatCard'
 import { MiniBar, MiniDonut, MiniLeaveStacked, MiniLine } from '@/components/dashboard/Charts'
 import ChartCard from '@/components/dashboard/ChartCard'
 import {
@@ -26,56 +25,12 @@ import {
   Calendar,
 } from 'lucide-react'
 import useCheckRole from '@/hooks/useCheckRole'
+import { useTeamLeaveStats } from '@/hooks/dashboard/useTeamLeaveStats'
+import { formatDateRangeShort, getDayOfWeekShortLabel } from '@/utils/CommonUtils'
+import { OverviewKpiSection } from '@/components/dashboard/OverviewKpiSection'
+import { Skeleton } from '@/components/ui/skeleton'
 
 // Stat type moved to shared component
-
-const kpiForManagerDirector: Stat[] = [
-  {
-    label: 'Dự án đang chạy',
-    value: '12',
-    delta: '+2 tuần qua',
-    positive: true,
-    icon: <ClipboardList className="h-5 w-5" />,
-  },
-  {
-    label: 'Công việc hoàn thành',
-    value: '324',
-    delta: '+8%',
-    positive: true,
-    icon: <CheckSquare className="h-5 w-5" />,
-  },
-  {
-    label: 'Đang tồn đọng',
-    value: '19',
-    delta: '-3%',
-    positive: false,
-    icon: <Clock className="h-5 w-5" />,
-  },
-  {
-    label: 'Nhân sự hoạt động',
-    value: '58',
-    delta: '+3',
-    positive: true,
-    icon: <Users className="h-5 w-5" />,
-  },
-]
-
-const kpiForWorker: Stat[] = [
-  {
-    label: 'Cần làm hôm nay',
-    value: '5',
-    delta: '2 quá hạn',
-    positive: false,
-    icon: <ClipboardList className="h-5 w-5" />,
-  },
-  {
-    label: 'Đã hoàn thành tuần này',
-    value: '14',
-    delta: '+3',
-    positive: true,
-    icon: <CheckSquare className="h-5 w-5" />,
-  },
-]
 
 const dummyMyTasks = [
   {
@@ -114,10 +69,17 @@ export default function DashboardWeb() {
   const navigate = useNavigate()
 
   const isManagerOrDirector = isManagerPermission || isDirectorPermission
+  const {
+    chartData: leaveChartData,
+    summary: leaveSummary,
+    pendingRequests: leavePendingRequests,
+    rangeLabel: leaveRangeLabel,
+    isLoading: isLeaveStatsLoading,
+  } = useTeamLeaveStats()
 
-  const kpis = useMemo(
-    () => (isManagerOrDirector ? kpiForManagerDirector : kpiForWorker),
-    [isManagerOrDirector]
+  const leavePendingPreview = useMemo(
+    () => leavePendingRequests.slice(0, 4),
+    [leavePendingRequests]
   )
 
   return (
@@ -136,11 +98,7 @@ export default function DashboardWeb() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {kpis.map((s) => (
-          <StatCard key={s.label} stat={s} />
-        ))}
-      </div>
+      <OverviewKpiSection isManagerOrDirector={isManagerOrDirector} layout="web" />
 
       {isManagerOrDirector ? (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -182,18 +140,59 @@ export default function DashboardWeb() {
             <ChartCard
               title="Lịch nghỉ nhân sự (tuần)"
               icon={<Calendar className="h-4 w-4" />}
-              badgeText="Đã duyệt vs Chờ duyệt"
+              badgeText={leaveRangeLabel}
               onClick={() => navigate('/personnel/leaves')}
             >
-              <MiniLeaveStacked />
-              <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <span className="inline-block h-2 w-2 rounded-sm bg-emerald-500" /> Đã duyệt
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="inline-block h-2 w-2 rounded-sm bg-amber-500" /> Chờ duyệt
-                </div>
-              </div>
+              {isLeaveStatsLoading ? (
+                <Skeleton className="h-32 w-full" />
+              ) : leaveChartData.length ? (
+                <>
+                  <MiniLeaveStacked data={leaveChartData} />
+                  <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <span className="inline-block h-2 w-2 rounded-sm bg-emerald-500" /> Đã duyệt:{' '}
+                      <span className="font-medium text-foreground">{leaveSummary.approved}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="inline-block h-2 w-2 rounded-sm bg-amber-500" /> Chờ duyệt:{' '}
+                      <span className="font-medium text-foreground">{leaveSummary.pending}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="inline-block h-2 w-2 rounded-sm bg-slate-400" /> Tổng:{' '}
+                      <span className="font-medium text-foreground">{leaveSummary.total}</span>
+                    </div>
+                  </div>
+                  {leavePendingPreview.length > 0 && (
+                    <>
+                      <Separator className="my-4" />
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Mã</TableHead>
+                            <TableHead>Người tạo</TableHead>
+                            <TableHead>Ngày</TableHead>
+                            <TableHead>Khoảng thời gian</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {leavePendingPreview.map((request) => (
+                            <TableRow key={`${request.id}-${request.offFrom}`}>
+                              <TableCell className="font-medium">{request.id}</TableCell>
+                              <TableCell>{request.creator.name}</TableCell>
+                              <TableCell>{getDayOfWeekShortLabel(request.dayOfWeek)}</TableCell>
+                              <TableCell>
+                                {formatDateRangeShort(request.offFrom, request.offTo)}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </>
+                  )}
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">Không có dữ liệu tuần này</p>
+              )}
             </ChartCard>
           </div>
 

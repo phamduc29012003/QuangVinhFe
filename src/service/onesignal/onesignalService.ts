@@ -10,7 +10,8 @@ export async function initOneSignal() {
 
   await OneSignal.init({
     appId,
-    safari_web_id: import.meta.env.VITE_ONESIGNAL_SAFARI_WEB_ID,
     allowLocalhostAsSecureOrigin: true,
+    safari_web_id: import.meta.env.VITE_ONE_SIGNAL_SAFARI_WEB_ID,
+    serviceWorkerPath: '/OneSignalSDKWorker.js',
   })
 }
