@@ -30,6 +30,7 @@ export interface INavigateItems {
 }
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import BellNotification from '@/components/ui/bell'
+import { EnablePushButton } from '@/components/ui/enable-push-button'
 import { ROLE } from '@/constants'
 import { useNotifications } from '@/hooks/notifications/useNotifications'
 import { useAuthStore } from '@/stores/authStore'
@@ -263,6 +264,7 @@ const WebLayout = ({ children }: Props) => {
             <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
             <div className="flex items-center gap-10">
               <BellNotification />
+              <EnablePushButton />
               <Avatar onClick={() => handleLogout()} className="cursor-pointer">
                 <AvatarImage src="https://github.com/shadcn.png" />
                 <AvatarFallback>CN</AvatarFallback>
